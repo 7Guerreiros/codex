@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base Narrativa e Desenvolvimento de Personagem</title>
+  <style>
+    /* ESTILOS ORIGINAIS PRESERVADOS (COMUNS A AMBOS OS ARQUIVOS) */
+    body {
+      font-family: 'Georgia', serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+    }
+    .timeline {
+      position: relative;
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      background: #000000;
+    }
+    .timeline-item {
+      position: relative;
+      width: 50%;
+      padding: 1rem 2rem;
+      box-sizing: border-box;
+    }
+    .timeline-item .content {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .timeline-item.left {
+      left: 0;
+      text-align: right;
+    }
+    .timeline-item.right {
+      left: 50%;
+      text-align: left;
+    }
+    .timeline-item.left::before,
+    .timeline-item.right::before,
+    .timeline-item.center::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      background: #000000;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+    .timeline-item.left::before {
+      right: -7px;
+    }
+    .timeline-item.right::before {
+      left: -7px;
+    }
+    .timeline-item.center {
+      left: 50%;
+      width: 100%;
+      transform: translateX(-50%);
+    }
+    .timeline-item.center .content {
+      border: 3px solid #000000;
+      text-align: center;
+    }
+    .timeline-item.center::before {
+      left: calc(50% - 7px);
+      top: -7px;
+    }
+    h3 {
+      margin: 0 0 0.5rem;
+      color: #00008B;
+    }
+    p {
+      margin: 0;
+      line-height: 1.4;
+    }
+    
+    /* ESTILOS DO SISTEMA DE ABAS (MINIMALISTA) */
+    .tabs-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .tab-btn {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 10px 20px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    .tab-btn.active {
+      background: #00008B;
+      color: white;
+      border-color: #00008B;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs-container">
+    <button class="tab-btn active" onclick="openTab('base-narrativa')">BASE NARRATIVA</button>
+    <button class="tab-btn" onclick="openTab('desenvolvimento-personagem')">DESENVOLVIMENTO DE PERSONAGEM</button>
+  </div>
+
+  <!-- Conteúdo ORIGINAL da Base Narrativa -->
+  <div id="base-narrativa" class="tab-content active">
+  <div class="timeline">
+    <!-- Passo 1: Chamado à Aventura (Ponto Zero) -->
+    <div class="timeline-item center" id="ponto-zero">
+      <div class="content">
+        <h3>INTRODUÇÃO</h3>
+        <p>MacroJornada: Mundos Sub-Criados (A Chuva), baseados em Tolkien - MicroJornada: 12 Camadas da Personalidade de Olavo de Carvalho.</p>
+      </div>
+    </div>
+    <!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>INFÂNCIA</h3>
+        <p>Nascimento e infância.</p>
+      </div>
+    </div>
+    <!-- Passo 3 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>NASCIMENTO DO PEREGRINO</h3>
+        <p> Mundo Comum - Constituicao Fisica (Camada 1): a soberba se torna fé: apóstolo Pedro, edificação sobre a revelação - rotina comum.</p>
+      </div>
+    </div>
+    <!-- Passo 4 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CHAMADO DIVINO</h3>
+        <p>Chamado a Aventura - Subconsciente(Camada 2): conversão de Saulo a Paulo (na condição de profeta), mostrou aquilo que estava dentro dele (Deus), oculto na perseguição ao próprio Cristo.</p>
+      </div>
+    </div>
+
+    <!-- Passo 5 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>RECUSA DO CHAMADO</h3>
+        <p>Recusa do Chamado: os judeus recusaram Jesus - Ideias Sobre o Mundo (Camada 3).​</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>ADOLESCÊNCIA</h3>
+        <p>Agora entra-se na adolescência.</p>
+      </div>
+    </div>
+    <!-- Passo 6 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>MENTORES</h3>
+        <p>Encontro com Mentor: Apóstolo João: Policarpo: Irineu de Lyon (profeta) - Bases Familiares (Camada 4): a Luxuria se torna Virtude (Deturapacao: aumento da Luxuria).</p>
+      </div>
+    </div>
+    <!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>PRIMEIRO AMOR</h3>
+        <p>O amor ingênuo, adolêscente (Nota: os amores não necessáriamente se encaixam neste ponto, mas, a partir deste ponto).</p>
+      </div>
+    </div>
+    <!-- Passo 7 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>PRECIPITACAO INDIVIDUAL</h3>
+        <p>Primeiro Limiar: Martin de Tours abandona o exército romano: satanás se apresenta coroado - Individualidade (Camada 5): Acidia (Preguica) se torna Diligencia: conhecimento.</p>
+      </div>
+    </div>
+    <!-- Passo 8 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>NAO HÁ MAIS VOLTA</h3>
+        <p>A Gula se torna Tempreranca.</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>SEGUNDO AMOR</h3>
+        <p>Amor doloroso, carnal (Nota: os amores não necessáriamente se encaixam neste ponto, mas, a partir deste ponto).</p>
+      </div>
+    </div>
+    <!-- Passo 9 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>PODERES E ADVERSIDADES</h3>
+        <p>Provas, Aliados e Inimigos: São Columba se ergueu e combateu as heresias (livro: Atos de São Columba) - 'Poderes" (Camada 6): A Gula se torna Tempreranca.</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>INÍCIO DA FAZE ADULTA</h3>
+        <p>Agora entra-se na juventude:</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>TERCEIRO AMOR</h3>
+        <p>Amor verdadeiro, relacionamento real (Nota: os amores não necessáriamente se encaixam neste ponto, mas, a partir deste ponto).</p>
+      </div>
+    </div>
+    <!-- Passo 10 -->
+    <div class="timeline-item left">  
+      <div class="content">
+        <h3>A DEUSA</h3>
+        <p>A Luxuria se torna Virtude: Fidelidade.</p>
+      </div>
+    </div>
+    <!-- Passo 11 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>A SUCCUBUS</h3>
+        <p>Deturpacao da Virtude: Luxuria.</p>
+      </div>
+    </div>
+    <!-- Passo 12 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>O MITO DA CAVERNA</h3>
+        <p>Caverna Oculta: mito da caverna de Platão encarnada na Divina Comédia de Dante: a verdade é divulgada por John Wycliffe, Willian Tyndale e Martinho Lutero - Sociedade (Camada 7): a Ira se torna Paciencia.</p>
+      </div>
+    </div>
+    <!-- Passo 13 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>PRIMEIRO CONFRONTO</h3>
+        <p>Descoberta da Ligacao.</p>
+      </div>
+    </div>
+
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>MORTE E VERDADE</h3>
+        <p>Provacao (Morte): a Guerra dos Trinta Anos (1618-1648), travada entre católicos e protestantes - Encontro com a 'Verdade' (Camada 8).</p>
+      </div>
+    </div>
+    <!-- Passo 14 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>APROFUNDAMENTO NA VERDADE</h3>
+        <p>Recompensa - Aprofundamento da Verdade (Camada 9): a conversão de John Wesley: a Inveja se torna Piedade.</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>MATURIDADE</h3>
+        <p>Etapa final da vida/jornada:</p>
+      </div>
+    </div>
+    <!-- Passo 15 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>RELACIONAMENTO COM A VERDADE</h3>
+        <p>Caminho de Volta - Relação com a Verdade (Camada 10): reflexão sobre os pecados.</p>
+      </div>
+    </div>
+
+    <!-- Passo 16 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>RECUSA DO RETORNO</h3>
+        <p>Desejo de Continuar a Jornada.</p>
+      </div>
+    </div>
+    <!-- Passo 17 -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>ATAQUE FINAL</h3>
+        <p>Ou Fuga Final.</p>
+		</div>
+    </div>
+	<!-- Passo 18 -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>UMA RESSURREICAO, UM LEGADO</h3>
+        <p>Ressurreição - Legado (Camada 11): Pedro "a pedra angular da igreja".</p>
+	      </div>
+    </div>
+	<!-- Passo 19 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>RETORNO A DEUS</h3>
+        <p>Retorno Transformado - Deus (Temor: Abandrono Divino - Vida Indigna): a Avareza se torna Amor (Fraternal): DEUS (Camada 12): revelaçãod as 7 Eras: William Branham.</p>
+      </div>
+    </div>
+	<!-- Passo 2 -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>EPILOGO</h3>
+        <p>Pré-existência.</p>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Conteúdo ORIGINAL do Desenvolvimento de Personagem -->
+  <div id="desenvolvimento-personagem" class="tab-content">
+  <div class="timeline">
+    <!-- Passo 1: Chamado à Aventura (Ponto Zero) -->
+    <div class="timeline-item center" id="ponto-zero">
+      <div class="content">
+        <h3>PONTO DE PARTIDA</h3>
+        <p>Todas as Camadas estão presentes em todos os personagens, então, esta evolução gradativa – carnal → intelectual → espiritual – não está atrelada necessariamente a mesma Camada em todos os personagens (exceto pela Camada VIII que sim, marca o despertar Espiritual).</p>
+      </div>
+    </div>
+    <!-- Virtudes e Vícios -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>VIRTUDES E VÍCIOS:</h3>
+        <p>Em cada um dos três estágios (Carnal, Intelectual e Espirítual), o personagem cultiva e tem apresso por determinado tipo de “habilidade”, sendo que esta pode evoluir ou ser substituída durante a evolução por um valor mais elevado. No caso de vilões, pode haver a inclusão de novos valores sem abandonar os vícios, mas, podendo refiná-los.</p>
+      </div>
+    </div>
+	    <!-- Virtudes e Vícios -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>VILÕES:</h3>
+        <p>Pensar-se-ia que este avançem apenas até o estágio intelectual, mas, eles podem avançar igualmente até o estágio final, a apresentação diante de Deus, mas, devido a uma visão equivocada, seu desenvolvimento é deturpador, assim como sua apresentação final, que é desastrósa.</p>
+      </div>
+    </div>
+    <!-- Estágio Carnal -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>ESTAGIO CARNAL:</h3>
+        <p>As camadas I à III têm peso apenas no sentido de gostos e “inclinações” (exceto em personagens que trilham sua história desde a infância).</p>
+      </div>
+    </div>
+    <!-- Camadas I–III já substituídas por ti -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA I</h3>
+        <p>Capacidades físicas.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA II</h3>
+        <p>Gostos mundanos (comida; música; etc).</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA III</h3>
+        <p>Ideias superficiais sobre o mundo.</p>
+      </div>
+    </div>
+	<div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA IV</h3>
+        <p>APREÇO PELA LUXÚRIA.</p>
+      </div>
+    </div>
+    <!-- Camadas I–III já substituídas por ti -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA V</h3>
+        <p>Artes Marciais como forma de subjugar outros.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VI</h3>
+        <p>Ganho pessoal frívolo (satisfação em videogames, por exemplo).</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA VII</h3>
+        <p>Preocupação em ver os amigos, por exemplo, mas, não com o seu bem-estar.</p>
+      </div>
+    </div>
+	<div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VIII</h3>
+        <p>Agnosticismo ou ateísmo.</p>
+      </div>
+    </div>
+    <!-- LIMIAR DO INTERESSE -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>LIMIAR DO INTERESSE:</h3>
+        <p>Se sequer há preocupação com a existência da verdade, não há interesse no relacionamento ou aprofundamento com a mesma.</p>
+      </div>
+    </div>
+
+    <!-- TRANSIÇÃO -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>TRANSIÇÃO:</h3>
+        <p>Até este momento, seus maiores interesses atingiam apenas a Camada IV ou V, o resto inexiste ou é desinteressante para o personagem.</p>
+      </div>
+    </div>
+
+    <!-- EVENTO DE TRANSIÇÃO -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>EVENTO DE TRANSIÇÃO OU AMADURECIMENTO:</h3>
+        <p>A primeira conversão (intelectual) pode ser desencadeada por um evento ou pela evolução natural do personagem.</p>
+      </div>
+    </div>
+
+    <!-- Estágio Intelectual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>ESTAGIO INTELECTUAL:</h3>
+        <p>Neste estágio, os gostos carnais não precisam ser substituídos (exceto quando percebidos como nocivos conscientemente), mas, precisam ser refinados e reencaminhados.</p>
+      </div>
+    </div>
+	
+	<!-- Camadas I–III já substituídas por ti -->
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA I</h3>
+        <p>Percepção dos limites e consequências da capacidade física, direcionamento ao bem-estar.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA II</h3>
+        <p>Refinamento dos gostos (Rock → música clássica, por exemplo).</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA III</h3>
+        <p>Percepção mais ampla do mundo e da realidade.</p>
+      </div>
+    </div>
+	
+    <!-- Camadas IV–VIII -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA IV</h3>
+        <p>O sexo como interesse único começa a dar lugar a busca de um relacionamento e a fidelidade.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA V</h3>
+        <p>As Artes Marciais começam a tomar caminhos mais honrados, e a percepção de sei valor em si mesma surge.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VI</h3>
+        <p>A NECESSIDADE DE GANHO MIGRA PARA A ÁREA MONETÁRIA OU DE REALIZAÇÃO PESSOAL.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA VII</h3>
+        <p>A Preocupação com o próximo surge.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VIII</h3>
+        <p>As perguntas sobre Deus se tornam mais presentes e a busca filosófica começa.</p>
+      </div>
+    </div>
+	
+	<!-- TRANSIÇÃO NATURAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>FÉ</h3>
+        <p>Diante de uma mostra de fé, as camadas anteriores se manifestam novamente, mas “evoluídas”.</p>
+      </div>
+    </div>
+	
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA IX</h3>
+        <p>Surge o desejo de se aprofundar na verdade (e, dependendo do personagem, o estudo da Teologia), embora, ainda visto como mera possibilidade.</p>
+      </div>
+    </div>
+
+    <!-- TRANSIÇÃO NATURAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>TRANSIÇÃO NATURAL:</h3>
+        <p>É possível que hajam questionamentos sobre as Camadas seguintes, mas o aprofundamento nelas é gradual.</p>
+      </div>
+    </div>
+    <!-- TRANSIÇÃO POR EVENTO -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>TRANSIÇÃO POR EVENTO:</h3>
+        <p>Impulsionada por uma experiência ou revelação súbita que faz o personagem mudar imediatamente, ainda que ele tenha dificuldades a se prender a valores mais elevados.</p>
+      </div>
+    </div>
+
+    <!-- Estágio Espiritual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>ESTAGIO ESPIRITUAL:</h3>
+        <p>Nem todos os personagens chegarão a este patamar, mas, para os que chegarem, haverá uma substituição dos vícios por virtudes.</p>
+      </div>
+    </div>
+	
+	<!-- Estágio Espiritual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>VIRTUDE</h3>
+        <p>Cultivo das virtudes se intensifica.</p>
+      </div>
+    </div>
+	
+    <!-- Camadas II–VIII na fase espiritual -->
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA II</h3>
+        <p>Gostos mundanos perdem o foco.</p>
+      </div>
+    </div>
+	
+	<!-- Estágio Espiritual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>CONHECIMENTO</h3>
+        <p>O personagem se torna mais “intelectual”.</p>
+      </div>
+    </div>
+	
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA III</h3>
+        <p>IDEIA ESPIRITUAL/SOBRENATURAL DO MUNDO.</p>
+      </div>
+    </div>
+	
+	<!-- Estágio Espiritual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>TEMPERANÇA</h3>
+        <p>Busca pelo equilíbrio.</p>
+      </div>
+    </div>	
+	
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA IV</h3>
+        <p>VIRTUDE DA FIDELIDADE.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA V</h3>
+        <p>Honradez e Budo.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VI</h3>
+        <p>Gratidão pelas bênçãos.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA VII</h3>
+        <p>PREOCUPAÇÃO COM A FAMÍLIA.</p>
+      </div>
+    </div>
+	
+	<!-- Estágio Espiritual -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>PACIÊNCIA</h3>
+        <p>Nada é feito mais com pressa.</p>
+      </div>
+    </div>
+	
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA VIII</h3>
+        <p>A Verdade já se apresentou.</p>
+      </div>
+    </div>
+
+    <!-- CAMINHADA FINAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>CAMINHADA FINAL:</h3>
+        <p>Os últimos estágios de evolução do personagem podem se focar nas camadas seguintes, deixando as outras em um plano mais oculto.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA IX</h3>
+        <p>A busca por se aprofundar em conhecer melhor a Verdade e a crença adquirida – a Teologia é substituída por crenças “mais sólidas”.</p>
+      </div>
+    </div>
+	
+	 <!-- CAMINHADA FINAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>PIEDADE</h3>
+        <p>A piedade se inicia consigo mesmo e com apreço pelas coisas espirituais, depois se estende, em preocupação, com o próximo.</p>
+      </div>
+    </div>
+	
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA X</h3>
+        <p>Qual o meu papel diante da - e relacionamento com a - Verdade?</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="content">
+        <h3>CAMADA XI</h3>
+        <p>Questionamentos sobre “o que fazer com essa Verdade, como passá-La adiante”?</p>
+      </div>
+    </div>
+	
+	 <!-- CAMINHADA FINAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>AMOR</h3>
+        <p>Piedade e Amor Fraternal surgem misturados.</p>
+      </div>
+    </div>
+	
+    <div class="timeline-item left">
+      <div class="content">
+        <h3>CAMADA XII</h3>
+        <p>O personagem se resolve diante de Deus apresentando sua jornada pessoal.</p>
+      </div>
+    </div>
+
+	 <!-- CAMINHADA FINAL -->
+    <div class="timeline-item center">
+      <div class="content">
+        <h3>FIM DA JORNADA: DEUS</h3>
+        <p>2 Timóteo 4:7 - Combati o bom combate, acabei a carreira, guardei (mantive) a fé.</p>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <script>
+    function openTab(tabName) {
+      // Esconde todos os conteúdos de tab
+      const tabContents = document.getElementsByClassName('tab-content');
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+      }
+      
+      // Remove a classe 'active' de todos os botões
+      const tabBtns = document.getElementsByClassName('tab-btn');
+      for (let i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].classList.remove('active');
+      }
+      
+      // Mostra a tab específica e marca o botão como ativo
+      document.getElementById(tabName).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>
