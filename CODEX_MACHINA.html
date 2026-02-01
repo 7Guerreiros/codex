@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7Guerreiros</title>
+    <style>
+        /* Reset e estilos gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Estilo das categorias */
+        .topic {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .topic:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .topic h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .topic h2::after {
+            content: '';
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .topic.active h2::after {
+            transform: rotate(45deg);
+        }
+        
+        .wallpapers-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px 0;
+        }
+        
+        .topic.active .wallpapers-grid {
+            display: grid;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .wallpaper-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            aspect-ratio: 16/9;
+        }
+        
+        .wallpaper-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .wallpaper-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+        
+        .wallpaper-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Modal de visualização */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-content img {
+            max-width: 100%;
+            max-height: calc(100% - 60px);
+            display: block;
+            margin: 0 auto;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .modal-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 0 0 5px 5px;
+            gap: 20px;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 3px;
+            transition: background 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .download-btn {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+        
+        .download-btn:hover {
+            background: rgba(0,0,0,0.9);
+        }
+        
+        .close-modal {
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.7);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: rgba(0,0,0,0.9);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .topic h2 {
+                font-size: 1.2rem;
+            }
+            
+            .wallpapers-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            .modal-controls {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .nav-btn {
+                font-size: 20px;
+                padding: 5px 10px;
+            }
+            
+            .download-btn {
+                padding: 6px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .close-modal {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wallpapers-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main>
+            <!-- Categoria 1 -->
+            <div class="topic">
+                <h2>GAMES</h2>
+                <div class="wallpapers-grid">
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/CadilaquesDonossauros01.jpeg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/CadilaquesDonossauros02.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/CadilaquesDonossauros03.jpeg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/CadilaquesDonossauros04.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/DinoCrisis.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/DinoCrisis2.png">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/DriftStage4.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/MarioBros.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/Motherboard.png">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/StreetFighter.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/GAMES/StreetVSXmen.jpg">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Categoria 2 -->
+            <div class="topic">
+                <h2>HQs</h2>
+                <div class="wallpapers-grid">
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/BorisVallejo.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/Conan01.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/RedSonja01.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/RedSonja02.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/RedSonja03.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/Wolverine.jpg">
+                    </div>
+					<div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/HQs/X-men.jpg">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Categoria 3 -->
+            <div class="topic">
+                <h2>LITTERIS</h2>
+                <div class="wallpapers-grid">
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/LITTERIS/Hobbit.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/LITTERIS/oUmAnel.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/LITTERIS/Silmarillion.jpg">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/LITTERIS/Yggdrasil.jpg">
+                    </div>
+                </div>
+            </div>
+			
+			<div class="topic">
+                <h2>SAINT SEIYA</h2>
+                <div class="wallpapers-grid">
+                    <div class="wallpaper-item">
+                        <img src="CODEX_MACHINA/SAINT SEIYA/SagaEpisodeG.jpg">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal para visualização -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <img id="modalImage" src="">
+            <div class="modal-controls">
+                <button class="nav-btn" id="prevBtn">←</button>
+                <a class="download-btn" id="downloadBtn" download>Download</a>
+                <button class="nav-btn" id="nextBtn">→</button>
+                <button class="close-modal" id="closeModalBtn">X</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidade para expandir/recolher categorias
+        document.querySelectorAll('.topic h2').forEach(title => {
+            title.addEventListener('click', function() {
+                const topic = this.parentElement;
+                const isActive = topic.classList.contains('active');
+                
+                // Fecha todas as categorias
+                document.querySelectorAll('.topic').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Se a categoria clicada não estava ativa, abre ela
+                if (!isActive) {
+                    topic.classList.add('active');
+                }
+            });
+        });
+        
+        // Funcionalidade do modal
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        document.querySelectorAll('.wallpaper-item img').forEach(img => {
+            img.addEventListener('click', function() {
+                const imageSrc = this.src;
+                modalImage.src = imageSrc;
+                
+                // Configura o botão de download
+                const imageName = imageSrc.split('/').pop();
+                downloadBtn.href = imageSrc;
+                downloadBtn.download = imageName;
+                
+                modal.style.display = 'flex';
+            });
+        });
+        
+        // Fechar modal
+        closeModalBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        // Fechar modal ao clicar fora da imagem
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Navegação entre imagens (para implementação futura)
+        prevBtn.addEventListener('click', function() {
+            // Implementar navegação para imagem anterior
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            // Implementar navegação para próxima imagem
+        });
+    </script>
+</body>
+</html>

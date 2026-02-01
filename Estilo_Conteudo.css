@@ -1,0 +1,26 @@
+/* Estilo_Conteudo.css */
+
+/* Estilos específicos para a área de conteúdo principal */
+.area-conteudo {
+  /* Remove fundo, borda e sombra para manter o design plano */
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  /* Agora herda o fundo do body */
+  background-color: inherit;
+  border: none;
+  box-shadow: none;
+}
+
+/* Estilos internos dentro da área de conteúdo */
+.area-conteudo h1 {
+  color: var(--texto); /* Usa cor de texto principal */
+  text-align: center;
+  margin-top: 0;
+}
+
+.area-conteudo p {
+  color: var(--texto-secundario); /* Usa cor de texto secundário */
+  text-align: justify;
+  line-height: 1.8;
+}

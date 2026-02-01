@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex | 7Guerreiros</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        .codex-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .assunto {
+            margin-bottom: 30px;
+            padding: 0 5px;
+        }
+        
+        .assunto-titulo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--borda);
+            color: var(--text);
+            background-color: transparent;
+        }
+        
+        .topico {
+            margin-bottom: 2px;
+        }
+        
+        .topico-header {
+            background-color: var(--bg);
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            border-bottom: 1px solid var(--borda);
+            font-weight: normal;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        
+        .topico-header:hover {
+            background-color: color-mix(in srgb, var(--bg) 80%, var(--text) 20%);
+        }
+        
+        .topico-conteudo {
+            display: none;
+            padding: 20px;
+            border: none;
+            border-bottom: 1px solid var(--borda);
+            background-color: var(--bg);
+        }
+        
+        .topico.expandido .topico-conteudo {
+            display: block;
+        }
+        
+        .topico.expandido .topico-header {
+            background-color: color-mix(in srgb, var(--bg) 70%, var(--text) 30%);
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+            font-style: italic;
+            color: var(--text);
+            opacity: 0.7;
+        }
+        
+        /* Conteúdo dentro dos tópicos */
+        .topico-conteudo p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .topico-conteudo h1, 
+        .topico-conteudo h2, 
+        .topico-conteudo h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .topico-conteudo img {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border: 1px solid var(--borda);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .topico-header {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .topico-conteudo {
+                padding: 15px;
+            }
+            
+            .assunto-titulo {
+                font-size: 1.2rem;
+                padding: 8px 12px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .codex-container {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="codex-container">
+        <div id="loading" class="loading">Codex hominis...</div>
+        
+        <!-- PERSONAGENS -->
+        <div class="assunto">
+            <div class="assunto-titulo">CODEX HOMINIS</div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/personagens-vaniel.html">
+                    Vaniel dos Anjos
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/personagens-aura.html">
+                    Aura Blackwood
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+     
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/lugares-deserto.html">
+                    Deserto Amazônico
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/lugares-piramide.html">
+                    Pirâmide de Ouro
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+        
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/criaturas-she-devil.html">
+                    She-devil
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            let carregando = new Set();
+            
+            // Inicializar eventos
+            function init() {
+                document.querySelectorAll('.topico-header').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const topico = this.parentElement;
+                        const arquivo = this.getAttribute('data-arquivo');
+                        const conteudoDiv = topico.querySelector('.topico-conteudo');
+                        
+                        // Se já está expandido, fecha
+                        if (topico.classList.contains('expandido')) {
+                            topico.classList.remove('expandido');
+                            return;
+                        }
+                        
+                        // Fecha todos os outros
+                        document.querySelectorAll('.topico').forEach(t => {
+                            t.classList.remove('expandido');
+                        });
+                        
+                        // Se conteúdo já carregado, apenas expande
+                        if (conteudoDiv.innerHTML.trim() !== '') {
+                            topico.classList.add('expandido');
+                            return;
+                        }
+                        
+                        // Carrega conteúdo
+                        carregarConteudo(arquivo, conteudoDiv, topico);
+                    });
+                });
+            }
+            
+            // Carregar conteúdo de arquivo externo
+            function carregarConteudo(arquivo, conteudoDiv, topico) {
+                // Evita carregamento duplicado
+                if (carregando.has(arquivo)) return;
+                carregando.add(arquivo);
+                
+                const loading = document.getElementById('loading');
+                if (loading) loading.style.display = 'block';
+                
+                fetch(arquivo)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Arquivo não encontrado');
+                        return response.text();
+                    })
+                    .then(html => {
+                        conteudoDiv.innerHTML = html;
+                        topico.classList.add('expandido');
+                        if (loading) loading.style.display = 'none';
+                        carregando.delete(arquivo);
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        conteudoDiv.innerHTML = '<p>Conteúdo não disponível.</p>';
+                        topico.classList.add('expandido');
+                        if (loading) loading.style.display = 'none';
+                        carregando.delete(arquivo);
+                    });
+            }
+            
+            // Iniciar
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+	
+	<!-- Script para gerenciamento de temas -->
+    <script src="Sistema_Tema.js"></script>
+</body>
+</html>

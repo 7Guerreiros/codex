@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Container principal */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 25px;
+            max-width: 1200px;
+            width: 95%;
+            margin: 0 auto;
+        }
+        
+        /* Área de notas */
+        .area-notas {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        /* Container de cada nota */
+        .nota-container {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .nota-container:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        html.tema-escuro .nota-container {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        html.tema-escuro .nota-container:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        
+        /* Área de texto */
+        .nota-texto {
+            width: 100%;
+            min-height: 150px;
+            padding: 25px;
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            background-color: #fafafa;
+            color: #333333;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .nota-texto:focus {
+            background-color: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+        
+        html.tema-escuro .nota-texto {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+        }
+        
+        html.tema-escuro .nota-texto:focus {
+            background-color: #252525;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        
+        /* Placeholder */
+        .nota-texto::placeholder {
+            color: #999999;
+            font-style: italic;
+        }
+        
+        html.tema-escuro .nota-texto::placeholder {
+            color: #888888;
+        }
+        
+        /* Botão de fechar (X) - ESTILO UNIFICADO */
+        .btn-fechar-nota {
+            position: absolute;
+            top: 15px;
+            right: 60px;
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #333333;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            z-index: 10;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-fechar-nota:hover {
+            background-color: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.4);
+        }
+        
+        html.tema-escuro .btn-fechar-nota {
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+        }
+        
+        html.tema-escuro .btn-fechar-nota:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        /* Botão de download na nota - ESTILO UNIFICADO */
+        .btn-download-nota {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #333333;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            z-index: 10;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-download-nota:hover {
+            background-color: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.4);
+        }
+        
+        html.tema-escuro .btn-download-nota {
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+        }
+        
+        html.tema-escuro .btn-download-nota:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        /* Contador de caracteres */
+        .contador-caracteres {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #999999;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 10;
+        }
+        
+        html.tema-escuro .contador-caracteres {
+            background: rgba(45, 45, 45, 0.8);
+            color: #aaaaaa;
+        }
+        
+        /* Contador próximo do limite */
+        .contador-caracteres.limite-proximo {
+            color: #ff6600;
+            font-weight: bold;
+        }
+        
+        html.tema-escuro .contador-caracteres.limite-proximo {
+            color: #ff9933;
+        }
+        
+        /* Contador no limite */
+        .contador-caracteres.no-limite {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        
+        html.tema-escuro .contador-caracteres.no-limite {
+            color: #ff6666;
+        }
+        
+        /* Botão Nova Nota - ESTILO UNIFICADO */
+        .btn-nova-nota {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #333333;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .btn-nova-nota:hover {
+            background-color: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.4);
+        }
+        
+        html.tema-escuro .btn-nova-nota {
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+        }
+        
+        html.tema-escuro .btn-nova-nota:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        /* Indicador de salvamento */
+        .salvando {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .salvando.mostrar {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        html.tema-escuro .salvando {
+            background: rgba(255,255,255,0.9);
+            color: #000000;
+        }
+        
+        /* Scrollbar */
+        .area-notas::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .area-notas::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .area-notas::-webkit-scrollbar-thumb {
+            background: #cccccc;
+            border-radius: 4px;
+        }
+        
+        .area-notas::-webkit-scrollbar-thumb:hover {
+            background: #999999;
+        }
+        
+        html.tema-escuro .area-notas::-webkit-scrollbar-track {
+            background: #252525;
+        }
+        
+        html.tema-escuro .area-notas::-webkit-scrollbar-thumb {
+            background: #555555;
+        }
+        
+        html.tema-escuro .area-notas::-webkit-scrollbar-thumb:hover {
+            background: #777777;
+        }
+        
+        /* Animação de exclusão */
+        .nota-container.excluindo {
+            animation: excluirNota 0.3s ease-out forwards;
+        }
+
+        @keyframes excluirNota {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .nota-texto {
+                padding: 20px;
+                font-size: 16px;
+            }
+            
+            .btn-fechar-nota {
+                top: 12px;
+                right: 50px;
+                padding: 5px 8px;
+                font-size: 13px;
+                width: 26px;
+                height: 26px;
+            }
+            
+            .btn-download-nota {
+                top: 12px;
+                right: 12px;
+                padding: 5px 8px;
+                font-size: 13px;
+                width: 26px;
+                height: 26px;
+            }
+            
+            .contador-caracteres {
+                bottom: 12px;
+                right: 12px;
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                font-size: 15px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .nota-texto {
+                padding: 15px;
+                font-size: 15px;
+            }
+            
+            .btn-fechar-nota {
+                top: 10px;
+                right: 45px;
+                padding: 4px 6px;
+                font-size: 12px;
+                width: 24px;
+                height: 24px;
+            }
+            
+            .btn-download-nota {
+                top: 10px;
+                right: 10px;
+                padding: 4px 6px;
+                font-size: 12px;
+                width: 24px;
+                height: 24px;
+            }
+            
+            .contador-caracteres {
+                bottom: 10px;
+                right: 10px;
+                font-size: 10px;
+            }
+            
+            .btn-nova-nota {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="area-notas" id="areaNotas">
+            <!-- Notas serão inseridas aqui -->
+        </div>
+        <button class="btn-nova-nota" id="btnNovaNota">+ Nova Nota</button>
+    </div>
+    
+    <div class="salvando" id="indicadorSalvando">Salvo!</div>
+
+    <script>
+        // Chave para LocalStorage
+        const CHAVE_NOTAS = 'notasMultiplas7G';
+        const CHAVE_NUMERO = 'numeroNota7G';
+        let numeroNotaAtual = 1;
+        let notas = [];
+        let timeoutSalvamento = null;
+        
+        // Elementos
+        const areaNotas = document.getElementById('areaNotas');
+        const btnNovaNota = document.getElementById('btnNovaNota');
+        const indicadorSalvando = document.getElementById('indicadorSalvando');
+        
+        // Inicialização
+        function init() {
+            console.log('Iniciando sistema de múltiplas notas');
+            
+            // Carregar número da última nota
+            carregarNumeroNota();
+            
+            // Carregar notas salvas
+            carregarNotas();
+            
+            // Criar primeira nota
+            if (notas.length === 0) {
+                criarNovaNota();
+            } else {
+                renderizarNotas();
+            }
+            
+            // Configurar botão nova nota
+            btnNovaNota.addEventListener('click', criarNovaNota);
+            
+            // Atualizar interface
+            atualizarInterface();
+            
+            // Configurar auto-expansão para textareas existentes
+            configurarAutoExpansao();
+        }
+        
+        // Função para auto-expansão das textareas
+        function autoExpandirTextarea(textarea) {
+            // Reset height to auto to get the correct scrollHeight
+            textarea.style.height = 'auto';
+            // Set height to scrollHeight
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+        
+        // Configurar auto-expansão para todas as textareas
+        function configurarAutoExpansao() {
+            // Adicionar listener para textareas já existentes
+            document.querySelectorAll('.nota-texto').forEach(textarea => {
+                // Expandir inicialmente se tiver conteúdo
+                if (textarea.value) {
+                    autoExpandirTextarea(textarea);
+                }
+                
+                // Adicionar listener para expansão automática
+                textarea.addEventListener('input', function() {
+                    autoExpandirTextarea(this);
+                });
+            });
+        }
+        
+        // Atualizar contador de caracteres
+        function atualizarContador(textarea, contadorElement) {
+            const length = textarea.value.length;
+            const limite = 500;
+            const restantes = limite - length;
+            
+            contadorElement.textContent = `${length}/${limite}`;
+            
+            // Remover classes existentes
+            contadorElement.classList.remove('limite-proximo', 'no-limite');
+            
+            // Adicionar classe apropriada
+            if (restantes <= 0) {
+                contadorElement.classList.add('no-limite');
+            } else if (restantes <= 50) {
+                contadorElement.classList.add('limite-proximo');
+            }
+        }
+        
+        // Carregar número da nota atual
+        function carregarNumeroNota() {
+            try {
+                const numeroSalvo = localStorage.getItem(CHAVE_NUMERO);
+                if (numeroSalvo) {
+                    numeroNotaAtual = parseInt(numeroSalvo) + 1;
+                } else {
+                    numeroNotaAtual = 1;
+                }
+            } catch (e) {
+                console.error('Erro ao carregar número da nota:', e);
+                numeroNotaAtual = 1;
+            }
+        }
+        
+        // Salvar número da nota
+        function salvarNumeroNota() {
+            try {
+                localStorage.setItem(CHAVE_NUMERO, numeroNotaAtual.toString());
+            } catch (e) {
+                console.error('Erro ao salvar número da nota:', e);
+            }
+        }
+        
+        // Carregar notas do LocalStorage
+        function carregarNotas() {
+            try {
+                const notasSalvas = localStorage.getItem(CHAVE_NOTAS);
+                if (notasSalvas) {
+                    notas = JSON.parse(notasSalvas);
+                } else {
+                    notas = [];
+                }
+            } catch (e) {
+                console.error('Erro ao carregar notas:', e);
+                notas = [];
+            }
+        }
+        
+        // Salvar notas no LocalStorage com debounce otimizado
+        function salvarNotas() {
+            // Cancelar timeout anterior se existir
+            if (timeoutSalvamento) {
+                clearTimeout(timeoutSalvamento);
+            }
+            
+            // Agendar salvamento com pequeno delay para agrupar edições rápidas
+            timeoutSalvamento = setTimeout(() => {
+                try {
+                    localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notas));
+                    mostrarFeedbackSalvamento();
+                } catch (e) {
+                    console.error('Erro ao salvar notas:', e);
+                }
+            }, 300); // 300ms de debounce
+        }
+        
+        // Criar nova nota
+        function criarNovaNota() {
+            if (notas.length >= 7) return;
+            
+            const novaNota = {
+                id: Date.now(),
+                conteudo: '',
+                numero: numeroNotaAtual
+            };
+            
+            notas.push(novaNota);
+            numeroNotaAtual++;
+            salvarNumeroNota();
+            renderizarNotas();
+            salvarNotas();
+            atualizarInterface();
+            
+            // Focar na nova nota
+            setTimeout(() => {
+                const notaContainers = document.querySelectorAll('.nota-container');
+                if (notaContainers.length > 0) {
+                    const ultimaNota = notaContainers[notaContainers.length - 1];
+                    const textarea = ultimaNota.querySelector('.nota-texto');
+                    if (textarea) {
+                        textarea.focus();
+                        // Configurar auto-expansão para a nova textarea
+                        autoExpandirTextarea(textarea);
+                    }
+                }
+            }, 100);
+        }
+        
+        // Excluir nota
+        function excluirNota(index) {
+            // Adicionar animação de exclusão
+            const notaContainers = document.querySelectorAll('.nota-container');
+            const notaParaExcluir = notaContainers[index];
+            
+            if (notaParaExcluir) {
+                // Adicionar classe de animação
+                notaParaExcluir.classList.add('excluindo');
+                
+                // Esperar animação terminar antes de remover
+                setTimeout(() => {
+                    if (notas.length <= 1) {
+                        // Se for a última nota, apenas limpa o conteúdo
+                        notas[index].conteudo = '';
+                        renderizarNotas();
+                        salvarNotas();
+                    } else {
+                        // Remove a nota do array
+                        notas.splice(index, 1);
+                        renderizarNotas();
+                        salvarNotas();
+                        atualizarInterface();
+                    }
+                }, 300); // Tempo da animação
+            }
+        }
+        
+        // Renderizar todas as notas
+        function renderizarNotas() {
+            areaNotas.innerHTML = '';
+            
+            notas.forEach((nota, index) => {
+                const notaContainer = document.createElement('div');
+                notaContainer.className = 'nota-container';
+                notaContainer.innerHTML = `
+                    <textarea 
+                        class="nota-texto" 
+                        placeholder="Nota ${nota.numero}"
+                        maxlength="500">${nota.conteudo || ''}</textarea>
+                    <button class="btn-fechar-nota" title="Fechar/Excluir nota">×</button>
+                    <button class="btn-download-nota" title="Download em TXT">📥</button>
+                    <div class="contador-caracteres">0/500</div>
+                `;
+                
+                // Adicionar eventos
+                const textarea = notaContainer.querySelector('.nota-texto');
+                const fecharBtn = notaContainer.querySelector('.btn-fechar-nota');
+                const downloadBtn = notaContainer.querySelector('.btn-download-nota');
+                const contadorElement = notaContainer.querySelector('.contador-caracteres');
+                
+                // Atualizar contador inicial
+                atualizarContador(textarea, contadorElement);
+                
+                // Salvar ao digitar com debounce otimizado
+                textarea.addEventListener('input', function() {
+                    notas[index].conteudo = this.value;
+                    atualizarContador(this, contadorElement);
+                    salvarNotas();
+                });
+                
+                // Fechar/Excluir nota
+                fecharBtn.addEventListener('click', function() {
+                    excluirNota(index);
+                });
+                
+                // Download
+                downloadBtn.addEventListener('click', function() {
+                    downloadNota(nota);
+                });
+                
+                areaNotas.appendChild(notaContainer);
+            });
+            
+            // Configurar auto-expansão para as novas textareas
+            setTimeout(configurarAutoExpansao, 50);
+        }
+        
+        // Download de nota individual
+        function downloadNota(nota) {
+            const conteudo = nota.conteudo || `Nota ${nota.numero}\n\n`;
+            const numeroFormatado = nota.numero.toString().padStart(3, '0');
+            const nomeArquivo = `7Guerreiros_Nota${numeroFormatado}.txt`;
+            
+            const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nomeArquivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Mostrar feedback de salvamento com animação
+        function mostrarFeedbackSalvamento() {
+            indicadorSalvando.classList.add('mostrar');
+            setTimeout(() => {
+                indicadorSalvando.classList.remove('mostrar');
+            }, 2000);
+        }
+        
+        // Atualizar interface (mostrar/esconder botão nova nota)
+        function atualizarInterface() {
+            btnNovaNota.style.display = notas.length >= 7 ? 'none' : 'block';
+        }
+        
+        // Iniciar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+    
+    <script src="Sistema_Tema.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            line-height: 1.6;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Container principal */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 25px;
+            max-width: 1200px;
+            width: 95%;
+            margin: 0 auto;
+        }
+        
+        /* Cabeçalho do Codex */
+        .codex-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modo-escuro .codex-header {
+            border-bottom: 1px solid #444;
+        }
+        
+        .codex-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .modo-escuro .codex-header h1 {
+            color: #e0e0e0;
+        }
+        
+        .codex-header p {
+            font-size: 1.1rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .modo-escuro .codex-header p {
+            color: #999;
+        }
+        
+        /* Área de conteúdo do Codex */
+        .area-codex {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        /* Container de cada entrada do Codex */
+        .codex-entry {
+            position: relative;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            padding: 25px;
+        }
+        
+        .codex-entry:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .modo-escuro .codex-entry {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background-color: #2d2d2d;
+        }
+        
+        .modo-escuro .codex-entry:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        
+        /* Título da entrada */
+        .entry-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .modo-escuro .entry-title {
+            color: #e0e0e0;
+            border-bottom: 1px solid #444;
+        }
+        
+        /* Conteúdo da entrada */
+        .entry-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #444;
+        }
+        
+        .modo-escuro .entry-content {
+            color: #d0d0d0;
+        }
+        
+        /* Categoria/Tipo */
+        .entry-category {
+            display: inline-block;
+            background-color: #eee;
+            color: #666;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .modo-escuro .entry-category {
+            background-color: #444;
+            color: #ccc;
+        }
+        
+        /* Mensagem quando não há entradas */
+        .sem-entradas {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .modo-escuro .sem-entradas {
+            color: #777;
+        }
+        
+        /* Scrollbar */
+        .area-codex::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .area-codex::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .area-codex::-webkit-scrollbar-thumb {
+            background: #cccccc;
+            border-radius: 4px;
+        }
+        
+        .area-codex::-webkit-scrollbar-thumb:hover {
+            background: #999999;
+        }
+        
+        .modo-escuro .area-codex::-webkit-scrollbar-track {
+            background: #252525;
+        }
+        
+        .modo-escuro .area-codex::-webkit-scrollbar-thumb {
+            background: #555555;
+        }
+        
+        .modo-escuro .area-codex::-webkit-scrollbar-thumb:hover {
+            background: #777777;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .codex-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .codex-entry {
+                padding: 20px;
+            }
+            
+            .entry-title {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                font-size: 15px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .codex-header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .codex-header p {
+                font-size: 1rem;
+            }
+            
+            .codex-entry {
+                padding: 15px;
+            }
+            
+            .entry-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="codex-header">
+            <h1>Codex</h1>
+            <p>Enciclopédia dos Termos e Conceitos</p>
+        </div>
+        
+        <div class="area-codex" id="areaCodex">
+            <!-- Entradas do Codex serão inseridas aqui -->
+            <div class="sem-entradas">
+                <p>Conteúdo do Codex em desenvolvimento.<br>Esta área está pronta para receber suas entradas enciclopédicas.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema do Codex - Pronto para receber conteúdo
+        let entradasCodex = [];
+        
+        // Elementos
+        const areaCodex = document.getElementById('areaCodex');
+        
+        // Inicialização
+        function init() {
+            console.log('Sistema Codex inicializado - Pronto para receber conteúdo');
+            
+            // Aqui você pode carregar entradas do LocalStorage ou de outra fonte
+            // carregarEntradasCodex();
+            // renderizarEntradas();
+        }
+        
+        // Função placeholder para carregar entradas (você implementará depois)
+        function carregarEntradasCodex() {
+            // Exemplo de estrutura que você pode usar:
+            /*
+            try {
+                const entradasSalvas = localStorage.getItem('codexEntradas_v1');
+                if (entradasSalvas) {
+                    entradasCodex = JSON.parse(entradasSalvas);
+                } else {
+                    entradasCodex = [];
+                }
+            } catch (e) {
+                console.error('Erro ao carregar entradas do Codex:', e);
+                entradasCodex = [];
+            }
+            */
+        }
+        
+        // Função placeholder para renderizar entradas
+        function renderizarEntradas() {
+            /*
+            areaCodex.innerHTML = '';
+            
+            if (entradasCodex.length === 0) {
+                areaCodex.innerHTML = '<div class="sem-entradas"><p>Conteúdo do Codex em desenvolvimento.<br>Esta área está pronta para receber suas entradas enciclopédicas.</p></div>';
+                return;
+            }
+            
+            entradasCodex.forEach((entrada, index) => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'codex-entry';
+                entryElement.innerHTML = `
+                    <div class="entry-category">${entrada.categoria || 'Geral'}</div>
+                    <h2 class="entry-title">${entrada.titulo || 'Sem título'}</h2>
+                    <div class="entry-content">${entrada.conteudo || 'Conteúdo não disponível.'}</div>
+                `;
+                areaCodex.appendChild(entryElement);
+            });
+            */
+        }
+        
+        // Iniciar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

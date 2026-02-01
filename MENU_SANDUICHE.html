@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENU PRINCIPAL - 7Guerreiros</title>
+    <style>
+        /* Reset e estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+            padding: 1.5rem 1rem;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Widgets principais */
+        .widget {
+            margin-bottom: 2rem;
+            width: 100%;
+            overflow-wrap: break-word;
+        }
+        
+        .widget h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word;
+        }
+        
+        .widget ul {
+            list-style: none;
+            width: 100%;
+            padding-left: 0;
+        }
+        
+        .widget li {
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        
+        .widget a {
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s;
+            display: block;
+            width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .widget a:hover {
+            color: #0066cc;
+        }
+
+        .widget p {
+            margin: 0.5rem 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .widget img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        /* Logo animada */
+        .site-title {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            margin-bottom: 1rem;
+        }
+
+        .letter {
+            display: inline-block;
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: #2c3e50;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: letterAppear 0.5s ease-out forwards;
+        }
+
+        @keyframes letterAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Widget Steam */
+        .steam-profile {
+            text-align: center;
+            padding: 1rem;
+            background-color: #111;
+            border-radius: 12px;
+            max-width: 280px;
+            margin: 1.5rem auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .steam-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #66c0f4;
+            margin-bottom: 0.75rem;
+        }
+        
+        .steam-name {
+            color: #66c0f4;
+            font-family: Arial, sans-serif;
+            margin: 0.5rem 0;
+        }
+        
+        .steam-link {
+            display: inline-block;
+            background: #171a21;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .steam-link:hover {
+            background-color: #1b2838;
+        }
+
+        /* Doações */
+        .donation-widget {
+            margin: 1.5rem 0;
+        }
+        
+        .support-cta {
+            font-weight: bold;
+            margin: 1.5rem 0 0.5rem;
+            text-align: center;
+        }
+
+        /* Logo final */
+        .footer-logo {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5rem auto 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo do site com animação -->
+    <header class="site-title">
+        <span class="letter" style="animation-delay: 0.1s">7</span>
+        <span class="letter" style="animation-delay: 0.2s">G</span>
+        <span class="letter" style="animation-delay: 0.3s">u</span>
+        <span class="letter" style="animation-delay: 0.4s">e</span>
+        <span class="letter" style="animation-delay: 0.5s">r</span>
+        <span class="letter" style="animation-delay: 0.6s">r</span>
+        <span class="letter" style="animation-delay: 0.7s">e</span>
+        <span class="letter" style="animation-delay: 0.8s">i</span>
+        <span class="letter" style="animation-delay: 0.9s">r</span>
+        <span class="letter" style="animation-delay: 1.0s">o</span>
+        <span class="letter" style="animation-delay: 1.1s">s</span>
+    </header>
+
+<hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
+
+    <!---------------- MENU PRINCIPAL ---------------------->
+    <nav class="widget" aria-label="Menu principal">
+    <ul>
+        
+		<!-- MENU BLOG -->
+        <li>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="flex: 1;">BLOG</a>
+                <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+ </span>
+            </div>
+            <div style="display: none; margin-left: 20px;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">Artigos sobre IA</a>
+            </div>
+        </li>
+		
+		<li><a href="../codex/livros.html" target="_parent">CONTOS</a></li>
+		
+		<!-- MENU FÓRUM -->
+		<li>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="flex: 1;">FÓRUM</a>
+                <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+ </span>
+            </div>
+            <div style="display: none; margin-left: 20px;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">Contacto</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">Seja Assiante</a>
+            </div>
+        </li>
+		
+		<!-- MENU LIVROS -->
+		<li>
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="flex: 1;">LIVROS</a>
+        <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+</span>
+		</div>
+			<div style="display: none; margin-left: 20px;">
+			<!-- SUB MENU REGNUM CRISTALII -->
+			<div>
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                <a href="../Livros/Regnum_Cristalli/index.html" target="_parent" style="flex: 1;">REGNUM CRISTALII</a>
+                <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+</span>
+				</div>
+            <div style="display: none; margin-left: 20px;">
+                <a href="../Livros/Regnum_Cristalli/cofre_submarino.html" target="_parent" style="display: block; margin-top: 5px;">O Cofre Submarino</a>
+            </div>
+			</div>
+        
+			<!-- SUB MENU REINO DE CRISTAL -->
+			<div style="margin-top: 5px;">
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="flex: 1;">REINO DE CRISTAL</a>
+                <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+</span>
+            </div>
+            <div style="display: none; margin-left: 20px;">
+                <a href="../Livros/Reino_de_Cristal/conflito_entre_mundos.html" target="_parent" style="display: block; margin-top: 5px;">Conflito entre Mundos</a>
+            </div>
+			</div>
+			</div>
+		</li>
+		
+		<!-- MENU REVISTA -->
+		<li>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="flex: 1;">REVISTA DIGITAL</a>
+                <span style="cursor: pointer; padding-left: 10px;" onclick="toggleSubmenu(event, this)">+ </span>
+            </div>
+            <div style="display: none; margin-left: 20px;">
+                <a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO I</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO II</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO III</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO IV</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO V</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO VI</a>
+				<a href="../Livros/Reino_de_Cristal/index.html" target="_parent" style="display: block; margin-top: 5px;">ANO VII</a>
+            </div>
+        </li>
+		
+        <li><a href="../codex/livros.html" target="_parent">RPCS</a></li>
+        <li><a href="https://7guerreiros.tumblr.com" target="_blank">TEOLOGIA</a></li>
+        
+    </ul>
+	</nav>
+
+<script>
+function toggleSubmenu(event, element) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    var submenu = element.parentNode.parentNode.querySelector('div:nth-child(2)');
+    
+    if (submenu.style.display === "none" || submenu.style.display === "") {
+        submenu.style.display = "block";
+        element.innerHTML = "−";
+    } else {
+        submenu.style.display = "none";
+        element.innerHTML = "+";
+    }
+}
+</script>
+	<!---------------- MENU PRINCIPAL ---------------------->
+
+
+	
+	<!-- PERFIL NA STEAM -->
+    <aside class="steam-profile">
+        <img src="https://avatars.cloudflare.steamstatic.com/880b039896c0e8045826f369ae1361ce52a3bafc_full.jpg"
+             alt="Avatar do perfil Steam"
+             class="steam-avatar">
+        <h3 class="steam-name">Scriptor Christianus</h3>
+        <a href="https://steamcommunity.com/id/7guerreiros" target="_blank" class="steam-link">
+            🎮 Adicione-me na Steam
+        </a>
+    </aside>
+	<section class="widget" aria-label="Sobre">
+        <p>“Litteris et armis, praestantibusque ingeniis”: Cristão protestante, continuísta e dispensacionalista. Casado. Praticante de Artes Marciais. Fã de literatura (principalmente Tolkien, Dante Alighieri, John Milton e todo o ciclo Arthuriano); quadrinhos clássicos; música clássica e “metal melódico”. E escritor, nas horas vagas.</p>
+    </section>
+	<!-- PERFIL NA STEAM -->
+	
+<hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
+	
+	<!-------------------------------- DOACOES ----------------------->
+	<nav class="widget" aria-label="Doacoes">
+    <p class="support-cta">SEJA APOIADOR:</p>
+    <div id="donation-widget" class="donation-widget"></div>
+
+    <script>
+        // Widget de doações aleatório
+        const donations = [
+            {
+                title: "DOE EM BITCOIN:",
+                img: "IMGS/qrcode_btc.png",
+                alt: "QR Code para doação em Bitcoin",
+                address: "Bc1qljphh6lpu5kf2852n8hcggnzr28wh832gu0h8a"
+            },
+            {
+                title: "DOE EM ETHEREUM:",
+                img: "IMGS/qrcode_eth.png",
+                alt: "QR Code para doação em Ethereum",
+                address: "0x061CEf32aca4B553B24d6A25AF45e04E81A8154F"
+            }
+        ];
+
+        const randomDonation = donations[Math.floor(Math.random() * donations.length)];
+        const donationWidget = document.getElementById('donation-widget');
+        
+        donationWidget.innerHTML = `
+            <h3>${randomDonation.title}</h3>
+            <img src="${randomDonation.img}" alt="${randomDonation.alt}">
+            <p>${randomDonation.address}</p>
+        `;
+    </script>
+	</nav>
+	<!-------------------------------- DOACOES ----------------------->
+	
+<hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
+	
+	<!---------------- LOJA DE CAMISETAS ---------------------->
+	<nav class="widget" aria-label="Collab">
+	
+	<!-- COLAB55 STUDIO -->
+	<script async="async" src="https://www.colab55.com/js/studio_embed.min.js" >
+	</script>
+	<a class="c55-widget" data-load="@blog7guerreiros" data-type="tees" href="https://www.colab55.com/@blog7guerreiros">Studio na Colab55</a>
+	
+	</nav>
+	<!---------------- LOJA DE CAMISETAS ---------------------->
+
+	<!-- LOGO FINAL -->
+    <img src="IMGS/VAnjos LOGO.png" alt="Logo V. ANJOS" class="footer-logo">
+    
+</body>
+</html>

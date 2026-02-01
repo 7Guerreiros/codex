@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linha do Tempo | 7Guerreiros</title>
+    <style>
+        /* ======================================================================
+           ESTILOS PRINCIPAIS - MANTENDO O ESTILO ORIGINAL
+           ====================================================================== */
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 2rem;
+            color: #080808;
+            line-height: 1.4;
+        }
+        
+        .timeline-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* ======================================================================
+           ESTILOS DAS ABAS - NOVO SISTEMA
+           ====================================================================== */
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #000000;
+        }
+        
+        .tab-button {
+            background: #fff;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 1rem 2rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            color: #080808;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            background: #e9e9e9;
+        }
+        
+        .tab-button.active {
+            border-bottom: 3px solid #000000;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* ======================================================================
+           ESTILOS DA LINHA DO TEMPO - MANTIDOS
+           ====================================================================== */
+        
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-header h1 {
+            color: #222;
+            margin: 0;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: #000000;
+        }
+        
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            padding: 1rem 2rem;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item .content {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-item.left {
+            left: 0;
+            text-align: right;
+        }
+        
+        .timeline-item.right {
+            left: 50%;
+            text-align: left;
+        }
+        
+        .timeline-item.left::before,
+        .timeline-item.right::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            background: #000000;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        
+        .timeline-item.left::before {
+            right: -7px;
+        }
+        
+        .timeline-item.right::before {
+            left: -7px;
+        }
+        
+        .timeline-item.center .content {
+            border: 3px solid #000000;
+            text-align: center;
+        }
+        
+        .timeline-item.center {
+            left: 50%;
+            width: 100%;
+            transform: translateX(-50%);
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-item h3 {
+            margin: 0 0 0.5rem;
+            color: #080808;
+        }
+        
+        .timeline-item p {
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        /* ======================================================================
+           ESTILOS PARA MODO ESCURO - INTEGRAÇÃO COM O SISTEMA PRINCIPAL
+           ====================================================================== */
+        
+        /* Quando o body tem a classe modo-escuro */
+        body.modo-escuro {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        body.modo-escuro .tabs {
+            border-bottom: 2px solid #cccccc;
+        }
+        
+        body.modo-escuro .tab-button {
+            background: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        body.modo-escuro .tab-button:hover {
+            background: #3a3a3a;
+        }
+        
+        body.modo-escuro .tab-button.active {
+            border-bottom: 3px solid #cccccc;
+        }
+        
+        body.modo-escuro .timeline-header h1 {
+            color: #ffffff;
+        }
+        
+        body.modo-escuro .timeline-item .content {
+            background: #2a2a2a;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        body.modo-escuro .timeline::before {
+            background: #cccccc;
+        }
+        
+        body.modo-escuro .timeline-item.left::before,
+        body.modo-escuro .timeline-item.right::before {
+            background: #cccccc;
+            border: 2px solid #2a2a2a;
+        }
+        
+        body.modo-escuro .timeline-item.center .content {
+            border-color: #cccccc;
+        }
+        
+        body.modo-escuro .timeline-item h3 {
+            color: #ffffff;
+        }
+        
+        /* ======================================================================
+           RESPONSIVIDADE - MELHORIAS NA VERSÃO ORIGINAL
+           ====================================================================== */
+        
+        @media (max-width: 767px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+                align-items: center;
+            }
+            
+            .tab-button {
+                width: 90%;
+                margin: 0.25rem 0;
+                text-align: center;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                left: 0;
+                padding-left: 40px;
+                padding-right: 0;
+                text-align: left;
+            }
+            
+            .timeline-item.left::before {
+                left: 13px;
+                right: auto;
+            }
+            
+            .timeline-item.right {
+                left: 0;
+            }
+            
+            .timeline-item.left,
+            .timeline-item.right {
+                text-align: left;
+            }
+        }
+        
+        /* ======================================================================
+           MELHORIAS DE ACESSIBILIDADE
+           ====================================================================== */
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Foco visível para acessibilidade */
+        .timeline-item:focus-within {
+            outline: 2px solid #000000;
+        }
+        
+        body.modo-escuro .timeline-item:focus-within {
+            outline: 2px solid #cccccc;
+        }
+        
+        .tab-button:focus {
+            outline: 2px solid #000000;
+        }
+        
+        body.modo-escuro .tab-button:focus {
+            outline: 2px solid #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-container">
+        <!-- SISTEMA DE ABAS - NOVO -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="timeline1">Linha do Tempo Principal</button>
+            <button class="tab-button" data-tab="timeline2">Linha do Tempo Secundária</button>
+        </div>
+        
+        <!-- PRIMEIRA LINHA DO TEMPO - MANTIDA COM SCROLL AUTOMÁTICO -->
+        <div id="timeline1" class="tab-content active">
+            <header class="timeline-header">
+                <h1>LINHA DO TEMPO, LIVROS:</h1>
+            </header>
+            
+            <div class="timeline">
+                <!-- Mantendo todo o conteúdo original exatamente igual -->
+                <div class="timeline-item top right">
+                    <div class="content">
+                        <h3>REGNUM CRISTALLI: As Maquinas de Aurora.</h3>
+                        <p>Esta hisória se passa em paralelo ao Cofre Submarino, relata o uso dos fragmentos da espada Vorpalica.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item left">
+                    <div class="content">
+                        <h3>REGNUM CRISTALLI: O Cofre Submárino.</h3>
+                        <p>Onde ocorre a forja de duas novas lâminas da alma.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>Tudo acima do PONTO ZERO refere-se a um relato "mais confiável", são capitações mais "vivas" de Vaniel sobre os acontecimentos, são relatos "canônicos".</p>
+                    </div>
+                </div>
+                
+                <!-- PONTO ZERO - com ID especial para scroll automático -->
+                <div class="timeline-item center" id="ponto-zero">
+                    <div class="content">
+                        <p>REGNUM CRISTALII: V. ANJOS SCRIPTUM</p>
+                        <h3>PONTO ZERO: Conflito Entre Mundos.</h3>
+                        <p>O REINO DE CRISTAL: EX HOMINE OPUS</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>Todos os "livros" abaixo do PONTO ZERO são "capitações" menos precisas, onde Vaniel preenche as lacunas daquilo que vê com inspirações consciêntes ou inconsciêntes, não é que não seam canônicos, mas são menos confiáveis, como se fossem lendas passadas oralmente em vez de registradas logo após o ocorrido.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item left">
+                    <div class="content">
+                        <h3>REVISTA 7GUERREIROS</h3>
+                        <p>Com a morte de Umbra, a pré-existencia do universo sub-criado de Vaniel se inicia.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>Evento: A CHUVA.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item right">
+                    <div class="content">
+                        <h3>RPC: A Terra Abandonada (O REINO DE CRISTAL)</h3>
+                        <p>O Apagão do Mundo da Luz, essa história começa antes, mas termina depois das Crônicas de Luz e Trevas.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item bottom left">
+                    <div class="content">
+                        <h3>O REINO DE CRISTAL: Crônicas de Luz e Trevas</h3>
+                        <p>História dupla sobre Eclésia e Scriptor.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>Inpicio do Universo, RASTROS DE TINTA.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item bottom right">
+                    <div class="content">
+                        <h3>RASTROS DE TINTA: One Shot</h3>
+                        <p>A história de Lumine.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>O universo de Aura ocorre na mesma linha do tempo, mas, é paralelo, pois segue na história do Empresário.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SEGUNDA LINHA DO TEMPO - CÓPIA SEM SCROLL AUTOMÁTICO -->
+        <div id="timeline2" class="tab-content">
+            <header class="timeline-header">
+                <h1>SEGUNDA LINHA DO TEMPO:</h1>
+            </header>
+            
+            <div class="timeline">
+                <!-- CONTEÚDO DA SEGUNDA LINHA DO TEMPO - VOCÊ EDITARÁ ESTE CONTEÚDO -->
+                <div class="timeline-item right">
+                    <div class="content">
+                        <h3>Evento Secundário 1</h3>
+                        <p>Descrição do primeiro evento da linha do tempo secundária.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item left">
+                    <div class="content">
+                        <h3>Evento Secundário 2</h3>
+                        <p>Descrição do segundo evento da linha do tempo secundária.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item center">
+                    <div class="content">
+                        <p>Ponto central da linha do tempo secundária.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item left">
+                    <div class="content">
+                        <h3>Evento Secundário 3</h3>
+                        <p>Descrição do terceiro evento da linha do tempo secundária.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item right">
+                    <div class="content">
+                        <h3>Evento Secundário 4</h3>
+                        <p>Descrição do quarto evento da linha do tempo secundária.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======================================================================
+        // SISTEMA DE ABAS E INTEGRAÇÃO COM MODO ESCURO
+        // ======================================================================
+        
+        (function() {
+            // Função para detectar modo escuro do container pai
+            function verificarModoEscuro() {
+                try {
+                    // Tenta acessar o container pai através do window.parent
+                    if (window.parent && window.parent.document) {
+                        const parentContainer = window.parent.document.getElementById('paginaContainer');
+                        if (parentContainer) {
+                            const modoEscuroAtivo = parentContainer.classList.contains('modo-escuro');
+                            if (modoEscuroAtivo) {
+                                document.body.classList.add('modo-escuro');
+                            } else {
+                                document.body.classList.remove('modo-escuro');
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Ignora erros de cross-origin
+                    console.log('Não foi possível acessar o modo escuro do container pai');
+                }
+            }
+            
+            // Função para posicionar o PONTO ZERO no centro da janela (APENAS PARA TIMELINE 1)
+            function centralizarPontoZero() {
+                const timelineAtiva = document.querySelector('.tab-content.active');
+                if (timelineAtiva && timelineAtiva.id === 'timeline1') {
+                    const pontoZero = document.getElementById('ponto-zero');
+                    if (pontoZero) {
+                        // Calcular posição para centralizar
+                        const rect = pontoZero.getBoundingClientRect();
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const centerY = rect.top + scrollTop - (window.innerHeight / 2) + (rect.height / 2);
+                        
+                        // Scroll suave para o centro
+                        window.scrollTo({
+                            top: centerY,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            }
+            
+            // Função para alternar entre abas
+            function alternarAbas(tabId) {
+                // Esconder todas as abas
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Remover classe ativa de todos os botões
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                
+                // Mostrar aba selecionada
+                document.getElementById(tabId).classList.add('active');
+                
+                // Adicionar classe ativa ao botão selecionado
+                document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+                
+                // Se for a primeira aba, centralizar o ponto zero
+                if (tabId === 'timeline1') {
+                    setTimeout(centralizarPontoZero, 100);
+                }
+            }
+            
+            // Adicionar event listeners aos botões de aba
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    alternarAbas(tabId);
+                });
+            });
+            
+            // Verifica o modo escuro ao carregar
+            document.addEventListener('DOMContentLoaded', function() {
+                verificarModoEscuro();
+                
+                // Centralizar o PONTO ZERO apenas para a primeira timeline
+                setTimeout(centralizarPontoZero, 100);
+                
+                // Tenta verificar periodicamente por mudanças
+                setInterval(verificarModoEscuro, 1000);
+            });
+            
+            // Listener para mensagens do parent (método alternativo)
+            window.addEventListener('message', function(event) {
+                try {
+                    if (event.data && event.data.tipo === 'mudarModo') {
+                        if (event.data.modo === 'escuro') {
+                            document.body.classList.add('modo-escuro');
+                        } else {
+                            document.body.classList.remove('modo-escuro');
+                        }
+                    }
+                } catch (e) {
+                    console.log('Erro ao processar mensagem de modo');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

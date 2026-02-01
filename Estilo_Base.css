@@ -1,0 +1,81 @@
+/* Estilo_Base.css */
+
+/* Variáveis CSS para o tema claro (padrão) */
+:root {
+  /* Cor de fundo suave (não branco puro) */
+  --fundo: #f8f9fa;
+
+  /* Cor do texto principal */
+  --texto: #212529;
+
+  /* Cor de fundo secundária (não será usada agora, mas mantida para uso futuro) */
+  --fundo-secundario: #e9ecef;
+
+  /* Cor de texto secundário (menos destaque) */
+  --texto-secundario: #495057;
+
+  /* Borda suave */
+  --borda: #ced4da;
+
+  /* Cor de fundo para hover ou destaque leve */
+  --destaque: #dee2e6;
+}
+
+/* Variáveis CSS para o tema escuro */
+.tema-escuro {
+  /* Fundo escuro suave (não preto puro) */
+  --fundo: #121212;
+
+  /* Texto claro */
+  --texto: #e0e0e0;
+
+  /* Fundo secundário escuro */
+  --fundo-secundario: #1e1e1e;
+
+  /* Texto secundário no tema escuro */
+  --texto-secundario: #a0a0a0;
+
+  /* Borda no tema escuro */
+  --borda: #333333;
+
+  /* Destaque no tema escuro */
+  --destaque: #2c2c2c;
+}
+
+/* Estilos globais aplicados ao body */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--fundo);
+  color: var(--texto);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transição suave ao mudar de tema */
+  line-height: 1.6;
+}
+
+/* Estilo para cabeçalho e rodapé: removido o destaque visual */
+header,
+footer {
+  /* Agora herdam a cor de fundo do body */
+  background-color: inherit;
+  color: var(--texto);
+  padding: 1rem;
+  text-align: center;
+  border: none;
+}
+
+/* Estilo para o conteúdo principal */
+main {
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 140px); /* Ajuste opcional se header/footer forem visíveis mas planos */
+}
+
+/* Estilo para títulos e parágrafos */
+h1 {
+  color: var(--texto);
+  margin: 0;
+}
+
+p {
+  color: var(--texto-secundario);
+}

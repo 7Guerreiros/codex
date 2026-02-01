@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linha do Tempo em Cruz</title>
+  
+  <!-- Script de tema será carregado posteriormente -->
+  <style>
+    /* Transições suaves para elementos principais */
+    body, .page-title, .bloco-personagem, .aba-botao, iframe {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+  </style>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      color: var(--text);
+      transition: background .5s, color .5s;
+    }
+    
+    .timeline {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: 1fr 2fr 1fr;
+      grid-template-areas:
+        ".    topo     ."
+        "esq  centro   dir"
+        ".   baixo     .";
+      gap: 1rem;
+      width: 90vw;
+      height: 90vh;
+      max-width: 1200px;
+    }
+    
+    .event {
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      overflow: auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background .3s, border-color .3s;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+    
+    .event:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px var(--shadow);
+      border-color: var(--accent);
+    }
+    
+    .topo {
+      grid-area: topo;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .baixo {
+      grid-area: baixo;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .esq {
+      grid-area: esq;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .dir {
+      grid-area: dir;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .centro {
+      grid-area: centro;
+      border: 3px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--surface);
+      transition: border-color .3s;
+    }
+    
+    .sub-event {
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px var(--shadow);
+      text-align: center;
+      font-size: 0.9rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    
+    .sub-event h3 {
+      margin: 0.3rem 0;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+    
+    .sub-event h2 {
+      margin: 0.5rem 0;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    
+    .sub-event p {
+      margin: 0.5rem 0;
+      line-height: 1.4;
+      max-width: 90%;
+      color: var(--text);
+    }
+    
+    .centro h1, .centro p { 
+      text-align: center; 
+      margin: 0.5rem;
+      z-index: 1;
+      background: var(--surface);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .centro h1 {
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-top: 1rem;
+    }
+    
+    .centro p {
+      color: var(--text);
+    }
+    
+    /* Modal de anotações */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal {
+      background: var(--surface);
+      border-radius: 10px;
+      box-shadow: 0 5px 25px var(--shadow);
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      transition: background .3s, border-color .3s;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--accent);
+      color: var(--surface);
+      transition: background .3s, color .3s;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--surface);
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--surface);
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+    
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .modal-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+      color: var(--text);
+    }
+    
+    .notes-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .notes-section h3 {
+      color: var(--accent);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .notes-section p {
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+      color: var(--text);
+    }
+    
+    .notes-list {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+      color: var(--text);
+    }
+    
+    .notes-list li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .timeline {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+          "topo"
+          "esq"
+          "centro"
+          "dir"
+          "baixo";
+        height: auto;
+        min-height: 90vh;
+      }
+      
+      .centro h1 {
+        font-size: 1.5rem;
+      }
+      
+      .modal {
+        width: 95%;
+        max-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="timeline">
+    <div class="event topo" data-region="norte">
+      <div class="sub-event">
+        <h3>♥️ NORTE</h3>
+        <h2>Cœur d'Hiver</h2>
+        <p>O "Reino Congelado", de onde os Nobres expulsaram o Sol por medo dos Elite.</p>
+      </div>
+    </div>
+    
+    <div class="event esq" data-region="oeste">
+      <div class="sub-event">
+        <h3>♦️ OESTE</h3>
+        <h2>Floresta de Chrysopoeia</h2>
+        <p>O Continente (que foi) Estilhaçado, onde Gilgamesh obteve a Alquimia que criou os Elite.</p>
+      </div>
+    </div>
+    
+    <div class="event centro" id="ponto-zero" data-region="centro">
+      <p>...</p>
+      <h1>REINOS CARDEAIS DO MÆ</h1>
+      <p>...</p>
+    </div>
+    
+    <div class="event dir" data-region="leste">
+      <div class="sub-event">
+        <h3>♣️ LESTE</h3>
+        <h2>Amarat</h2>
+        <p>Deserto do Leste, onde Gilgamesh deu início a caçada aos Nobres.</p>
+      </div>
+    </div>
+    
+    <div class="event baixo" data-region="sul">
+      <div class="sub-event">
+        <h3>♠️ SUL</h3>
+        <h2>Solis Æterni</h2>
+        <p>Onde fica Cosmos, abaixo do Sol Eterno, local que os Nobres evitam.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal de anotações -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Anotações</h2>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-content" id="modalContent">
+        <!-- Conteúdo será inserido dinamicamente via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Centralizar o ponto zero ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      const zero = document.getElementById('ponto-zero');
+      if (zero) zero.scrollIntoView({ block: 'center', inline: 'center' });
+      
+      // Dados das anotações por região
+      const notesData = {
+        norte: {
+          title: "♥️ O REINO IMORAL",
+          content: `
+            <div class="notes-section">
+              <h3>Características Principais</h3>
+              <p><strong>Cœur d'Hiver</strong>, o "Reino Congelado", de onde os Nobres expulsaram o Sol para se protegerem dos Elite.</p>
+              <p>Os Nobres, temendo o poder dos Elite criados por Gilgamesh, tomaram a decisão radical de expulsar o Sol, mergulhando o reino em um inverno eterno.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Simbolismo</h3>
+              <p>O naipe de ♥️ (Coração) representa tanto o frio quanto a persistência da vida mesmo em condições extremas. O coração que continua a bater no frio mais intenso.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Eventos Relacionados</h3>
+              <ul class="notes-list">
+                <li>Terceiro evento na linha do tempo</li>
+                <li>Expulsão do Sol pelos Nobres</li>
+                <li>Governado por Acalon</li>
+                <li>Reação direta à criação dos Elite</li>
+              </ul>
+            </div>
+          `
+        },
+        oeste: {
+          title: "♦️ O CONTINENTE ESTILHAÇADO",
+          content: `
+            <div class="notes-section">
+              <h3>Características Principais</h3>
+              <p><strong>Floresta de Chrysopoeia</strong> é conhecida como o "Continente Estilhaçado". Este é o segundo evento na cronologia.</p>
+              <p>Foi de lá que Gilgamesh trouxe os segredos da Alquimia, utilizando este conhecimento para criar os Elite, guardiões destinados a proteger sua cidade.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Simbolismo</h3>
+              <p>O naipe de ♦️ (Ouros) representa riqueza e transformação - alusão direta à Alquimia, arte de transmutar metais comuns em ouro e buscar a perfeição.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Eventos Relacionados</h3>
+              <ul class="notes-list">
+                <li>Segundo evento na linha do tempo</li>
+                <li>Origem da Alquimia</li>
+                <li>Local de criação dos Elite</li>
+                <li>Terra fragmentada e instável</li>
+              </ul>
+            </div>
+          `
+        },
+        leste: {
+          title: "♣️ CIDADE DO AMOR E DA AMARGURA",
+          content: `
+            <div class="notes-section">
+              <p><strong>Amarat</strong> é o nome, tanto do vasto deserto do Leste, quanto também, da única cidade que existe nele.</p>
+            </div>
+            <div class="notes-section">
+              <h3>LÂMINA:</h3>
+              <p>Vorpal.</p>
+            </div>
+            <div class="notes-section">
+              <h3>PORTADORES:</h3>
+              <ul class="notes-list">
+                <li>Cruore;</li>
+              </ul>
+            </div>
+            <div class="notes-section">
+              <h3>EVENTOS IMPORTANTES:</h3>
+              <ul class="notes-list">
+                <li>Início da Guerra dos Dragões.</li>
+                <li>Criação de Vorpal, a partir de Meridiana (a succubus).</li>
+              </ul>
+            </div>
+          `
+        },
+        sul: {
+          title: "♠️ A TERRA DA ESTRELA",
+          content: `
+            <div class="notes-section">
+              <h3>Características Principais</h3>
+              <p><strong>Solis Æterni</strong> é onde se encontra Cosmos, local marcado pela queda de uma Fênix. Este é o quarto e último evento na cronologia.</p>
+              <p>A queda da Fênix representa tanto um fim quanto um renascimento, completando o ciclo dos Reinos Cardeais.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Simbolismo</h3>
+              <p>O naipe de ♠️ (Espadas) representa transformação e renascimento - como a Fênix que morre em chmas apenas para renascer das cinzas.</p>
+            </div>
+            <div class="notes-section">
+              <h3>Eventos Relacionados</h3>
+              <ul class="notes-list">
+                <li>Quarto evento na linha do tempo</li>
+                <li>Queda da Fênix</li>
+                <li>Localização de Cosmos</li>
+                <li>Fecho do ciclo dos Reinos Cardeais</li>
+              </ul>
+            </div>
+          `
+        },
+        centro: {
+          title: "O MUNDO ACIMA DAS ESTRELAS",
+          content: `
+            <div class="notes-section">
+              <h3>Ordem Cronológica dos Eventos</h3>
+              <ol class="notes-list">
+                <li><strong>Amarat (Leste)</strong> - Gilgamesh funda sua cidade no deserto</li>
+                <li><strong>Floresta de Chrysopoeia (Oeste)</strong> - Gilgamesh traz a Alquimia e cria os Elite</li>
+                <li><strong>Cœur d'Hiver (Norte)</strong> - Os Nobres, temendo os Elite, expulsam o Sol</li>
+                <li><strong>Solis Æterni (Sul)</strong> - Uma Fênix cai em Cosmos, completando o ciclo</li>
+              </ol>
+            </div>
+            <div class="notes-section">
+              <h3>Elementos Centrais da Narrativa</h3>
+              <ul class="notes-list">
+                <li><strong>Gilgamesh</strong>: Figura fundadora que estabelece a primeira cidade e cria os Elite</li>
+                <li><strong>Os Elite</strong>: Guardiões criados através da Alquimia para proteção</li>
+                <li><strong>A Alquimia</strong>: Arte ancestral originária da Floresta de Chrysopoeia</li>
+                <li><strong>A Fênix</strong>: Ser mítico cuja queda marca o evento final no Sul</li>
+                <li><strong>Os Nobres</strong>: Governantes do Norte que tomam a decisão de expulsar o Sol</li>
+              </ul>
+            </div>
+            <div class="notes-section">
+              <h3>Simbolismo dos Naipes</h3>
+              <ul class="notes-list">
+                <li>♥️ <strong>Coração (Norte)</strong>: Vida persistente no frio, emoção congelada</li>
+                <li>♦️ <strong>Ouros (Oeste)</strong>: Riqueza da Alquimia, transformação material</li>
+                <li>♣️ <strong>Paus (Leste)</strong>: Crescimento a partir do árido, fundação</li>
+                <li>♠️ <strong>Espadas (Sul)</strong>: Transformação radical, morte e renascimento</li>
+              </ul>
+            </div>
+            <div class="notes-section">
+              <h3>Padrões e Conexões</h3>
+              <p>A linha do tempo segue um movimento de expansão a partir do ponto central (Leste), com cada evento subsequente ocorrendo em uma direção cardeal diferente, formando uma cruz perfeita.</p>
+              <p>Cada reino representa não apenas uma localização geográfica, mas também um estágio no desenvolvimento da civilização e uma resposta aos eventos anteriores.</p>
+            </div>
+          `
+        }
+      };
+      
+      // Elementos do modal
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      const closeModal = document.getElementById('closeModal');
+      
+      // Adicionar eventos de clique nas regiões
+      const events = document.querySelectorAll('.event');
+      events.forEach(event => {
+        event.addEventListener('click', () => {
+          const region = event.dataset.region;
+          showNotes(region);
+        });
+      });
+      
+      // Função para mostrar as anotações
+      function showNotes(region) {
+        if (notesData[region]) {
+          modalTitle.textContent = notesData[region].title;
+          modalContent.innerHTML = notesData[region].content;
+          modalOverlay.classList.add('show');
+        }
+      }
+      
+      // Fechar modal
+      closeModal.addEventListener('click', () => {
+        modalOverlay.classList.remove('show');
+      });
+      
+      // Fechar modal ao clicar fora
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.classList.remove('show');
+        }
+      });
+      
+      // Fechar modal com tecla ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          modalOverlay.classList.remove('show');
+        }
+      });
+    });
+  </script>
+  
+  <script>
+    // Modificação temporária do Sistema_Tema.js para injetar as variáveis corretas
+    // Você pode mover isso para o próprio Sistema_Tema.js depois
+    document.addEventListener('DOMContentLoaded', function() {
+      const style = document.createElement('style');
+      style.textContent = `
+        :root {
+          --bg: #fdfbf7;
+          --surface: #fffdfc;
+          --text: #2b2118;
+          --text-soft: #5f4f3e;
+          --border: #e8e0d4;
+          --accent: #4a3728;
+          --shadow: rgba(0,0,0,0.07);
+          --borda: #e8e0d4;
+          --modal-bg: rgba(0,0,0,0.8);
+        }
+        
+        html.tema-escuro {
+          --bg: #111111;
+          --surface: #1a1a1a;
+          --text: #e8e0d4;
+          --text-soft: #b8a99a;
+          --border: #333333;
+          --accent: #d4b89a;
+          --shadow: rgba(0,0,0,0.6);
+          --borda: #333333;
+          --modal-bg: rgba(0,0,0,0.9);
+        }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+  
+  <script src="Sistema_Tema.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,49 @@
+<div id="social-widget-container" style="text-align: center; padding: 8px;">
+  <!-- O conteúdo será adicionado dinamicamente -->
+</div>
+
+<script type="text/javascript">
+  // Lista de redes sociais: imagem e link
+  const redes = [
+    { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg1_NXFLXUldKizgv9P0OMbwMjnssK5nBOVJdx-boFkRLre_FJWEy0N3y1r90Q2JL2UHcMM0-SFeM9UN3Qy08kz-oMOgR9L0poUkuke-C2V3Qyukc8isZ77IPbUitPor6cHvFBZ4vg94e-NDnrImGD71w-ukZ4V_Zjb4heR1OPysWJ2f0hwi1WlL4642RQ/s2000/substack.png', url: 'https://substack.com/@7guerreiros' },
+    { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjAuS-P5wWicYgpCqz5A2gk1Z3vCH0XddzR-oUtJDI6zZe_jxeBF6WLIFaVvOmpej9DxTdpLgtpCKPE9UqOEIUrTPksvdo4jNVe4ldMcvV1gKxaWgwmfpKV7G2iU5j3fIxUZTUEEWcPhd9PC6j0igGbbwuvIlWWaKIvDsRyeTxSTl4-M7Op1zJ8_X-Llr0/s16000/inkspired_universes_white_logo.png', url: 'https://getinkspired.com/pt/u/7guerreiros' },
+    { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEitiggHP4oLuvJcexfmA6he1iWedakcdvznFxQiuVt4ZTSJvjue09kScRNxddTA5DTvU-unujoqzV2sYjX_o7fny7uEALkmE196LYX48AK2uy_DVlOpKL7NLCE8lEn3a_RXb1F6vygSrUtdqE3jXcjX73yeFPV8nJtWUCcaTMUmhlGV35rq-1w9Ko52eSA/s2500/Mastodon.png', url: 'https://mastodon.social/@7Guerreiros' },
+    { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUxFpkvwWZ3ehVOo55K565caFfFS9NoYQNx6saYO14Qq0T35HTFHob4_RPG2Qlque3O4fQqyRu-4y8hWHzKlDCrJDs-Bso47CNyuI-N7p0yaozi8axxb_nH048Re1iHndgUiNMnikid0eH228ioPhBHD95IsChLY2IHUlr0c0fEd7QNWpcizck0eQ0wEM/s16000/0-7696_cute-png-tumblr.png', url: 'https://7guerreiros.tumblr.com' },
+	{ img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9sx-UuQMqOxEtRPa0VZpw1nm280gmdLq1A29wa0auAFLKivjEYvwZoMMW-zFDK2C4xB5ZaoVJeJytZQsBlXkaXnHjxbTT2hx1ptts9WV4FVE_gbumIn2uCxgVwZSBKjAHC6Iq1B344pjrT1onDR30nO6lJZXD-aGXpgThL1OnGgYgYvq-vfc0oXakj-g/s16000/facebook.png', url: 'https://www.facebook.com/Blog7Guerreiros' },
+	{ img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9sx-UuQMqOxEtRPa0VZpw1nm280gmdLq1A29wa0auAFLKivjEYvwZoMMW-zFDK2C4xB5ZaoVJeJytZQsBlXkaXnHjxbTT2hx1ptts9WV4FVE_gbumIn2uCxgVwZSBKjAHC6Iq1B344pjrT1onDR30nO6lJZXD-aGXpgThL1OnGgYgYvq-vfc0oXakj-g/s16000/facebook.png', url: 'https://www.facebook.com/EscritorVanieldosAnjos' },
+	{ img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi15ZtEhEnKhmTn-0pFc6Ll0-kKcVa1HQwo-Ddq-VQfzGC8xqefYNN2JFiissWtEsrsmFF-NuCVzzBkY3-Lx96Wz35dXkiMjDsOCD0WHjqj2RwaLoLSKQUirjPdggme72vA0BgsgEIXj-BHDouk8-0uGz8KxdAuabzEFH_uRhjASz-S0WX7TMh1bvUWFVk/s1280/Wattpad_logo.svg.png', url: 'https://www.wattpad.com/user/VanieldosAnjos' },
+	{ img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFL0gYZ6Rsc1no-J7PDaRRXgkojZDWPbatJBUzzmxQMXYVGdGG85kYtJvfeK_FJxoZYxBHXw4fU6I_ydh9kHlN2Zmy6rz6bzN247IXpxVgU4F8Rpvlf3e9LUzR8eyGTEeqWjAcsxdUqg-FcoLYS2btCASjfCe1qQiBAKh6plzomKVNWnI1-1M6TIugqYw/s16000/instagram.png', url: 'https://www.instagram.com/martialskool' },
+	{ img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhN2uS08FvVN5wWI8Fz2IkHfS5lSCrtKBg-JcwbhjVib1eE4bD0cV8XgBX5rhyphenhyphen3uE0Drih2rfDMspg29MZiPAd7UKOOPN1kXYHkMv-Ep-zTggXYysTC9L0WSBex2qUld1fNSflvie6NiHYsq-0iXs9jgJJUwMaueyO7i1S7U352LvwcjcoYiVuvZFf_zL4/s16000/102-1026383_steam-png.png', url: 'https://steamcommunity.com/id/7guerreiros' },
+    { img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEipg3jbLBbdeLQ10nF2WmqhERxGlN0Gy9uIMGuyJxXj1uPCnCunaF0pvMJllMyjPQzlKPmsjZC9BDRIYEm7r_0K7vVQfhQbbcDBsN5e7Fiueq4bq17PIwgIKfagd06yypQqx4Jd4kegQ1ofWldTujy4z_kd_clbhCe4IljC-nE0fGJPBMSRLYmLN-ldW7w/s16000/Twitter-X-Logo-PNG.png', url: 'https://x.com/Blog7Guerreiros' }
+  ];
+
+  function exibirRedeAleatoria() {
+    if (redes.length === 0) return;
+
+    const indice = Math.floor(Math.random() * redes.length);
+    const rede = redes[indice];
+
+    const container = document.getElementById('social-widget-container');
+
+    // Cria o link e a imagem
+    const link = document.createElement('a');
+    link.href = rede.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+
+    const img = document.createElement('img');
+    img.src = rede.img;
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.display = 'block';
+    img.style.margin = '0 auto';
+    img.alt = ''; // Nenhum texto alternativo
+
+    // Adiciona a imagem ao link e o link ao container
+    link.appendChild(img);
+    container.appendChild(link);
+  }
+
+  // Executa ao carregar a página
+  window.onload = exibirRedeAleatoria;
+</script>

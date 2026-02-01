@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex | 7Guerreiros</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        .codex-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .assunto {
+            margin-bottom: 30px;
+            padding: 0 5px;
+        }
+        
+        .assunto-titulo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--borda);
+            color: var(--text);
+            background-color: transparent;
+        }
+        
+        .topico {
+            margin-bottom: 2px;
+        }
+        
+        .topico-header {
+            background-color: var(--bg);
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            border-bottom: 1px solid var(--borda);
+            font-weight: normal;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        
+        .topico-header:hover {
+            background-color: color-mix(in srgb, var(--bg) 80%, var(--text) 20%);
+        }
+        
+        .topico-conteudo {
+            display: none;
+            padding: 20px;
+            border: none;
+            border-bottom: 1px solid var(--borda);
+            background-color: var(--bg);
+        }
+        
+        .topico.expandido .topico-conteudo {
+            display: block;
+        }
+        
+        .topico.expandido .topico-header {
+            background-color: color-mix(in srgb, var(--bg) 70%, var(--text) 30%);
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+            font-style: italic;
+            color: var(--text);
+            opacity: 0.7;
+        }
+        
+        /* Estilos para conteúdo Markdown convertido */
+        .topico-conteudo h1, 
+        .topico-conteudo h2, 
+        .topico-conteudo h3, 
+        .topico-conteudo h4 {
+            margin: 1.5em 0 0.5em 0;
+            color: var(--text);
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        
+        .topico-conteudo h1 { font-size: 1.8em; }
+        .topico-conteudo h2 { font-size: 1.5em; }
+        .topico-conteudo h3 { font-size: 1.3em; }
+        .topico-conteudo h4 { font-size: 1.1em; }
+        
+        .topico-conteudo p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        
+        .topico-conteudo ul, 
+        .topico-conteudo ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        .topico-conteudo li {
+            margin-bottom: 0.5em;
+        }
+        
+        .topico-conteudo strong, 
+        .topico-conteudo b {
+            font-weight: bold;
+        }
+        
+        .topico-conteudo em, 
+        .topico-conteudo i {
+            font-style: italic;
+        }
+        
+        .topico-conteudo blockquote {
+            margin: 1em 0;
+            padding-left: 1em;
+            border-left: 3px solid var(--borda);
+            font-style: italic;
+        }
+        
+        .topico-conteudo code {
+            font-family: 'Courier New', monospace;
+            background-color: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .topico-conteudo pre {
+            background-color: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
+            padding: 1em;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        
+        .topico-conteudo pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .topico-conteudo a {
+            color: var(--text);
+            text-decoration: underline;
+            text-decoration-color: var(--borda);
+        }
+        
+        .topico-conteudo a:hover {
+            text-decoration-color: var(--text);
+        }
+        
+        .topico-conteudo hr {
+            border: none;
+            border-top: 1px solid var(--borda);
+            margin: 2em 0;
+        }
+        
+        .topico-conteudo img {
+            max-width: 100%;
+            height: auto;
+            margin: 1em 0;
+            border: 1px solid var(--borda);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .topico-header {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .topico-conteudo {
+                padding: 15px;
+            }
+            
+            .assunto-titulo {
+                font-size: 1.2rem;
+                padding: 8px 12px;
+            }
+            
+            .topico-conteudo h1 { font-size: 1.6em; }
+            .topico-conteudo h2 { font-size: 1.4em; }
+            .topico-conteudo h3 { font-size: 1.2em; }
+        }
+        
+        @media (min-width: 769px) {
+            .codex-container {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="codex-container">
+        <div id="loading" class="loading">Codex hominis...</div>
+        
+        <!-- PERSONAGENS -->
+        <div class="assunto">
+            <div class="assunto-titulo">CODEX HOMINIS</div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/A PIRATARIA EM SUA ÉPOCA DE OURO.md">
+                    Vaniel dos Anjos
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/IMPRESSÕES.md">
+                    Aura Blackwood
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+     
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/INDEX_TEMPORARIOS.md">
+                    Deserto Amazônico
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/PLANO DO BATATA.md">
+                    Pirâmide de Ouro
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+        
+            
+            <div class="topico">
+                <button class="topico-header" data-arquivo="CODEX_HOMINE/VARINHAS MAGICAS HARRY POTTER.md">
+                    She-devil
+                </button>
+                <div class="topico-conteudo"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            let carregando = new Set();
+            
+            // Parser Markdown básico e seguro
+            const markdownParser = {
+                // Converte Markdown para HTML
+                parse: function(markdown) {
+                    if (!markdown) return '';
+                    
+                    // Processa em etapas
+                    let html = markdown;
+                    
+                    // 1. Cabeçalhos (#, ##, ###)
+                    html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+                    html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+                    html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+                    
+                    // 2. Negrito (**texto** ou __texto__)
+                    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+                    
+                    // 3. Itálico (*texto* ou _texto_)
+                    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+                    
+                    // 4. Linhas horizontais (--- ou ***)
+                    html = html.replace(/^\s*[-*_]{3,}\s*$/gm, '<hr>');
+                    
+                    // 5. Blocos de código (```código```)
+                    html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+                    
+                    // 6. Código inline (`código`)
+                    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+                    
+                    // 7. Listas não ordenadas (*, -, +)
+                    html = this.parseLists(html);
+                    
+                    // 8. Links [texto](url)
+                    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+                    
+                    // 9. Imagens ![alt](url)
+                    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">');
+                    
+                    // 10. Blockquotes (> texto)
+                    html = html.replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>');
+                    
+                    // 11. Parágrafos (linhas não vazias)
+                    html = this.parseParagraphs(html);
+                    
+                    return html;
+                },
+                
+                // Processa listas
+                parseLists: function(text) {
+                    const lines = text.split('\n');
+                    let inList = false;
+                    let result = [];
+                    
+                    for (let line of lines) {
+                        const listMatch = line.match(/^[\s]*[*+-] (.*)/);
+                        
+                        if (listMatch) {
+                            if (!inList) {
+                                result.push('<ul>');
+                                inList = true;
+                            }
+                            result.push(`<li>${listMatch[1]}</li>`);
+                        } else {
+                            if (inList) {
+                                result.push('</ul>');
+                                inList = false;
+                            }
+                            result.push(line);
+                        }
+                    }
+                    
+                    if (inList) {
+                        result.push('</ul>');
+                    }
+                    
+                    return result.join('\n');
+                },
+                
+                // Processa parágrafos
+                parseParagraphs: function(text) {
+                    const lines = text.split('\n');
+                    let result = [];
+                    let paragraph = [];
+                    
+                    for (let line of lines) {
+                        const trimmed = line.trim();
+                        
+                        // Se linha vazia, fecha parágrafo atual
+                        if (trimmed === '' || trimmed === '<hr>' || 
+                            trimmed.startsWith('<h') || trimmed.startsWith('<ul') || 
+                            trimmed.startsWith('</ul') || trimmed.startsWith('<li') ||
+                            trimmed.startsWith('<pre') || trimmed.startsWith('</pre') ||
+                            trimmed.startsWith('<blockquote')) {
+                            
+                            if (paragraph.length > 0) {
+                                result.push(`<p>${paragraph.join(' ')}</p>`);
+                                paragraph = [];
+                            }
+                            result.push(line);
+                        } 
+                        // Se é tag HTML, mantém como está
+                        else if (trimmed.startsWith('<')) {
+                            if (paragraph.length > 0) {
+                                result.push(`<p>${paragraph.join(' ')}</p>`);
+                                paragraph = [];
+                            }
+                            result.push(line);
+                        }
+                        // Texto normal, adiciona ao parágrafo
+                        else {
+                            paragraph.push(line);
+                        }
+                    }
+                    
+                    // Fecha último parágrafo se houver
+                    if (paragraph.length > 0) {
+                        result.push(`<p>${paragraph.join(' ')}</p>`);
+                    }
+                    
+                    return result.join('\n');
+                }
+            };
+            
+            // Inicializar eventos
+            function init() {
+                document.querySelectorAll('.topico-header').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const topico = this.parentElement;
+                        const arquivo = this.getAttribute('data-arquivo');
+                        const conteudoDiv = topico.querySelector('.topico-conteudo');
+                        
+                        // Se já está expandido, fecha
+                        if (topico.classList.contains('expandido')) {
+                            topico.classList.remove('expandido');
+                            return;
+                        }
+                        
+                        // Fecha todos os outros
+                        document.querySelectorAll('.topico').forEach(t => {
+                            t.classList.remove('expandido');
+                        });
+                        
+                        // Se conteúdo já carregado, apenas expande
+                        if (conteudoDiv.innerHTML.trim() !== '') {
+                            topico.classList.add('expandido');
+                            return;
+                        }
+                        
+                        // Carrega conteúdo
+                        carregarConteudo(arquivo, conteudoDiv, topico);
+                    });
+                });
+            }
+            
+            // Carregar conteúdo de arquivo Markdown externo
+            function carregarConteudo(arquivo, conteudoDiv, topico) {
+                // Evita carregamento duplicado
+                if (carregando.has(arquivo)) return;
+                carregando.add(arquivo);
+                
+                const loading = document.getElementById('loading');
+                if (loading) loading.style.display = 'block';
+                
+                fetch(arquivo)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Arquivo não encontrado');
+                        return response.text();
+                    })
+                    .then(markdown => {
+                        // Converte Markdown para HTML
+                        const html = markdownParser.parse(markdown);
+                        conteudoDiv.innerHTML = html;
+                        topico.classList.add('expandido');
+                        if (loading) loading.style.display = 'none';
+                        carregando.delete(arquivo);
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        conteudoDiv.innerHTML = '<p>Conteúdo não disponível.</p>';
+                        topico.classList.add('expandido');
+                        if (loading) loading.style.display = 'none';
+                        carregando.delete(arquivo);
+                    });
+            }
+            
+            // Iniciar
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+    
+    <!-- Script para gerenciamento de temas -->
+    <script src="Sistema_Tema.js"></script>
+</body>
+</html>
