@@ -1,0 +1,128 @@
+<!-- ================================================================
+     SCRIPT DE VERIFICAÇÃO — NÃO EDITAR
+     ================================================================
+     FUNCIONAMENTO:
+       Este bloco só executa se este arquivo for aberto AVULSO
+       (directamente pela URL, ou através de um buscador). Quando
+       este arquivo é injectado normalmente pelo Codex Blog (via
+       innerHTML), scripts não executam — comportamento padrão dos
+       navegadores — por isso este bloco fica inerte e inofensivo
+       no fluxo normal do site.
+
+       Ao executar (fora de contexto), procura a variável
+       window.SITE_CHAVE_VERIFICACAO, definida apenas dentro do
+       index.html. Se não encontrar o valor esperado, conclui que
+       a página não está a ser vista dentro do site e redirecciona
+       imediatamente para a home.
+
+     MANUTENÇÃO:
+       • CHAVE_ESPERADA tem de ser idêntica à definida em index.html.
+       • CAMINHO_HOME é relativo a partir da localização deste
+         arquivo. Ajustar se a estrutura de pastas do site mudar
+         (actualmente presume-se um nível de profundidade, ex:
+         BLOG/ARQUIVO_BASE.html).
+     ================================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    var CHAVE_ESPERADA = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    var CAMINHO_HOME    = "../index.html";
+
+    if (window.SITE_CHAVE_VERIFICACAO !== CHAVE_ESPERADA) {
+        window.location.replace(CAMINHO_HOME);
+    }
+}());
+</script>
+<!-- ================================================================
+     FIM DO SCRIPT DE VERIFICAÇÃO
+     ================================================================ -->
+
+<!-- ================================================================
+     ÁREA DE TEXTO — EDITE A PARTIR DAQUI
+     ================================================================
+     COMO ESCREVER:
+       Basta colar o texto puro, sem tags. Cada parágrafo deve ficar
+       separado do seguinte por UMA LINHA EM BRANCO — nada de <br>.
+       Isso funciona graças à regra ".area-conteudo .artigo" definida
+       em Estilo_Conteudo.css (white-space: pre-line).
+
+       Tags inline continuam disponíveis se precisar, por exemplo
+       <strong>negrito</strong> ou <em>itálico</em> no meio do texto.
+
+     ATENÇÃO — CONTEXTO DE APLICAÇÃO DESTA REGRA:
+       A formatação (quebra de parágrafos, justificado, etc.) só é
+       aplicada quando este arquivo é injetado dentro do site, pois a
+       regra vive em Estilo_Conteudo.css (carregado apenas pelo
+       index.html). Se este arquivo for aberto avulso, o texto abaixo
+       aparece como bloco corrido — apenas o aviso mais abaixo
+       continua a funcionar normalmente nesse caso.
+     ================================================================ -->
+<div class="artigo">
+Pousamos ontem, ao sul do Deserto Amazônico, mais precisamente, na fronteira entre a caatinga e a areia, onde alguns índios moribundos ainda habitam. É um lugar simplesmente surreal, onde parece haver uma constante luta entre a areia e uma terra escura em que cresce uma fraca vegetação rasteira fustigada pelo Sol. Me pus de pé bem na divisa do combate e olhei, primeiro para a direita, depois para a esquerda e, para qualquer lado que se olhe, a divisão se estende por quilômetros. Minha equipe para esta expedição arqueológica fora financiada pela senhorita Aura, uma linda mulher britânica que entrou em contato diretamente com a curadoria do museu para nos financiar. E pensando bem, seu nome, Aura, me parece estranho, não sei se é mesmo um nome britânico, tem muito mais uma pronuncia românica ou até oriental; é, acho que deve ser isso mesmo, até seus olhos têm um certo ar asiático, muito embora, seu cabelo castanho claro, quase louro, também me lembre alguém de ascendência europeia. Realmente, é uma mulher incomum.
+– Mas, qual será o objetivo da expedição?
+	Ora, não seria outro senão explorar a suposta Pirâmide de Ouro que muitos dizem se erguer imponente no centro do Deserto Amazônico!
+
+	Mesmo estando ainda apenas às portas e não dentro do deserto em si, o calor era avassalador. O simples ato de pisar na areia à frente era o suficiente para se afundar até as canelas, imagine então caminhar por três dias, deserto a dentro, tendo de se suportar os pés afundando neste inferno. Quisera eu ter camelos para nos levarem, mas não estamos no oriente. Havia também o vento cortante que castigava a pele. Mas nenhum destes fatores foi motivo, segundo o piloto – um homem velho e barrigudo que cheirava a álcool – de não nos deixar mais para dentro do deserto, em suas palavras:
+
+– Esta área tem sido palco de coisas muito estranhas, todos os zepelins que a sobrevoam jamais retornam.
+
+	O velho também disse que há algum tipo de demônio sob as areias – pobre tolo supersticioso!
+	Mas, agora vejo que ele não está sozinho em sua loucura, nossa patrocinadora, a linda mulher de vermelho e cabelos claros que nos acompanha, trouxe consigo cinco empregados, todos de boa aparência e braços fortes para carregarem nossas malas, porém, quando se viram as portas do deserto, os incompetentes simplesmente levantaram acampamento, isto é, armaram NOSSAS barracas, quatro das cinco que trouxemos para acampar do lado de fora da pirâmide quando a encontrássemos, e, depois de fazê-lo, se recusaram a seguir viagem. Nunca fui suficientemente esclarecido no idioma inglês, fora o fato de que a senhorita Aura também se recusou a traduzir o que diziam os homens apavorados, mas pude entender claramente duas palavras:
+
+– “She-devil”.
+
+	Repetidas várias e várias vezes freneticamente. Para nosso alívio, naquele momento, e também para nossa futura desgraça, um homem de aspecto carrancudo, vestindo botas de couro que lembravam as de um pistoleiro – e devia ser isso mesmo, já que era o segurança de minha empregadora – se prontificou a recolher alguns equipamentos e nos acompanhar mesmo assim. Ele era diferente de qualquer homem que eu já tenha visto, parecia ainda mais rude que os piores condenados e, ao mesmo tempo, mais culto que a própria senhora. Quando perguntei, o rapaz me respondeu como se chamava, mas não pude compreender suas palavras, além do mais, sua expressão de poucos amigos me fez desistir de questioná-lo novamente, fiquei apenas com o que pude entender, algo como Aleguero…
+	Resolvi que não me dirigiria a ele outra vez até que ouvisse a senhorita chamá-lo pelo nome!
+	Deixamos quase todos os equipamentos para trás e, sob as estridentes, porém gentis, ordens de Aura, o outro e eu, nos ocupamos de apanhar tantos cantis de água quanto pudemos. Enquanto trabalhávamos, algo chamou minha atenção: não posso dizer com certeza, porém, creio que vi aquele homem apanhar, de dentro de uma das caixas, um objeto que possuía a silhueta de uma arma de fogo, será que ele espera realmente enfrentar algum demônio no coração do deserto?
+	Aura, por sua vez, era delicada demais para carregar qualquer coisa, então apenas apanhou um enorme chapéu – que parecia mexicano, certamente obtido em suas viagens pelo mundo – lamentando o fato de que, se caminhasse por muito tempo no deserto, o Sol certamente tingiria seus cabelos de negro. Não andamos por mais que um par de horas, até que se tornou impossível para a moça nos acompanhar. E ela não era a única a ter problemas, o vento nos atirava tão violentamente milhares de grãos de areia no rosto, de tal forma, que pareciam muito mais como pedradas, até nossas roupas já haviam se tornado pesadas devido ao acumulo do pó dourado. Também não víamos com clareza o Sol se escondendo as nossas costas, então, Aleguero e eu armamos uma das pequenas barracas com grande dificuldade devido ao forte vento; assim que pronta, Aura entrou e se abrigou, em seguida foi minha vez. Segurei a “porta” para que nosso companheiro entrasse também, a fim de fugir dos ventos, mas ele não o fez, ao contrário, sinalizou para que fechássemos a tenda e, resmungando algo quanto a condição financeira da moça ter haver com suas capacidades, se dirigiu para longe, se sentando no meio da areia em plena tempestade.
+	O barulho do vento era tamanho que, depois de ter se afastado, mesmo que quiséssemos fazê-lo, de modo algum se poderia ouvir o que estava dizendo lá fora. A senhorita Aura, com um rosto gentil e preocupado, questionava-se a todo momento se nosso companheiro estaria bem. A ventania se estendeu por horas, ameaçando fazer a barraca sair voando sem importar se nós dois estávamos dentro.
+	O vento custou a acalmar sua fúria, e quando todo o ar já estava quase parado, enquanto aquela delicada dama começava a adormecer, exausta da caminhada, subitamente a brisa voltou a se irritar, desta vez trazendo consigo sons muito incomuns; Aura e eu ficamos muito confusos, porque simplesmente ouvíamos passos nas dunas, como que, pisando pesadamente e se enterrando no meio da areia, a princípio julgamos ser nosso carregador, porém, a medida que o vento aumentava, mais e mais sons de passos apareciam em todas as direções, quantas pessoas caminhavam no deserto além de nós?
+	Será que aquele piloto bêbado estava certo em dizer que o local era assombrado, ou eram apenas os outros carregadores que mudaram de ideia e nos seguiram empurrados pelo remorso?
+– Só podem ser eles mesmos! Aqueles inúteis certamente sentiram saudades de sua bela senhora; afinal, estou-lhes pagando um bom dinheiro!
+	Aura ficou indignada e com razão, quem abandonaria tão doce senhorita em meio a um lugar inóspito como este?
+	Ela já havia aberto metade do zíper da tenda quando se ergueu, junto aos sons de passos, o choro de uma mulher – um som simplesmente ensurdecedor, que me fazia tremer até a alma. Aura paralisou imediatamente, como se houvesse sido congelada no tempo, seus olhos fixos na escuridão que se via pela fresta do zíper. Mesmo igualmente apavorado, reuni alguma coragem e fechei novamente a barraca. Aura então, se encolheu, apertou os braços ao redor de si, como se tentasse se proteger dos lamentos, e estremeceu. Aqueles prantos, hora agonizantes, hora debochados; eram esganiçados e ensurdecedores, como o ranger de unhas contra um vidro centenas de vezes amplificados. A cada onda de choro, as vozes pareciam zombar de nossa carne e ossos!
+A senhorita ficou tão transtornada que movia seus lábios freneticamente, tentando argumentar em silêncio com as vozes malditas, ou, quem sabe, estivesse orando. A cada vez que eu tentava, ainda que vagamente, espiar o que ocorria la fora, ela se agarrava a mim, pálida e trêmula, e me impedia de fazê-lo. Em todas as vezes que fiz menção de tentar averiguar novamente aquela situação demoníaca, Aura me impediu, talvez ela soubesse mais do que eu, que aquele era um terror grande demais para ser enfrentado, ou mesmo, compreendido. De modo que, permanecemos atormentados por toda uma noite de incertezas, sentindo que o tempo se arrastava segundo a segundo…
+
+A fria madrugada custou a passar, envolvida em uma quietude que, pouco a pouco, nos devolvia a lucidez. Enfim sobrevieram o silêncio e o sono. À poucas horas do amanhecer apenas a senhorita Aura dorme, encolhida debaixo de seu cobertor e quebrando levemente o silêncio com seus suspiros enquanto escrevo estas palavras. Não a perturbarei, é melhor esperarmos até sermos atingidos pela segurança da luz do Sol antes de pensar em sair daqui e procurar pelo corpo de Aleguero…
+</div>
+
+<!-- ================================================================
+     AVISO DE CONTEXTO — Só visível se aberto avulso
+     ================================================================
+     FUNCIONAMENTO:
+       Por padrão (.fr-aviso-avulso) fica escondido — estado seguro,
+       assume-se injetado. O selector "body > .fr-aviso-avulso" só
+       combina quando ESTE elemento é filho DIRETO do <body> — o que
+       só acontece quando o ficheiro é aberto isoladamente (o browser
+       cria <html>/<body> implícitos e este bloco vira filho direto
+       deles). Quando injetado dentro do Codex Blog, este elemento
+       fica sempre a várias camadas de profundidade do <body> real
+       do site, então a regra nunca combina e o aviso permanece
+       escondido.
+
+     IMPORTANTE:
+       Este bloco (style + p) tem de ficar FORA da .fr-conteudo,
+       como irmão dela — nunca dentro — senão o "body >" nunca
+       vai combinar mesmo no caso avulso.
+     ================================================================ -->
+<style>
+    .fr-aviso-avulso { display: none; }
+
+    body > .fr-aviso-avulso {
+        display: block;
+        margin-top: 2em;
+        padding-top: 1em;
+        border-top: 1px solid #999;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+</style>
+
+<p class="fr-aviso-avulso">
+    Que estranho!
+	<br>
+	Como você conseguiu abrir este texto sem carregar o resto do site?
+	<br>
+    Acesse o site completo: <a href="../index.html">7guerreiros.github.io/codex/</a>
+</p>

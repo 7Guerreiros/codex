@@ -1,0 +1,153 @@
+<!-- ================================================================
+     SCRIPT DE VERIFICAÇÃO — NÃO EDITAR
+     ================================================================
+     FUNCIONAMENTO:
+       Este bloco só executa se este arquivo for aberto AVULSO
+       (directamente pela URL, ou através de um buscador). Quando
+       este arquivo é injectado normalmente pelo Codex Blog (via
+       innerHTML), scripts não executam — comportamento padrão dos
+       navegadores — por isso este bloco fica inerte e inofensivo
+       no fluxo normal do site.
+
+       Ao executar (fora de contexto), procura a variável
+       window.SITE_CHAVE_VERIFICACAO, definida apenas dentro do
+       index.html. Se não encontrar o valor esperado, conclui que
+       a página não está a ser vista dentro do site e redirecciona
+       imediatamente para a home.
+
+     MANUTENÇÃO:
+       • CHAVE_ESPERADA tem de ser idêntica à definida em index.html.
+       • CAMINHO_HOME é relativo a partir da localização deste
+         arquivo. Ajustar se a estrutura de pastas do site mudar
+         (actualmente presume-se um nível de profundidade, ex:
+         BLOG/ARQUIVO_BASE.html).
+     ================================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    var CHAVE_ESPERADA = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    var CAMINHO_HOME    = "../index.html";
+
+    if (window.SITE_CHAVE_VERIFICACAO !== CHAVE_ESPERADA) {
+        window.location.replace(CAMINHO_HOME);
+    }
+}());
+</script>
+<!-- ================================================================
+     FIM DO SCRIPT DE VERIFICAÇÃO
+     ================================================================ -->
+
+<!-- ================================================================
+     ÁREA DE TEXTO — EDITE A PARTIR DAQUI
+     ================================================================
+     COMO ESCREVER:
+       Basta colar o texto puro, sem tags. Cada parágrafo deve ficar
+       separado do seguinte por UMA LINHA EM BRANCO — nada de <br>.
+       Isso funciona graças à regra ".area-conteudo .artigo" definida
+       em Estilo_Conteudo.css (white-space: pre-line).
+
+       Tags inline continuam disponíveis se precisar, por exemplo
+       <strong>negrito</strong> ou <em>itálico</em> no meio do texto.
+
+     ATENÇÃO — CONTEXTO DE APLICAÇÃO DESTA REGRA:
+       A formatação (quebra de parágrafos, justificado, etc.) só é
+       aplicada quando este arquivo é injetado dentro do site, pois a
+       regra vive em Estilo_Conteudo.css (carregado apenas pelo
+       index.html). Se este arquivo for aberto avulso, o texto abaixo
+       aparece como bloco corrido — apenas o aviso mais abaixo
+       continua a funcionar normalmente nesse caso.
+     ================================================================ -->
+<div class="artigo">
+Sabe, na verdade eu demorei bastante pra começar a usar as IAS, a primeira versão que usei foi famigerado Chat GPT 3.5 e sequer foi em seu lançamento. Não me entenda mal, não fiz isso por medo da singularidade e nem nada do tipo, é que simplesmente detesto de participar das modinhas dos neandertais!
+
+Me lembro de quando começou a passar Naruto na TV, no SBT, e foi uma coisa bem curiosa porque a emissora transmitia o episódio 1, depois o 3, então voltava no 2, depois o 5, e aí o 4, tanto que achávamos que a narrativa era assim mesmo, mostrava algo "lá na frente", depois vinha amarrando as coisas. Pois bem, lá estava o Batata e eu, durante um treino de boxe, falando sobre Naruto (éramos adolescentes), e eis que um dos alunos daquele meu primo surgiu e começou a zombar de nós, dizendo o quanto aquilo era infantil. Foi quando meu parente se aproximou e disse:
+
+- "Naum, Naruto é baum sim!"
+
+Mal ele havia virado as costas, e o aluno já começou a nos perguntar sobre o anime. Moral da história?
+Nunca mais assisti Naruto, nem sei como termina!!!
+Chega de divagações e vamos ao que interessa: afinal de contas, as IAS também erram em suas respostas?
+É bem engraçado, tenho ouvido eloquentemente das mais variadas fontes que elas tem apenas 0.01% de erro e, "cara", em queria uma IA dessas, porque as que uso quase que tem 0.01% de acerto...
+É um fato bem conhecido as chamadas alucinações que as IAs cometem, que ocorrem quando elas simplesmente inventam uma informação como se fosse verídica, vide os casos pesquisáveis:
+
+* O processo Mata contra Avianca, nos EUA em 2023, onde os advogados forneceram casos de exemplo para comparação com o caso atual fornecidos pelo Chat GPT que alegava serem verdadeiros, mas eram pura alucinação, além formulações de alegações sem sentido incluídas.
+* Em sua própria demonstração de lançamento, em 2023, o Google Bard afirmou que fora o telescópio James Webb a tirar a primeira foto de um exo-planeta.
+* Aqui mesmo no Brasil, o que não faltam são casos de processos levados adiante recheados com informações alucinadas de IAs, ocorridos, por exemplo, no Tribunal de Justiça do Paraná, Rio de Janeiro, entre outros.
+* IAs mandando os usuários se suicidarem, lendo seus perfis e rastros digitais e acusando-os de crimes não cometidos também (tristemente) comuns.
+
+Eu mesmo já tive minha cota de alucinações, como, por exemplo:
+
+* Quando perguntei a uma IA quantos livros Tolkien havia escrito e ela me respondeu: 5 (o SDA, Hobbit e Silmarillion), quando eu mesmo, na condição de "Tolkienista amador", sei que, em vida, foram 14, fora as publicações póstumas...
+* Certa vez, enquanto assistia a TV com o celular na mão, perguntei o nome do ator que interpretava John Connor em as Crôncias de Sarah Connor, ele me respondeu: Wesley Snipes!
+* Ao procurar por citações, por vezes ele as atribuiu a "personagens" errados.
+
+Mas, por que isso ocorre?
+As primeiras IAs lançadas, por exemplo, o famigerado Chat GPT 3.5 (e muitas outras) simplesmente haviam sido treinadas com tudo o que há na internet, com dados recolhidos até a data de 2021, e só alguns anos depois, é que os modelos ganharam a capacidade de acessar a internet e recolher dados mais atualizados.
+Como se isso já não bastasse por si só já não fosse o suficiente, quero dizer, se já não bastasse apenas os dados antigos e as alucinações, outro ponto de atenção é a própria qualidade das informações e, para um melhor entendimento, vou lhe dar um pequeno exemplo: suponhamos que eu perguntasse algo sobre o livro O Senhor dos Anéis (já que falei sobre Tolkien), haveria um ou dois detalhes a se considerar para tal resposta: 
+Em primeiro lugar não são todos os livros que se encontram na internet (vai me dizer que só eu procurei desesperadamente um PDF de O Messias Vem a Terra Média e, como não achei nem em inglês ou espanhol, tive de comprar o livro?), e em segundo, é verdade que as IAs foram treinadas com livros piratas que circulam na internet, mas isso gerou vários processos bilionários e até algumas restrições em como elas respondem sobre livros, fazendo com que as resposta tenham de pender mais para os comentários que existem na internet sobre os tais livros do que citações diretas ou "elaborações" vindas direto do texto dos livros, e todos sabemos que na internet só se fala merda... (com o perdão da expressão).
+Há também, o caso de conteúdos, como determinadas linguagens de programação que, por serem proprietários, simplesmente não se encontram nem mesmo pirateados pela internet.
+Para ajudar nesse processo, existem também certos filtros programáveis, ou seja, regras e algoritmos (feitos por um humano, é claro) que avaliam os dados na entrada e/ou depois do processamento da IA (na parte II comentarei sobre esse processamento) a fazem a resposta ser cuspida de determianda maneira (programada). Eles funcionam mais ou menos assim: uma regra é definida, por exemplo, "se, no texto, seja no prompt ou na resposta gerada, houver a palavra rabanete (um mero eufemismo aqui, entenda como alguma palavra imprópria), então a resposta deve ser re-gerada de maneira a se negar a falar do assunto".
+Estes "filtros" podem, inclusive, ser enviesados, de modo fazê-la responder de determinada maneira.
+De posse de toda essa informação dá pra se afirmar que as IAs estão 100% certas apenas em 2 casos:
+
+1 - Quando se trata de um assunto tremendamente trivial, que simplesmente não tem como errar.
+2 - Quando o usuário simplesmente não tem noção do assunto que está pesquisando!
+
+É bem interessante ver que muitos simplesmente não leem os avisos que se seguem nos rodapés de todas as IAS:
+
+Chat GPT: O ChatGPT pode cometer erros. Por isso, lembre-se de conferir informações relevantes.
+Gemini: O Gemini não é humano. Pode cometer erro, por isso verifique as informações.
+
+Na documentação (termos de uso) do Copilot da Microsoft, temos o seguinte trecho:
+
+"Copilot is for entertainment purposes only. It can make mistakes, and it may not work as intended. Don't rely on Copilot for important advice. Use Copilot at your own risk."
+
+Que está dizendo mais ou menos o seguinte:
+
+"O Copilot é apenas um entretenimento. Ele pode cometer erros e não funcionar como o esperado. Não confie nele para conselhos importantes. Use o Copilot por sua conta e risco."
+
+Não me entenda mal, eu não sou nenhum "ante-IA", se ainda não lhe passou pela cabeça, este site foi feito do zero com uso de IA, mas, não utilizando a técnica chamada Vibe Coding, que se aplica ao cenário em que o usuário deixa 100% a cargo da IA, ou (em certos caso) sequer entende do assunto que está sendo tratado por ela. As IAs são uma realidade, elas chegaram para ficar e quem não souber usá-las vai ficar para trás, é um fato, PORÉM, existe uma grande diferença entre usá-la como ferramenta, controlando até a técnica que a IA usará e sabendo exatamente o que está sendo feito, e pedir para que ela faça por você!
+Em vários momentos eu a usei, por exemplo para criar nomes para meus personagens, pedindo que ela misturasse latim e astronomia, mas não usei nenhum dos nomes sugeridos por ela, mas, a partir deles, criei os meus próprios que me agradaram.
+Correções de textos, sugestões de assunto e cenas, ou seja, materiais que se tornam inspirações, ilustrações a partir de model sheets, estilos e ângulos devidamente dirigidos pelo operador de modo a estar no controle, e não apenas "aceitando o que vier", são absolutamente bem vindos e configuram um grande ganho de produtividade. Antes que eu me esqueça, segundo o Claude, esse método de uso seria chamado de "pair programmer", ou "programação em dupla".
+</div>
+
+<!-- ================================================================
+     AVISO DE CONTEXTO — Só visível se aberto avulso
+     ================================================================
+     FUNCIONAMENTO:
+       Por padrão (.fr-aviso-avulso) fica escondido — estado seguro,
+       assume-se injetado. O selector "body > .fr-aviso-avulso" só
+       combina quando ESTE elemento é filho DIRETO do <body> — o que
+       só acontece quando o ficheiro é aberto isoladamente (o browser
+       cria <html>/<body> implícitos e este bloco vira filho direto
+       deles). Quando injetado dentro do Codex Blog, este elemento
+       fica sempre a várias camadas de profundidade do <body> real
+       do site, então a regra nunca combina e o aviso permanece
+       escondido.
+
+     IMPORTANTE:
+       Este bloco (style + p) tem de ficar FORA da .fr-conteudo,
+       como irmão dela — nunca dentro — senão o "body >" nunca
+       vai combinar mesmo no caso avulso.
+     ================================================================ -->
+<style>
+    .fr-aviso-avulso { display: none; }
+
+    body > .fr-aviso-avulso {
+        display: block;
+        margin-top: 2em;
+        padding-top: 1em;
+        border-top: 1px solid #999;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+</style>
+
+<p class="fr-aviso-avulso">
+    Que estranho!
+	<br>
+	Como você conseguiu abrir este texto sem carregar o resto do site?
+	<br>
+    Acesse o site completo: <a href="../index.html">7guerreiros.github.io/codex/</a>
+</p>

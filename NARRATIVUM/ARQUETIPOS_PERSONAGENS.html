@@ -1,0 +1,197 @@
+<!-- ================================================================
+     SCRIPT DE VERIFICAÇÃO — NÃO EDITAR
+     ================================================================
+     FUNCIONAMENTO:
+       Este bloco só executa se este arquivo for aberto AVULSO
+       (directamente pela URL, ou através de um buscador). Quando
+       este arquivo é injectado normalmente pelo Codex Blog (via
+       innerHTML), scripts não executam — comportamento padrão dos
+       navegadores — por isso este bloco fica inerte e inofensivo
+       no fluxo normal do site.
+
+       Ao executar (fora de contexto), procura a variável
+       window.SITE_CHAVE_VERIFICACAO, definida apenas dentro do
+       index.html. Se não encontrar o valor esperado, conclui que
+       a página não está a ser vista dentro do site e redirecciona
+       imediatamente para a home.
+
+     MANUTENÇÃO:
+       • CHAVE_ESPERADA tem de ser idêntica à definida em index.html.
+       • CAMINHO_HOME é relativo a partir da localização deste
+         arquivo. Ajustar se a estrutura de pastas do site mudar
+         (actualmente presume-se um nível de profundidade, ex:
+         BLOG/ARQUIVO_BASE.html).
+     ================================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    var CHAVE_ESPERADA = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    var CAMINHO_HOME    = "../index.html";
+
+    if (window.SITE_CHAVE_VERIFICACAO !== CHAVE_ESPERADA) {
+        window.location.replace(CAMINHO_HOME);
+    }
+}());
+</script>
+<!-- ================================================================
+     FIM DO SCRIPT DE VERIFICAÇÃO
+     ================================================================ -->
+
+<!-- ================================================================
+     ÁREA DE TEXTO — EDITE A PARTIR DAQUI
+     ================================================================
+     COMO ESCREVER:
+       Basta colar o texto puro, sem tags. Cada parágrafo deve ficar
+       separado do seguinte por UMA LINHA EM BRANCO — nada de <br>.
+       Isso funciona graças à regra ".area-conteudo .artigo" definida
+       em Estilo_Conteudo.css (white-space: pre-line).
+
+       Tags inline continuam disponíveis se precisar, por exemplo
+       <strong>negrito</strong> ou <em>itálico</em> no meio do texto.
+
+     ATENÇÃO — CONTEXTO DE APLICAÇÃO DESTA REGRA:
+       A formatação (quebra de parágrafos, justificado, etc.) só é
+       aplicada quando este arquivo é injetado dentro do site, pois a
+       regra vive em Estilo_Conteudo.css (carregado apenas pelo
+       index.html). Se este arquivo for aberto avulso, o texto abaixo
+       aparece como bloco corrido — apenas o aviso mais abaixo
+       continua a funcionar normalmente nesse caso.
+     ================================================================ -->
+<div class="artigo">
+## AMANTE:
+
+- Assim como o Cuidador, esse arquétipo fará qualquer coisa por amor. Podem ser um príncipe, um mendigo, uma celebridade ou quem quer que sejam, têm amor em suas vidas e isso os torna mais motivados e dedicados do que você pode imaginar. A desvantagem da paixão é que muitas vezes estão dispostos a sacrificar tudo por aqueles que amam, o que pode ser uma passagem só de ida para a tragédia.
+- Pontos Fortes: Devoção e paixão.
+- Fraquezas: Vontade de sacrificar identidade, vida e liberdade.
+- Desejos: Estar em um relacionamento.
+- Exemplos: Edward de Crepúsculo , Romeu e Julieta.
+
+## CORINGA:
+
+- O tolo, o palhaço, o bobo da corte, o hedonista, o coringa. Esse arquétipo tem muitas faces, mas se você vir algum personagem dizer algo como “Calma, cara” ou “Relaxe”, então provavelmente ele é o Coringa. No mito, os Coringas costumam agir para dar advertência, alertando as pessoas para não perderem muito tempo em busca do que objetivos bobos. Na cultura moderna, eles costumam ser o alívio cômico.
+- Pontos fortes: alegria e simpatia.
+- Defeitos: Frivolidade.
+- Desejos: Viver o hoje e ser feliz.
+- Exemplos: Timon e Pumbaa de O Rei Leão , Tigrão de Winnie the Pooh.
+
+## CRIADORA:
+
+- Para esse arquétipo de personagem, nada é mais valioso do que a vontade de fazer algo. Em muitas histórias, um criador será talvez o criativo de algum tipo e disposto a sacrificar seu próprio bem-estar e relacionamentos em busca de um objetivo/sonho abstrato. Por causa da sua obsessão, os criadores geralmente acabam pagando um preço pessoal muito caro.
+- Pontos fortes: Criatividade, motivação e capacidade de executar seus sonhos.
+- Fraquezas: Sacrifício pessoal, perfeccionismo e ego.
+- Desejos: Criar algo de valor para criar seu legado.
+- Exemplos : Remy de Ratatouille , Dr Jekyll de Dr Jekyll e Mr Hyde e Willy Wonka.
+
+## CRIANÇA:
+
+- Para amadurecimento, o inocente passa por algo marcante para crescer. Esse arquétipo segue personagens jovens ou ingênuos que observam o mundo através de lentes fantasiosas, até que a realidade de verdade apareça. Isso não quer dizer que se tornem pessoas amarguradas com quem eram antes da mudança, mas aprenderão algumas lições sobre o mundo e a vida.
+- Pontos Fortes: Otimismo, entusiasmo e imaginação.
+- Fraquezas: Ingenuidade e impotência física.
+- Desejos: Ser feliz (ou mais feliz).
+- Exemplos: Mary em o Jardim Secreto, Dorothy de O Mágico de Oz.
+
+## CUIDADOR(A):
+
+- A marca pessoal deste personagem é o seu altruísmo. eles podem ser uma mãe, um pai, esposa, marido ou melhor amigo, quem quer que seja, fará de tudo para proteger um filho, um aprendiz, amor ou amigos. É bem raro o cuidador ocupar um espaço na história, mas essa é a natureza de sua personalidade.
+- Pontos Fortes: Generosidade e abnegação.
+- Desejos: Proteger e ajudar os outros.
+- Fraquezas: Também altruísmo, afinal estão abertos à exploração e isso pode ser perigoso.
+- Exemplos: Eva em Precisamos Falar Sobre Kevin , Samwise de O Senhor dos Anéis, Mary Poppins.
+
+## GOVERNANTE:
+
+- A coroa em sua cabeça costuma tem um peso extra. Qualquer sociedade costuma ter um líder, mas como esse líder consegue lidar com poder absoluto? O que eles farão para manter o controle e a ordem? Estes que governam com bondade e compaixão, ou quem sabe, com mão de ferro?
+- Pontos Fortes: Liderança, carisma e poder.
+- Fraquezas: Incapacidade de delegar e desconfiança.
+- Desejos: Controlar, manter o poder.
+- Exemplos: Macbeth, Miranda Priestly de O Diabo Veste Prada , Sr. Burns de Os Simpsons.
+
+## GUERREIRO
+
+- Normalmente um personagem com um plano. Preparado com um conjunto particular de habilidades e com força de vontade, o guerreiro/herói conquistará o vilão e o vencerá. Este personagem mesmo que competente sofre uma crise de confiança em seu ponto mais baixo, da qual deve superar se quiserem voltar ao topo.
+- Pontos fortes: Coragem, força (física ou mental) e habilidade.
+- Fraquezas: Excesso de confiança e ego.
+- Desejos: Salvar o dia e provar seu valor.
+- Exemplos: Hércules, Ulisses, Aragorn de O Senhor dos Anéis e qualquer personagem de Jason Momoa.
+
+## MAGO:
+
+- Personagens aspirantes aos grandes mestres. Direcionados por sua natureza inquisitiva, os Magos procuram a iluminação, mas em contra partida ao sábios e mentores, também querem impor sua vontade no mundo que os rodeia. Esse personagens são clássicos na fantasia e podem impressionar muitos, mesmo que sejam realmente feiticeiros, suas habilidades costumam estar além da compreensão.
+- Pontos Fortes: Conhecimento e poder.
+- Fraquezas: Arrogância e prepotência.
+- Desejos: Criar ordem a partir do caos e dobrar o mundo à sua vontade.
+- Exemplos: Sherlock Holmes, Dr. Strange, Jay Gatsby de O Grande Gatsby.
+
+## MENTOR/SÁBIO:
+
+- O protagonista costuma possuir um tipo de personagem que funciona como mentor e que o preparará para as provações que virão. Às vezes, esse mentor ou sábio, é um cuidador. Outras vezes, pode ser um mago, um incapaz ou experiente em algum ofício. Seja qual for a forma que assumam, estão lá para guiar o herói pelo desconhecido. O propósito original deste arquétipo foi provavelmente convencer as gerações mais jovens a ouvir os mais velhos e por vezes, mais frágeis.
+- Pontos Fortes: Sabedoria e experiência.
+- Fraquezas: Cautela e incapacidade de agir.
+- Desejos: Ajudar o herói a ultrapassar seus limites e entender o mundo.
+- Exemplos: Gandalf em O Senhor dos Anéis, Mr. Miyagi em Karate Kid e Obi-Wan Kenobi em Star Wars.
+
+## ÓRFÃO:
+
+- O sonho de ser transportado do mundo obscuro para um universo melhor e por vezes fantasioso é algo que em algum momento acontece em nossas vidas. Não é a toa que os órfãos são tão utilizados como protagonistas. Além disso, eles têm mais a ganhar com a sorte e nem sempre precisam ser órfãos, mas na maioria dos casos, estes personagens estão em buscas de uma nova “família”.
+- Pontos fortes: Instinto de sobrevivência, empatia e perseverança.
+- Fraquezas: Falta de confiança e necessidade de agradar aos outros.
+- Desejos: Prosperar e se conectar com os outros.
+- Exemplos: Harry Potter, Oliver Twist, Matilda de Roald Dahl.
+
+## REBELDE:
+
+- Um rebelde é alguém que escapa do status quo sem medo de ser feliz. Diante de uma sociedade injusta, são aqueles que têm a vontade de derrubar o status quo. Um rebelde pode ser um líder carismático, mas também pode trabalhar em segredo. Eles podem ser lutadores da liberdade e os primeiros a colocarem fogo no parquinho.
+- Pontos fortes: desenvoltura e perseverança.
+- Fraquezas: Pequeno em poder, status e recursos.
+- Desejos: Mudar o mundo ao seu redor.
+- Exemplos: Katniss Everdeen de The Hunger Games , Ferris Bueller, Hester Prynne em A Letra Escarlate .
+
+## SEDUTORA:
+
+- “Posso te dar o que você quiser”, é o refrão da sedutora, uma personagem que vem em todas as formas, tamanhos e gêneros. Vilões sedutores! Eles podem oferecer poder, amor, dinheiro ou influência, mas lembre-se, essas coisas sempre vêm com um preço. Se uma sedutora está envolvida, a moral da história é quase sempre: “Não acredite em nada que seja bom demais para ser verdade”.
+- Pontos fortes: Sedução, carisma e falta de moral.
+- Fraquezas: O vazio de suas promessas.
+- Desejos: Controle.
+- Exemplos: Mefistófeles em Fausto , Dalila de Sansão e Dalila , quase todas as personagens femininas de A Odisseia .
+</div>
+
+<!-- ================================================================
+     AVISO DE CONTEXTO — Só visível se aberto avulso
+     ================================================================
+     FUNCIONAMENTO:
+       Por padrão (.fr-aviso-avulso) fica escondido — estado seguro,
+       assume-se injetado. O selector "body > .fr-aviso-avulso" só
+       combina quando ESTE elemento é filho DIRETO do <body> — o que
+       só acontece quando o ficheiro é aberto isoladamente (o browser
+       cria <html>/<body> implícitos e este bloco vira filho direto
+       deles). Quando injetado dentro do Codex Blog, este elemento
+       fica sempre a várias camadas de profundidade do <body> real
+       do site, então a regra nunca combina e o aviso permanece
+       escondido.
+
+     IMPORTANTE:
+       Este bloco (style + p) tem de ficar FORA da .fr-conteudo,
+       como irmão dela — nunca dentro — senão o "body >" nunca
+       vai combinar mesmo no caso avulso.
+     ================================================================ -->
+<style>
+    .fr-aviso-avulso { display: none; }
+
+    body > .fr-aviso-avulso {
+        display: block;
+        margin-top: 2em;
+        padding-top: 1em;
+        border-top: 1px solid #999;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+</style>
+
+<p class="fr-aviso-avulso">
+    Que estranho!
+	<br>
+	Como você conseguiu abrir este texto sem carregar o resto do site?
+	<br>
+    Acesse o site completo: <a href="../index.html">7guerreiros.github.io/codex/</a>
+</p>

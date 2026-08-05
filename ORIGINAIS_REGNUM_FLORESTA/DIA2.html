@@ -1,0 +1,161 @@
+<!-- ================================================================
+     SCRIPT DE VERIFICAÇÃO — NÃO EDITAR
+     ================================================================
+     FUNCIONAMENTO:
+       Este bloco só executa se este arquivo for aberto AVULSO
+       (directamente pela URL, ou através de um buscador). Quando
+       este arquivo é injectado normalmente pelo Codex Blog (via
+       innerHTML), scripts não executam — comportamento padrão dos
+       navegadores — por isso este bloco fica inerte e inofensivo
+       no fluxo normal do site.
+
+       Ao executar (fora de contexto), procura a variável
+       window.SITE_CHAVE_VERIFICACAO, definida apenas dentro do
+       index.html. Se não encontrar o valor esperado, conclui que
+       a página não está a ser vista dentro do site e redirecciona
+       imediatamente para a home.
+
+     MANUTENÇÃO:
+       • CHAVE_ESPERADA tem de ser idêntica à definida em index.html.
+       • CAMINHO_HOME é relativo a partir da localização deste
+         arquivo. Ajustar se a estrutura de pastas do site mudar
+         (actualmente presume-se um nível de profundidade, ex:
+         BLOG/ARQUIVO_BASE.html).
+     ================================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    var CHAVE_ESPERADA = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    var CAMINHO_HOME    = "../index.html";
+
+    if (window.SITE_CHAVE_VERIFICACAO !== CHAVE_ESPERADA) {
+        window.location.replace(CAMINHO_HOME);
+    }
+}());
+</script>
+<!-- ================================================================
+     FIM DO SCRIPT DE VERIFICAÇÃO
+     ================================================================ -->
+
+<!-- ================================================================
+     ÁREA DE TEXTO — EDITE A PARTIR DAQUI
+     ================================================================
+     COMO ESCREVER:
+       Basta colar o texto puro, sem tags. Cada parágrafo deve ficar
+       separado do seguinte por UMA LINHA EM BRANCO — nada de <br>.
+       Isso funciona graças à regra ".area-conteudo .artigo" definida
+       em Estilo_Conteudo.css (white-space: pre-line).
+
+       Tags inline continuam disponíveis se precisar, por exemplo
+       <strong>negrito</strong> ou <em>itálico</em> no meio do texto.
+
+     ATENÇÃO — CONTEXTO DE APLICAÇÃO DESTA REGRA:
+       A formatação (quebra de parágrafos, justificado, etc.) só é
+       aplicada quando este arquivo é injetado dentro do site, pois a
+       regra vive em Estilo_Conteudo.css (carregado apenas pelo
+       index.html). Se este arquivo for aberto avulso, o texto abaixo
+       aparece como bloco corrido — apenas o aviso mais abaixo
+       continua a funcionar normalmente nesse caso.
+     ================================================================ -->
+<div class="artigo">
+É noite novamente. Gastamos quase toda a nossa água logo no primeiro dia da viagem devido ao calor, e ainda tivemos de cozinhar as batatas que trouxemos para o jantar. Há mais um dia inteiro de caminhada a frente, penso que teremos de reutilizar a água das batatas amanhã… Ao menos, diferente de ontem, uma brisa muito agradável, ainda que terrivelmente gélida, sopra ao nosso redor. Não há nenhum som de passos, nenhum grito agourento, nenhum lamento ou escarnio, há apenas areia, pra onde quer que se olhe, há um oceano dourado. Quisera eu que fosse realmente ouro, se assim fosse, encheria meus bolsos dele e voltaria para casa imediatamente!
+	Estive me perguntando, durante todo o dia, se a noite passada realmente aconteceu ou se fora um efeito alucinógeno causado pela insolação que devo ter pegado neste deserto. E ainda mais estranho do que os lamentos que ouvimos à noite, foi a manhã: ambos, Aura e eu, acordamos depois de um sono leve e curto, ainda estávamos tremendo um pouco de espanto e, mesmo assim, buscamos abrir o zíper da barraca, acho que levamos mais de quinze minutos só pra abri-la completamente pois, a cada centímetro que o zíper avançava, nossas lembranças, somadas a uma imaginação sombria, nos traziam as figuras das almas zombeteiras invadindo a barraca. Mesmo depois de aberta, mais algum tempo se passou antes que tivéssemos coragem de dar uma breve espiada no que poderia haver do lado de fora, e para nossa imensa surpresa, não havia nada… apenas ele, Aleguero, que estava dormindo aos roncos sobre uma jaqueta embolada, como se fosse um travesseiro, e com suas roupas meio amassadas e cobertas com “toneladas” de areia; ao seu lado havia um punhado de gravetos parcialmente queimados, algo que me deixou chocado e, certamente, a senhorita Aura também, afinal de contas, como em nome de Deus aquele homem conseguiu manter o fogo aceso com tamanha tempestade e tanta loucura do além dançando a nossa volta?
+– Será que ele não ouvira o mesmo que nós?
+– Será que imaginamos tudo aquilo?
+– Será que EU imaginei ou sonhei com fantasmas, como se fosse uma criança com medo da primeira vez que dorme fora de casa?
+	Estas perguntas realmente me atormentaram por todo o dia.
+– Agora entendo aqueles boatos… dizem que aqui, no lugar do deserto, havia uma antiga floresta. Nunca acreditei nisso, afinal de contas, não nada aqui, nenhuma raiz ou galho enterrado na areia, toda a região parece apenas um enorme caldeirão de areia.
+– Devem ter sido as alucinações solares que deram origem a essa história de Floresta Amazônica!
+	Mal havíamos dado um passo para fora da barraca e o homem acordou com um sobressalto e, ainda deitado, Aleguero contemplou Aura e eu saindo da barraca, quase agarrados um ao outro. Os olhares apreensivos da senhorita também não ajudaram em nada para contradizer os pensamentos perversos daquele homem que, logo exibiu um rosto simplesmente malicioso. Ele não disse nada a princípio, apenas nos fitou com interesse, e quando questionei se também havia ouvido os lamentos agourentos da noite, ele começou a rir descontroladamente antes de comentar:
+– Lamentos agourentos, é assim que chamam?
+– Achei que a madame estivesse gritando por “outra coisa”!
+	Em seguida, ele se apoiou nos cotovelos, se virou para Aura e falou em alto e bom som:
+– Ei senhorita, ele é tão ruim assim a ponto de fazê-la chorar e lamentar?
+– Por que não me deixa cuidar da dona esta noite?
+– Garanto que a satisfarei muito melhor do que este doutor almofadinha aqui!
+– Olhe pra ele, de terno em pleno Deserto Amazônico!
+
+– Como ousa falar assim de uma dama tão digna – vociferei – ela jamais se sujeitaria a esse tipo de coisa!
+	Fiquei indignado com aquele bronco, me virei e me afastei imediatamente, fui em direção a senhorita Aura, como que para dizer que não desse ouvidos a aquele homem, mas, ao me aproximar, a vi me olhando com desconfiança pelo canto dos olhos, com o rosto baixo e a mão esquerda sobre a testa… Quando cheguei perto, ela se afastou de mim desviando o olhar.
+	Alguns minutos depois, enquanto recolhíamos as coisas para iniciar a caminhada novamente, eu a intimei a falar sobre os gritos que ouvimos a noite passada. Diante disso, ela pareceu meio que fora do ar, pensativa, até que caiu em si novamente se pôs a murmurar enquanto corava:
+– Foi um erro… foi um erro… aquilo foi um terrível erro!
+	Desconcertada, ela saiu correndo para longe, carregando apenas seu chapéu e um cantil com a água de batatas. Fiquei muito confuso com a atitude da senhorita, em seguida, acompanhei apreensivo Aleguero, recolhendo as coisas, depois seguimos a caminhada.
+	Observei a bela Aura mais uns instantes e, vendo sua expressão, notei que não era como se estivesse preocupada com vozes do além-túmulo que nos atormentaram a noite, de forma alguma, parecia muito mais que ela estava terrivelmente envergonhada, como se houvesse feito algo que não devia… diante disto, volto a me questionar:
+– Será que tudo aquilo, e me refiro a todos aqueles gritos e “fantasmas” que nos atacaram, será que tudo foi apenas um sonho?
+	Preciso pensar sobre isso, é melhor colocar as ideias no papel e tentar organizar meus pensamentos: após chegarmos ao deserto e caminharmos por quase um dia inteiro, uma tempestade de areia surgiu; às pressas, armamos uma barraca para nos abrigar, onde estive por toda a noite sozinho com Aura, enquanto Aleguero dormiu do lado de fora; esta manhã, em todas as vezes que falei com a senhorita, ela mal me olhou nos olhos; além disso, também tem me parecido muito envergonhada com algo; e ainda tem as toneladas de piadas sexuais do nosso carregador… o que posso concluir de tudo isso?
+	Sou um homem casado e amo minha esposa, mas…
+– Será que Aura e eu fizemos “algo”?
+– Algo de que me arrependi… de que nós nos arrependemos?
+– Será que, por isso, eu mesmo construí toda uma fantasia repleta de temores e maldições ao redor do caso?
+	Me parece mesmo com algo que aquele psiquiatra que às vezes sai nos jornais, o tal do Sigmund Freud, diria. Segundo ele, tudo se resume a sexo e, é claro, que a culpa pelo que fizemos mexeu também com minha sanidade!
+– Sem dúvida alguma, esta é a explicação, tem que ser!
+– Será que minhas palavras estão fazendo algum sentido?
+	Nem sei mais por que continuo escrevendo isto, acho que apenas preciso me focar em algo, então, por hora, me concentrarei na busca que há a frente, me esforçarei para chegar até a pirâmide sem nenhuma distração, não mais compartilharei a barraca com a senhorita, para que não venha a cometer o mesmo e terrível engano!
+
+	A tarde a seguir foi tão normal quanto se podia ser, isto é, levando-se em conta que estávamos caminhando para dentro de um infernal deserto escaldante em busca de uma pirâmide lendário de ouro…
+	Vez ou outra, precisamos parar para que a delicada senhorita Aura descansasse por algum tempo, a sombra de alguma duna ou daquele chapéu estranho que ela carrega e, foi num destes descansos, em que Aleguero se deslocou para o alto de uma das dunas para buscar uma visão mais ampla do lugar, que perguntei a senhorita, de maneira absolutamente profissional e educada, é claro, sem sequer me aproximar muito para não incorrer em tentação novamente:
+– O que sabe sobre este homem, senhorita Aura?
+– Aleguero, acho que este era o nome dele, certo?
+	Ela riu discretamente – com sua linda e delicada voz – e fez menção de se aproximar, mas, vendo meu desconforto – pelo que também lamento tê-la feito perceber – apenas colocou sua mão esquerda ao lado da boca, como se tivesse a intenção de, ao mesmo tempo, amplificar seus sussurros e ocultá-los do homem acima de nós:
+– Nada sei, a não ser sua nacionalidade: ele vem de Firenze e foi indicado pelo meu avô como um guarda-costas para esta expedição.
+– Meu avô disse se tratar de um homem honrado, embora ríspido, e que me protegeria de qualquer um, e eu consenti.
+– Contudo, agora me recordo de que, logo que o avistou, um dos carregadores me contou que se tratava de um homem de fama perturbadora e me narrou uma história tão absurda que a julguei mera artimanha para reduzir o número de pessoas nesta viagem. Afinal, parte do pagamento que prometemos consistiria em 0,001% dos lucros da expedição, divididos igualmente para todos da equipe; com menos integrantes, maior seria a parcela de cada um, foi essa a conclusão que cheguei.
+	Diante disso, questionei a senhorita sobre a tal história que havia ouvido sobre nosso companheiro e foi isso o que ela disse:
+– O outro carregador me contou sobre uma expedição anterior, a um lugar chamado Caral, onde um burguês, interessado numa estátua de uma deusa, ou uma virgem, achou que a encontraria dentro de uma Pirâmide de Ouro puro. Este homem que nos acompanha era o encarregado da segurança da equipe, visto que na região havia muitos contrabandistas.
+– A expedição realmente alcançou o lugar; ao todo eram quinze pessoas, e apenas um homem retornou de lá!
+– Foram todos mortos de uma maneira tão absurdamente brutal que ninguém pôde explicar o fato; este homem, o nosso carregador e meu guarda-costas, foi o único sobrevivente. Ele foi apelidado de Alighieri, devido aos relatos de demônios e monstros que trouxe a tona; isso ocorreu há aproximadamente sete anos…
+	Passei o resto do dia ainda mais perdido do que estive durante a manhã, fiquei pensando nesta história até agora, enquanto escrevo estas palavras. Ainda assim, tão perturbadora quanto possa ter sido o relato, meus próprios devaneios ainda se sobressaem em minha mente:
+– Será mesmo que sonhei com todos aqueles gritos agourentos devido a culpa pelo meu pecado?
+– Ou foi o próprio Alighiere que trouxe a tona todas as maldições dos nove círculos do inferno?
+	Me pergunto se ele planeja fazer o mesmo que fez naquela ocasião conosco, isto é, com a senhorita Aura. Essa “estória” não serviu de nada, senão para atiçar ainda mais minha desconfiança. Aaquele homem: seu olhar, desde o início, me pareceu frio, como alguém que passou por muito sofrimento e, mesmo no escuro da noite e a luz de uma fraca fogueira, percebo, com receio, que ele leva as mãos ao cinturão e ao coldre, pelo menos, uma vez a cada minuto, conferindo se sua arma ainda está no lugar, se está pronta para ser usada…
+
+	É estranho, ainda é madrugada e já não tenho sono, creio ter sido aquele sonho que me despertou, acho que é melhor escrevê-lo também: sonhei com uma linda mulher, quase tão linda quanto a senhorita, ainda que seus cabelos fossem da cor do sangue dos mortos, seus olhos fossem brilhantes como o Sol; sua pele era tão suave como a primavera, mas pálida como a morte; tinha um porte altivo e misterioso; usava um vestido curto e quase transparente, com aparência europeia; tinha gestos delicados e uma maneira arrebatadora de caminhar. No sonho, ela vinha em minha direção, desde o alto de uma Pirâmide Dourada, até a relva verde em que estive caminhando ao seu encontro, sob grandes árvores antigas. Então ela falou comigo, me chamou pelo nome com a mais doce voz que já ouvi – ainda agora, a ouço, me contando sobre o lugar de onde viera, e que também me mostraria coisas incríveis, segredos escondidos além da umbra eterna, num lugar chamado Avalon…
+	O que realmente me causou arrepios de estranheza, não fora esse sonho tão vivido, nem a floresta em pleno deserto, e sim o que me disse Alighiere, quase imediatamente ao momento em que saí para respirar, após ter acordado:
+– Esqueça isso doutor, você já teve sua chance na umbra da noite passada, mas o que fez com ela?
+– Nada!!!
+– Ficou assustado como um gatinho, se escondeu em sua barraca com a dona. Você não é homem suficiente, doutor, mas eu sou; não me deixo levar pelos resmungos do deserto quando estou diante de uma deusa!
+	Seu olhar me pareceu tão absurdamente maligno e, ao mesmo tempo, suplicante, que temi lhe responder, temi continuar encarando-o, eu apenas fingi não saber do que falava e tentei me afastar, o que não adiantou de muito, pois o homem ainda sussurrou:
+– Amanhã, não fique entre nós ou eu o matarei também; a deusa será minha!!!
+	Eu soube imediatamente o que ele pretendia fazer com a senhorita, mas, naquele momento, me resignei, pois, percebi, em uma última olhada de canto de olho, sua mão pousada sobre a cintura, tateando a arma novamente. Não posso deixar que sua intenção se concretize, antes de chegarmos a pirâmide, terei de fazer alguma coisa, nem que seja matá-lo, preciso proteger Aura!
+</div>
+
+<!-- ================================================================
+     AVISO DE CONTEXTO — Só visível se aberto avulso
+     ================================================================
+     FUNCIONAMENTO:
+       Por padrão (.fr-aviso-avulso) fica escondido — estado seguro,
+       assume-se injetado. O selector "body > .fr-aviso-avulso" só
+       combina quando ESTE elemento é filho DIRETO do <body> — o que
+       só acontece quando o ficheiro é aberto isoladamente (o browser
+       cria <html>/<body> implícitos e este bloco vira filho direto
+       deles). Quando injetado dentro do Codex Blog, este elemento
+       fica sempre a várias camadas de profundidade do <body> real
+       do site, então a regra nunca combina e o aviso permanece
+       escondido.
+
+     IMPORTANTE:
+       Este bloco (style + p) tem de ficar FORA da .fr-conteudo,
+       como irmão dela — nunca dentro — senão o "body >" nunca
+       vai combinar mesmo no caso avulso.
+     ================================================================ -->
+<style>
+    .fr-aviso-avulso { display: none; }
+
+    body > .fr-aviso-avulso {
+        display: block;
+        margin-top: 2em;
+        padding-top: 1em;
+        border-top: 1px solid #999;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+</style>
+
+<p class="fr-aviso-avulso">
+    Que estranho!
+	<br>
+	Como você conseguiu abrir este texto sem carregar o resto do site?
+	<br>
+    Acesse o site completo: <a href="../index.html">7guerreiros.github.io/codex/</a>
+</p>

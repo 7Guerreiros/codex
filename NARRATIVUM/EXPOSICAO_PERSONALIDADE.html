@@ -1,0 +1,161 @@
+<!-- ================================================================
+     SCRIPT DE VERIFICAÇÃO — NÃO EDITAR
+     ================================================================
+     FUNCIONAMENTO:
+       Este bloco só executa se este arquivo for aberto AVULSO
+       (directamente pela URL, ou através de um buscador). Quando
+       este arquivo é injectado normalmente pelo Codex Blog (via
+       innerHTML), scripts não executam — comportamento padrão dos
+       navegadores — por isso este bloco fica inerte e inofensivo
+       no fluxo normal do site.
+
+       Ao executar (fora de contexto), procura a variável
+       window.SITE_CHAVE_VERIFICACAO, definida apenas dentro do
+       index.html. Se não encontrar o valor esperado, conclui que
+       a página não está a ser vista dentro do site e redirecciona
+       imediatamente para a home.
+
+     MANUTENÇÃO:
+       • CHAVE_ESPERADA tem de ser idêntica à definida em index.html.
+       • CAMINHO_HOME é relativo a partir da localização deste
+         arquivo. Ajustar se a estrutura de pastas do site mudar
+         (actualmente presume-se um nível de profundidade, ex:
+         BLOG/ARQUIVO_BASE.html).
+     ================================================================ -->
+<script>
+(function () {
+    'use strict';
+
+    var CHAVE_ESPERADA = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    var CAMINHO_HOME    = "../index.html";
+
+    if (window.SITE_CHAVE_VERIFICACAO !== CHAVE_ESPERADA) {
+        window.location.replace(CAMINHO_HOME);
+    }
+}());
+</script>
+<!-- ================================================================
+     FIM DO SCRIPT DE VERIFICAÇÃO
+     ================================================================ -->
+
+<!-- ================================================================
+     ÁREA DE TEXTO — EDITE A PARTIR DAQUI
+     ================================================================
+     COMO ESCREVER:
+       Basta colar o texto puro, sem tags. Cada parágrafo deve ficar
+       separado do seguinte por UMA LINHA EM BRANCO — nada de <br>.
+       Isso funciona graças à regra ".area-conteudo .artigo" definida
+       em Estilo_Conteudo.css (white-space: pre-line).
+
+       Tags inline continuam disponíveis se precisar, por exemplo
+       <strong>negrito</strong> ou <em>itálico</em> no meio do texto.
+
+     ATENÇÃO — CONTEXTO DE APLICAÇÃO DESTA REGRA:
+       A formatação (quebra de parágrafos, justificado, etc.) só é
+       aplicada quando este arquivo é injetado dentro do site, pois a
+       regra vive em Estilo_Conteudo.css (carregado apenas pelo
+       index.html). Se este arquivo for aberto avulso, o texto abaixo
+       aparece como bloco corrido — apenas o aviso mais abaixo
+       continua a funcionar normalmente nesse caso.
+     ================================================================ -->
+<div class="artigo">
+### ESTADO INICIAL:
+
+## 1. SELFIE PESSOAL
+
+Constituíção Fisíca: Descrição da aparência – pontos marcantes - sentimentos.
+
+## 2. GOSTO MUSICAL
+
+Subcosciente: Tentar passar uma mensagem por intermédio das músicas escolhidas.
+
+## 3. ANIMAIS E NATUREZA
+
+Ideias sobre o Mundo: Mostrar gosto por animais - posição sobre a natureza.
+
+## 4. FAMÍLIA
+
+Bases Familiares: Mostrar relações familiares, valores e traumas vindos da convivência – Mentores.
+
+## 5. AMIZADE E RELAÇÕES
+
+Individualidade: Mostrar amizades, relações e acontecimentos com amigos – relacionamentos românticos e “erros do passado”.
+
+## 6. ESPORTES
+
+Poderes: Artes Marciais e Xadrez.
+
+## 7. SONHOS E AMBIÇÕES
+
+Sociedade: Não apenas falar de seus planos futuros, mas, torná-los relevantes para a história – mostrar medos.
+
+### PONTOS PARA PEQUENA MUDANÇA NO PERSONAGEM:
+
+## 8. MORALIDADE
+
+Verdade/Morte: Situações em que o personagem precisa fornecer auxilio – momentos de raiva e/ou conflitos. Quando o personagem precisa se posicionar diante de uma situação, sua moral e ética entram em jogo. Momentos de conflito interno e de decisão revelam seu caráter e a evolução de suas crenças.
+
+## 9. INTERESSES ELEVADOS
+
+Aprofundamento na Verdade: Pensamentos Morais e/ou Filosóficos – dilemas/dúvidas.
+
+### PONTOS PARA UMA GRANDE MUDANÇA NUM PERSONAGEM:
+
+## 10. CRENÇAS PROFUNDAS
+
+Relação coma Verdade: Crenças Religiosas (ou a falta delas) – Veritas Lux Mea.
+
+## 11. ARREPENDIMENTOS E ORGULHOS
+
+Legado I: O retorno de arrependimentos passados – feitos de que se orgulha – de modo a causar reflexão.
+
+## 12. ENSINAMENTOS DESPRENDIDOS
+
+Legado II: Momentos em que ofereceram respostas.
+
+## 13. ACEITAÇÃO
+
+Deus: Posição diante do fim (da história), aceitação ou negação da jornada realizada.
+
+Todos os pontos podem ser arpesentados inicialmente e, depois de certos eventos que provocam uma reflexão, podem ser re-apresentados com as devidas mudanças.
+</div>
+
+<!-- ================================================================
+     AVISO DE CONTEXTO — Só visível se aberto avulso
+     ================================================================
+     FUNCIONAMENTO:
+       Por padrão (.fr-aviso-avulso) fica escondido — estado seguro,
+       assume-se injetado. O selector "body > .fr-aviso-avulso" só
+       combina quando ESTE elemento é filho DIRETO do <body> — o que
+       só acontece quando o ficheiro é aberto isoladamente (o browser
+       cria <html>/<body> implícitos e este bloco vira filho direto
+       deles). Quando injetado dentro do Codex Blog, este elemento
+       fica sempre a várias camadas de profundidade do <body> real
+       do site, então a regra nunca combina e o aviso permanece
+       escondido.
+
+     IMPORTANTE:
+       Este bloco (style + p) tem de ficar FORA da .fr-conteudo,
+       como irmão dela — nunca dentro — senão o "body >" nunca
+       vai combinar mesmo no caso avulso.
+     ================================================================ -->
+<style>
+    .fr-aviso-avulso { display: none; }
+
+    body > .fr-aviso-avulso {
+        display: block;
+        margin-top: 2em;
+        padding-top: 1em;
+        border-top: 1px solid #999;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+</style>
+
+<p class="fr-aviso-avulso">
+    Que estranho!
+	<br>
+	Como você conseguiu abrir este texto sem carregar o resto do site?
+	<br>
+    Acesse o site completo: <a href="../index.html">7guerreiros.github.io/codex/</a>
+</p>
