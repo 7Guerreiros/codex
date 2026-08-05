@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX SOBRE NÓS</title>
+
+    <!-- ============================================================
+         NOTA DE UTILIZAÇÃO
+         ============================================================
+         Este ficheiro funciona de dois modos, exactamente como o
+         CODEX_CONTATO.html de onde foi copiado:
+
+         MODO AUTÓNOMO (standalone):
+           Abrir directamente no browser para testes.
+
+         MODO INJECTADO (uso normal no site):
+           O injector da página pai (injectarCodex, em index.html) faz:
+             1. fetch() deste ficheiro
+             2. Extrai o innerHTML de <div class="codex-sobre-nos">
+             3. Injecta na .area-conteudo
+
+         DIFERENÇA EM RELAÇÃO AO CODEX_BLOG:
+           Este ficheiro NÃO injecta conteúdo interno. Não há
+           acordeão, não há data-arquivo, não há fetch, não há
+           window.initCodexBlog(). É uma página estática de
+           apresentação — todo o conteúdo já está aqui, pronto a
+           ser exibido.
+
+         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
+         Apenas o conteúdo dentro de .codex-sobre-nos é usado.
+         ============================================================ -->
+
+    <style>
+        /* Estilos mínimos apenas para visualização standalone. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CODEX SOBRE NÓS — Componente injectável (estático, sem injecção interna)
+     ================================================================
+     ESTRUTURA DO COMPONENTE:
+       .codex-sobre-nos           → wrapper raiz e âncora de todo o CSS
+         <style>                  → CSS 100% escopado (prefixo .codex-sobre-nos)
+         .cso-container           → container de largura e padding
+           .cso-titulo            → título da página
+           .cso-intro             → subtítulo/introdução breve
+           .cso-secao (várias)    → cada bloco temático (quem somos,
+                                     missão, conteúdo, história, etc.)
+             .cso-secao-titulo    → título do bloco
+             .cso-secao-texto     → texto do bloco (um ou mais <p>)
+
+     MANUTENÇÃO — EDITAR OS TEXTOS:
+       Basta alterar o conteúdo de cada .cso-secao-texto abaixo.
+       Os valores actuais são EXEMPLOS fictícios, a substituir.
+
+     MANUTENÇÃO — ADICIONAR UM NOVO BLOCO/SECÇÃO:
+       Duplicar um bloco .cso-secao inteiro (título + texto) e
+       ajustar o conteúdo. A ordem das secções na página segue a
+       ordem em que aparecem aqui no HTML.
+
+     NOTA:
+       Tal como o Codex Contacto, este ficheiro é 100% estático —
+       sem fetch, sem acordeão, sem dependência de scripts externos.
+     ================================================================ -->
+
+<div class="codex-sobre-nos">
+
+    <!-- ============================================================
+         ESTILOS — Totalmente escopados a .codex-sobre-nos
+         ============================================================
+         REGRA CRÍTICA: nenhum selector aqui começa sem
+         .codex-sobre-nos — mesma regra do codex-contato e do
+         codex-blog, para não vazar estilos ao injectar.
+
+         SISTEMA DE TEMAS:
+         As variáveis --cso-bg, --cso-text e --cso-borda herdam
+         directamente das variáveis globais --bg, --text e --borda
+         geridas pelo Sistema_Tema.js do pai. As variáveis internas
+         (muted) são definidas aqui em dois estados: claro
+         (.codex-sobre-nos) e escuro (html.tema-escuro .codex-sobre-nos).
+         ============================================================ -->
+    <style>
+
+        /* --- Modo Claro (padrão) --- */
+        .codex-sobre-nos {
+            --cso-bg:     var(--bg,   #ffffff);
+            --cso-text:   var(--text, #1a1a1a);
+            --cso-borda:  var(--borda,#cccccc);
+            --cso-muted:  #777777;
+        }
+
+        /* --- Modo Escuro via Sistema_Tema.js --- */
+        html.tema-escuro .codex-sobre-nos {
+            --cso-muted:  #999999;
+        }
+
+        /* --- Container principal --- */
+        .codex-sobre-nos .cso-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cso-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-sobre-nos .cso-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- Título --- */
+        .codex-sobre-nos .cso-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 15px 20px 0;
+            color: var(--cso-text);
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        /* --- Subtítulo / introdução breve --- */
+        .codex-sobre-nos .cso-intro {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.75;
+            margin: 0 0 30px;
+            padding: 0 20px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px 0;
+            }
+        }
+
+        /* --- Secções temáticas --- */
+        .codex-sobre-nos .cso-secao {
+            padding: 0 20px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid var(--cso-borda);
+            padding-bottom: 22px;
+        }
+
+        .codex-sobre-nos .cso-secao:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .codex-sobre-nos .cso-secao-titulo {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 0 0 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .codex-sobre-nos .cso-secao-texto p {
+            margin: 0 0 10px;
+            color: var(--cso-text);
+        }
+
+        .codex-sobre-nos .cso-secao-texto p:last-child {
+            margin-bottom: 0;
+        }
+
+        .codex-sobre-nos .cso-secao-texto .cso-destaque {
+            color: var(--cso-muted);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-secao {
+                padding: 0 16px;
+                padding-bottom: 18px;
+            }
+        }
+
+    </style>
+
+
+    <!-- ============================================================
+         CONTEÚDO
+         ============================================================
+         Todos os valores abaixo são EXEMPLOS — substituir pelos
+         dados reais antes de publicar.
+         ============================================================ -->
+    <div class="cso-container">
+
+        <div class="cso-titulo">SOBRE NÓS</div>
+        <p class="cso-intro">Quem escreve, por que escreve, e o que espera encontrar por aqui.</p>
+
+        <div class="cso-secao">
+            <div class="cso-secao-titulo">Quem Somos</div>
+            <div class="cso-secao-texto">
+                <p>Somos um projecto independente dedicado à escrita de contos, livros e jogos narrativos, nascido do gosto por histórias que misturam ficção, mitologia e imaginação. Cada obra publicada aqui é feita artesanalmente, sem intermediários.</p>
+            </div>
+        </div>
+
+        <div class="cso-secao">
+            <div class="cso-secao-titulo">Nossa História</div>
+            <div class="cso-secao-texto">
+                <p>O projecto começou como um simples caderno de anotações e foi crescendo até se tornar este espaço. Continua em construção — tal como as histórias que aqui se contam.</p>
+            </div>
+        </div>
+
+    </div><!-- /.cso-container -->
+
+</div><!-- /.codex-sobre-nos -->
+
+</body>
+</html>

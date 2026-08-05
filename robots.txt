@@ -1,0 +1,50 @@
+﻿# ================================================================
+
+# robots.txt — 7Guerreiros
+
+# ================================================================
+
+# REGRA:
+
+#   Bloqueia o rastreamento de QUALQUER conteúdo dentro de
+
+#   subpastas (capítulos de livros, artigos/contos, RPGs em Twine),
+
+#   pois esses ficheiros são fragmentos de texto puro, feitos para
+
+#   serem injetados dentro de index.html — não para serem indexados
+
+#   ou abertos isoladamente.
+
+#
+#   O padrão "/*/" cobre qualquer subpasta, actual ou futura,
+
+#   sem necessidade de listar cada obra/pasta por nome.
+
+#
+
+# O QUE PERMANECE RASTREÁVEL (raiz do site):
+
+#   index.html, os CODEX_*.html, ficheiros .js e .css
+
+#
+
+# MANUTENÇÃO:
+
+#   Se alguma subpasta específica precisar ser rastreável no
+
+#   futuro (ex: uma pasta de imagens para o Google Imagens),
+
+#   adicionar uma linha "Allow:" com o caminho exacto ANTES da
+
+#   regra "Disallow: /*/" — regras Allow mais específicas têm
+
+#   prioridade sobre a regra genérica.
+
+# ================================================================
+
+
+
+User-agent: *
+
+Disallow: /*/

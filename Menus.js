@@ -18,11 +18,12 @@
     };
 
     const MODAL_CONTENTS = {
-        'Peao-modal': { src: 'ANOTACOES.html', title: 'Notas' },
-        'Paus-modal': { src: 'CODEX_HOMINE.html', title: '4 Reinos' },
-        'Ouro-modal': { src: 'CODEX_MACHINA.html', title: 'Linha do Tempo' },
-        'Copas-modal': { src: 'MAPA.html', title: 'Copas' },
-        'Espada-modal': { src: 'FORUM.html', title: 'Imagens Aleatórias' }
+        'Trebelho-modal': { src: 'IFRAME_ANOTACOES.html', title: 'NOTAS' },   // ♣️
+        'Losango-modal':  { src: 'IFRAME_MAPA.html', title: 'MAPA DO REINO' },                     // ♦️
+        'Coracao-modal':  { src: 'IFRAME_CODEX_MACHINAE.html', title: 'CODEX MACHENAE' },    // ♥️
+        'Espada-modal':   { src: 'IFRAME_FORUM.html', title: 'FORUM' }, // ♠️
+        'Torre-modal':    { src: 'IFRAME_LOJA.html', title: 'LOJA OFICIAL' },          // ♖
+        'Gamer-modal':    { src: 'IFRAME_CHEAT_CODES.html', title: 'CHEATS' }          // 🕹️
     };
 
     // =================================================================================
@@ -123,7 +124,7 @@
             }
             .sys-modal-iframe {
                 width: ${CONFIG.modalSize.width}; height: ${CONFIG.modalSize.height};
-                max-width: ${CONFIG.modalSize.maxWidth}; maxHeight: ${CONFIG.modalSize.maxHeight};
+                max-width: ${CONFIG.modalSize.maxWidth}; max-height: ${CONFIG.modalSize.maxHeight};
                 border: none; border-radius: 10px;
                 box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
                 transform: scale(0.9); transition: transform 0.2s ease;
@@ -131,30 +132,6 @@
             .sys-modal-active { opacity: 1; visibility: visible; }
             .sys-modal-active .sys-modal-iframe { transform: scale(1); }
 
-            /* ================================================= */
-            /* NOVO: Botão de Fechar (×) para Modais - LEVE E OTIMIZADO */
-            /* ================================================= */
-            .sys-modal-close {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                color: white;
-                font-size: 28px;
-                cursor: pointer;
-                z-index: 1003;
-                line-height: 1;
-                width: 30px;
-                height: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                transition: all 0.2s ease;
-            }
-            .sys-modal-close:hover {
-                background: rgba(255, 255, 255, 0.1);
-                transform: scale(1.1);
-            }
         `;
 
         const style = document.createElement('style');
@@ -199,13 +176,13 @@
                 return Math.max(baseTop, bottomTop);
             }
             
-            // NOVO: Lógica de posicionamento para o botão de Topo (abaixo do Gamer)
             if (id === 'Topo-btn') {
                 const gamerBtn = State.buttons.get('Gamer-btn');
                 if (gamerBtn) {
                     const gamerTop = parseFloat(gamerBtn.style.top);
                     return gamerTop + 65; // Posiciona-se logo abaixo do Gamer
                 }
+                return window.innerHeight - layout.offsetFromBottom;
             }
 
             return window.innerHeight - layout.offsetFromBottom;
@@ -294,6 +271,23 @@
         }
     }
 
+    // =================================================================================
+    // SEÇÃO 5.1: FECHO DE MODAL SOLICITADO PELO PRÓPRIO IFRAME (adição incremental)
+    // =================================================================================
+    // O botão "X" dentro de IFRAME_MAPA.html envia postMessage({type:'FECHAR_MODAL'}).
+    // Aqui identificamos qual modal enviou o pedido (comparando o iframe.contentWindow
+    // com a origem da mensagem) e chamamos closeModal() já existente. Nenhuma outra
+    // lógica de Menus.js foi alterada.
+    window.addEventListener('message', function (e) {
+        if (!e.data || e.data.type !== 'FECHAR_MODAL') return;
+        State.modals.forEach(function (overlay, modalId) {
+            var iframe = overlay.querySelector('iframe');
+            if (iframe && iframe.contentWindow === e.source) {
+                closeModal(modalId);
+            }
+        });
+    });
+
     function handleMenuClick() {
         if (document.getElementById('menu-lateral-overlay')) return;
 
@@ -329,7 +323,7 @@
         document.body.appendChild(overlay);
 
         requestAnimationFrame(() => {
-            iframe.src = 'MENU_SANDUICHE.html';
+            iframe.src = 'MENU_GERAL.html';
             overlay.style.opacity = '1';
             overlay.style.visibility = 'visible';
             overlay.style.transform = 'translateX(0)';
@@ -356,8 +350,8 @@
         State.buttons.forEach((btn, id) => {
             const layout = State.buttonLayouts.get(id);
             if (id === 'tema-btn') {
-                const espada = State.buttons.get('Espada-btn');
-                if (espada) btn.style.top = `${parseFloat(espada.style.top) + CONFIG.buttonSpacing}px`;
+                const torre = State.buttons.get('Torre-btn');
+                if (torre) btn.style.top = `${parseFloat(torre.style.top) + CONFIG.buttonSpacing}px`;
             } else if (layout && btn) {
                 btn.style.top = `${calculateButtonTop(id, layout)}px`;
             }
@@ -377,7 +371,7 @@
 
     function createThemeButton() {
         const btn = createFloatingButton('tema-btn', 
-            '<span class="icon-light">♔</span><span class="icon-dark" style="display:none;">♛️</span>', 
+            '<span class="icon-light">♚</span><span class="icon-dark" style="display:none;">♕</span>', 
             () => {
                 // Apenas chama a função global - Sistema_Tema.js faz todo o trabalho
                 if (typeof window.alternarTemaGlobal === 'function') {
@@ -395,7 +389,7 @@
     }
 
     function createSeteButton() {
-        const btn = createFloatingButton('Sete-btn', '𝟕️', (e) => { 
+        const btn = createFloatingButton('Sete-btn', '☰', (e) => { 
             e.stopPropagation(); 
             State.areMobileButtonsVisible = true; 
             State.scrollWrapper.classList.add('mobile-active');
@@ -432,14 +426,14 @@
 
         // Definição dos botões principais
         const buttonsDef = [
-            { id: 'menu-flutuante-btn', icon: '☰', click: handleMenuClick, layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 0, left: CONFIG.initialOffset.left }, z: CONFIG.zIndex.button + 1 },
-            { id: 'Peao-btn', icon: '♙', click: () => createModal('Peao-modal'), layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 1, left: CONFIG.initialOffset.left } },
-            { id: 'Paus-btn', icon: '♣️', click: () => createModal('Paus-modal'), layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 2, left: CONFIG.initialOffset.left } },
-            { id: 'Ouro-btn', icon: '♦️', click: () => createModal('Ouro-modal'), layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 3, left: CONFIG.initialOffset.left } },
-            { id: 'Copas-btn', icon: '♥️', click: () => createModal('Copas-modal'), layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 4, left: CONFIG.initialOffset.left } },
-            { id: 'Espada-btn', icon: '♠️', click: () => createModal('Espada-modal'), layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 5, left: CONFIG.initialOffset.left } },
-            { id: 'Gamer-btn', icon: '🕹️', click: () => window.location.href = 'Menu_Gamer.html', layout: { type: 'bottom', offsetFromBottom: 110, left: CONFIG.initialOffset.left } },
-            { id: 'Topo-btn', icon: '🎲', click: () => window.scrollTo({ top: 0, behavior: 'smooth' }), layout: { type: 'bottom', offsetFromBottom: 40, left: CONFIG.initialOffset.left } }
+            { id: 'menu-flutuante-btn',  icon: '♟',   click: handleMenuClick,                          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 0, left: CONFIG.initialOffset.left }, z: CONFIG.zIndex.button + 1 },
+            { id: 'Trebelho-btn',        icon: '♣️',  click: () => createModal('Trebelho-modal'),       layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 1, left: CONFIG.initialOffset.left } },
+            { id: 'Losango-btn',         icon: '♦️',  click: () => createModal('Losango-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 2, left: CONFIG.initialOffset.left } },
+            { id: 'Coracao-btn',         icon: '♥️',  click: () => createModal('Coracao-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 3, left: CONFIG.initialOffset.left } },
+            { id: 'Espada-btn',          icon: '♠️',  click: () => createModal('Espada-modal'),         layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 4, left: CONFIG.initialOffset.left } },
+            { id: 'Torre-btn',           icon: '♜',   click: () => createModal('Torre-modal'),          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 5, left: CONFIG.initialOffset.left } },
+            { id: 'Gamer-btn',           icon: '🕹️', click: () => createModal('Gamer-modal'), layout: { type: 'bottom', offsetFromBottom: 110, left: CONFIG.initialOffset.left } },
+            { id: 'Topo-btn',            icon: '🎲',  click: () => window.scrollTo({ top: 0, behavior: 'smooth' }), layout: { type: 'bottom', offsetFromBottom: 60, left: CONFIG.initialOffset.left } }
         ];
 
         // Cria e anexa ao fragmento

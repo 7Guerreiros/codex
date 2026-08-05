@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linha do Tempo em Cruz</title>
+
+  <!-- ============================================================
+       CORREÇÃO DE CONFLITO — Ordem de carregamento do tema
+       ============================================================
+       Este ficheiro é carregado dentro de um <iframe> do site.
+       .event, .modal, .centro etc. usam var(--bg)/var(--text)/
+       var(--borda) sem fallback — se Sistema_Tema.js só corre
+       depois de todo o conteúdo ser interpretado (como estava,
+       no fim do <body>), há um instante de tela sem cor definida.
+
+       Movido para aqui, no topo do <head> e sem defer, ele corre
+       antes de qualquer <style> ou conteúdo ser processado,
+       eliminando esse flash — mesmo princípio já usado no
+       index.html do site.
+       ============================================================ -->
+  <script src="Sistema_Tema.js"></script>
+
+  <style>
+    /* Transições suaves para elementos principais */
+    body, .page-title, .bloco-personagem, .aba-botao, iframe {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+  </style>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Georgia', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      /* Removido: var(--bg) e var(--text) - agora no Sistema_Tema.js */
+      transition: background .5s, color .5s;
+    }
+    
+    .timeline {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: 1fr 2fr 1fr;
+      grid-template-areas:
+        ".    topo     ."
+        "esq  centro   dir"
+        ".   baixo     .";
+      gap: 1rem;
+      width: 90vw;
+      height: 90vh;
+      max-width: 1200px;
+    }
+    
+    .event {
+      /* As variáveis agora vêm do Sistema_Tema.js */
+      background: var(--bg); /* Substituído por variável */
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Placeholder temporário */
+      overflow: auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background .3s, border-color .3s;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid var(--borda); /* Substituído por variável */
+    }
+    
+    .event:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Placeholder temporário */
+      border-color: var(--borda); /* Substituído por variável */
+    }
+    
+    .topo {
+      grid-area: topo;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .baixo {
+      grid-area: baixo;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .esq {
+      grid-area: esq;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .dir {
+      grid-area: dir;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .centro {
+      grid-area: centro;
+      border: 3px solid var(--borda); /* Substituído por variável */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg); /* Substituído por variável */
+      transition: border-color .3s;
+    }
+    
+    .sub-event {
+      background: var(--bg); /* Substituído por variável */
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Placeholder temporário */
+      text-align: center;
+      font-size: 0.9rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    
+    .sub-event h3 {
+      margin: 0.3rem 0;
+      font-size: 1.1rem;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .sub-event h2 {
+      margin: 0.5rem 0;
+      font-size: 1.4rem;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .sub-event p {
+      margin: 0.5rem 0;
+      line-height: 1.4;
+      max-width: 90%;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .centro h1, .centro p { 
+      text-align: center; 
+      margin: 0.5rem;
+      z-index: 1;
+      background: var(--bg); /* Substituído por variável */
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .centro h1 {
+      font-size: 1.8rem;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .centro p {
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    /* Modal de anotações */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Agora vem do Sistema_Tema.js */
+      background: var(--modal-bg);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal {
+      background: var(--bg); /* Substituído por variável */
+      border-radius: 10px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.2); /* Placeholder temporário */
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--borda); /* Substituído por variável */
+      transition: background .3s, border-color .3s;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--borda); /* Substituído por variável */
+      color: var(--text); /* Substituído por variável */
+      transition: background .3s, color .3s;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--text); /* Substituído por variável */
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+    
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .modal-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .notes-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .notes-section h3 {
+      color: var(--text); /* Substituído por variável */
+      border-bottom: 2px solid var(--borda); /* Substituído por variável */
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .notes-section p {
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .notes-list {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+      color: var(--text); /* Substituído por variável */
+    }
+    
+    .notes-list li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .timeline {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+          "topo"
+          "esq"
+          "centro"
+          "dir"
+          "baixo";
+        height: auto;
+        min-height: 90vh;
+      }
+      
+      .centro h1 {
+        font-size: 1.5rem;
+      }
+      
+      .modal {
+        width: 95%;
+        max-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="timeline">
+    <div class="event topo" data-region="norte">
+      <div class="sub-event">
+        <h3>♥️ NORTE</h3>
+        <h2>Cœur d'Hiver</h2>
+        <p>O "Reino Congelado", refúgio dos Nobres, que lançaram fora o Sol para que Nemrod não os alcançasse.</p>
+      </div>
+    </div>
+    
+    <div class="event esq" data-region="oeste">
+      <div class="sub-event">
+        <h3>♦️ OESTE</h3>
+        <h2>Floresta de Chrysopœia</h2>
+        <p>O Continente (que foi) Estilhaçado quando Nemrod recuperou a Alquimia do Sol Negro.</p>
+      </div>
+    </div>
+    
+    <div class="event centro" id="ponto-zero" data-region="centro">
+      <h1>REINOS CARDEAIS DO MÆ</h1>
+      <p>O Mundo Acima das Estrelas.</p>
+    </div>
+    
+    <div class="event dir" data-region="leste">
+      <div class="sub-event">
+        <h3>♣️ LESTE</h3>
+        <h2>Amarat</h2>
+        <p>Deserto do Leste, donde se levantou Nemrod, poderoso caçador, perseguidor dos Nobres.</p>
+      </div>
+    </div>
+    
+    <div class="event baixo" data-region="sul">
+      <div class="sub-event">
+        <h3>♠️ SUL</h3>
+        <h2>Solis Æterni</h2>
+        <p>Cidade de Cosmos, abaixo do céu de exílio do Sol Eterno.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ================================================================
+       BOTÃO DE FECHO DO IFRAME
+       ================================================================
+       Independente do #modalOverlay/#closeModal acima (que fecham
+       apenas o painel de Anotações). Este X fecha o iframe inteiro
+       quando embutido no modal do site, enviando postMessage ao pai
+       — o mesmo mecanismo já usado no outro ficheiro de iframe.
+       ================================================================ -->
+  <style>
+    #fechar-iframe-btn {
+      position: fixed;
+      top: 10px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text, #1a1a1a);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.6;
+      z-index: 1100;
+      transition: opacity 0.2s ease;
+    }
+    #fechar-iframe-btn:hover,
+    #fechar-iframe-btn:focus-visible {
+      opacity: 1;
+    }
+  </style>
+  <button id="fechar-iframe-btn" type="button" aria-label="Fechar" title="Fechar">&times;</button>
+
+  <!-- Modal de anotações -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">NOTAS</h2>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-content" id="modalContent">
+        <!-- Conteúdo será inserido dinamicamente via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Centralizar o ponto zero ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      const zero = document.getElementById('ponto-zero');
+      if (zero) zero.scrollIntoView({ block: 'center', inline: 'center' });
+      
+      // Dados das anotações por região
+      const notesData = {
+        norte: {
+          title: "♥️ O REINO IMORAL",
+          content: `
+            <div class="notes-section">
+              <h3>Cœur d'Hiver</h3>
+              Antes chamado apenas de "Reino Congelado", de onde os Nobres expulsaram o Sol para se protegerem dos Elite.</p>
+              <p>Os Nobres, temendo o poder dos Elite criados por Nemrod, tomaram a decisão radical de expulsar o Sol para se ocutarem da perseguição, mergulhando o reino em um inverno eterno.</p>
+            </div>
+          `
+        },
+        oeste: {
+          title: "♦️ O CONTINENTE ESTILHAÇADO",
+          content: `
+            <div class="notes-section">
+              <h3>Floresta de Chrysopœia</h3>
+              Atualmente conhecida como o "Continente Estilhaçado".</p>
+              <p>Foi lá que Nemrod re-encontrou os segredos da Alquimia, vindo depois a utilizar este conhecimento para criar os Elite, guardiões destinados a proteger sua cidade.</p>
+            </div>
+          `
+        },
+        leste: {
+          title: "♣️ CIDADE DO AMOR E DA AMARGURA",
+          content: `
+            <div class="notes-section">
+			<h3>Amarat</h3>
+              É o nome, tanto do vasto deserto do Leste, quanto também, da única cidade que existe nele.</p>
+            </div>
+            
+          `
+        },
+        sul: {
+          title: "♠️ A TERRA DA ESTRELA",
+          content: `
+            <div class="notes-section">
+              <h3>Solis Æterni</h3>
+              <p>Onde se encontra Cosmos, local marcado pela queda de uma Phœnix.</p>
+            </div>
+       
+          `
+        },
+        centro: {
+          title: "O MUNDO ACIMA DAS ESTRELAS:",
+          content: `
+            <div class="notes-section">
+  <p>A criação não é “dispersa”, mas estática: mundos convexos sobrepoem-se uns os outros, formando uma Pirâmide Universal.</p>
+  <p>Na base mais densa está o inferno, a Quinta Dimensão; no centro da Pirâmide, acima dele, empilham-se os Três Mundos Dimencionais: a Terra, o Mundo Material da Mudança, submerso no Oceano Celeste de æter, onde as estrelas nadam e redirecionam para baixo a Grande Luz – acima, flutua errante o MÆ, o Mundo Temporal Médio, colonizado quando Nemrod ergueu a Torre de Babel – suspenso pela Luz, encontra-se o Mundo Superior, já apagado e julgado.</p>
+  <p>Lastreado pelas <strong>Quatro</strong> Dimensões/Aspectos Fundamentais Convergentes — Matéria, Tempo, Luz e Espírito — está o Segundo Céu, a Sexta Dimensão - antes pareado a Quinta, fora elevada após a visita do Salvador - é o local de espera dos justificados.</p>
+  <p>E, do cume da Pirâmide Universal, na Sétima Dimensão, emana a Grande Luz: Deus.</p>
+</div>
+          `
+        }
+      };
+      
+      // Elementos do modal
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      const closeModal = document.getElementById('closeModal');
+      
+      // Adicionar eventos de clique nas regiões
+      const events = document.querySelectorAll('.event');
+      events.forEach(event => {
+        event.addEventListener('click', () => {
+          const region = event.dataset.region;
+          showNotes(region);
+        });
+      });
+      
+      // Função para mostrar as anotações
+      function showNotes(region) {
+        if (notesData[region]) {
+          modalTitle.textContent = notesData[region].title; // Corrigido!
+          modalContent.innerHTML = notesData[region].content; // Corrigido!
+          modalOverlay.classList.add('show'); // Corrigido!
+        }
+      }
+      
+      // Fechar modal
+      closeModal.addEventListener('click', () => {
+        modalOverlay.classList.remove('show');
+      });
+      
+      // Fechar modal ao clicar fora
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.classList.remove('show');
+        }
+      });
+      
+      // Fechar modal com tecla ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          modalOverlay.classList.remove('show');
+        }
+      });
+    });
+  </script>
+  
+  <!-- ============================================================
+       SCRIPT — Botão de fecho (isolado do script de Anotações acima)
+       ============================================================ -->
+  <script>
+    (function () {
+      'use strict';
+      var btn = document.getElementById('fechar-iframe-btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        if (window.parent) {
+          window.parent.postMessage({ type: 'FECHAR_MODAL' }, '*');
+        }
+      });
+    }());
+  </script>
+
+  <!-- Sistema_Tema.js foi movido para o topo do <head> — ver nota lá. -->
+
+</body>
+</html>

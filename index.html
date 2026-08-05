@@ -3,40 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTRA-SITE</title>
-
+    <title>7Guerreiros</title>
+    <meta name="description" content="Contos, livros e RPGs em Twine por Prompt &amp; Papel. Ficção e jogos narrativos feitos à mão.">
+    <!-- Favicon: torre de xadrez branca (♖) codificada como SVG inline — sem ficheiro externo -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
     <!-- Estilos básicos globais (cores, tipografia, temas claro/escuro) -->
     <link rel="stylesheet" href="Estilo_Base.css">
-
     <!-- Estilos específicos para a área de conteúdo -->
     <link rel="stylesheet" href="Estilo_Conteudo.css">
+	
+	    <!-- ============================================================
+         MARCADOR DE VERIFICAÇÃO DE CONTEXTO
+         ============================================================
+         Esta variável permite que arquivos de conteúdo (fragmentos
+         como ARQUIVO_BASE.html) detectem se estão a ser abertos
+         DENTRO do site (via injeção normal) ou de forma AVULSA
+         (acesso directo pela URL ou através de um buscador).
+
+         NÃO é uma medida de segurança — é visível a quem inspeccionar
+         o código-fonte da página. Serve apenas como sinalizador de
+         contexto, usado pelo script de redireccionamento presente
+         no topo de cada arquivo de conteúdo.
+
+         MANUTENÇÃO:
+           • Se alterar este valor, é preciso actualizar o mesmo
+             valor no script de verificação de CADA arquivo de
+             conteúdo (ex: ARQUIVO_BASE.html).
+         ============================================================ -->
+    <script>
+        window.SITE_CHAVE_VERIFICACAO = "7Guerreiros_Codigo_Verificacao_Umbra69";
+    </script>
+	
 </head>
 <body>
+    <!-- ============================================================
+         BANNER — Agora gerido inteiramente por Banner.js
+         ============================================================
+         O banner (imagem, foto de perfil, espaçador, título, slogan,
+         estilos e efeito de parallax no scroll) foi extraído para
+         Banner.js, seguindo o mesmo padrão do Menus.js.
 
-    <!-- Cabeçalho -->
-    <header>
-        <h1>PÁGINA BASE</h1>
-    </header>
+         Banner.js injecta estes elementos no início do <body> ao
+         carregar a página — ver a chamada ao script mais abaixo,
+         junto aos demais scripts (Sistema_Tema.js, Menus.js, Popups.js).
+
+         MANUTENÇÃO:
+           • Imagens, textos e medidas do banner : editar CONFIG em Banner.js
+           • Estilos do banner                    : editar injectBannerStyles() em Banner.js
+           • Comportamento do parallax             : editar activarParallax() em Banner.js
+         ============================================================ -->
 
     <!-- Conteúdo principal -->
+    <!-- nav vazio: reservado para injecção pelo Menus.js -->
+    <!-- O Menus.js deve injectar os seus elementos dentro de #site-nav -->
+    <nav id="site-nav" aria-label="Navegação principal"></nav>
     <main>
         <!-- Área de conteúdo com estilos próprios -->
+        <!-- Recebe injecção do Codex padrão ao carregar (ver Injector.js)  -->
+        <!-- e injecções subsequentes via Menus.js ao clicar nos links      -->
         <section class="area-conteudo">
-            <h1>Area de Conteúdo</h1>
-            <p>Esta é uma página base monocromática, responsiva e otimizada.</p>
         </section>
     </main>
+    <!-- ============================================================
+         RODAPÉ — Agora gerido inteiramente por Rodape.js
+         ============================================================
+         Rodape.js injecta o <footer> no final do <body> ao carregar
+         a página, com o mesmo texto e estrutura de sempre.
 
-    <!-- Rodapé -->
-    <footer>
-        <p>&copy; 2025 Meu Projeto. Todos os direitos reservados.</p>
-    </footer>
+         MANUTENÇÃO:
+           • Texto do rodapé : editar CONFIG em Rodape.js
+         ============================================================ -->
 
+    <!-- Script do banner: imagem, foto de perfil, título, slogan e parallax -->
+    <script src="Banner.js" defer></script>
+    <!-- Script do rodapé -->
+    <script src="Rodape.js" defer></script>
     <!-- Script para gerenciamento de temas -->
     <script src="Sistema_Tema.js"></script>
-	<!-- Chamada para o script do menu esquerdo -->
-    <script src="Menus.js"></script>
-	<!-- Chamada para o script do menu direito -->
-    <script src="Menu_Extra.js"></script>
+    <!-- Chamada para o script do menu esquerdo -->
+    <script src="Menus.js" defer></script>
+	<script src="LOADING.js" defer></script>
+	<script src="Popups.js"></script>
+    <!-- MENU EXTRA, SE NECESSARIO: -->
+    <!-- <script src="Menu_Extra.js"></script> -->
+
+    <!-- ============================================================
+         INÍCIO — SISTEMA DE POSIÇÃO
+         ============================================================
+         Lembra o último Codex e capítulo abertos (localStorage) e
+         restaura ao reabrir o site. Toda a lógica vive em
+         POSICAO_SISTEMA.js — esta é a única tag necessária aqui.
+
+         REMOÇÃO: apagar esta tag + POSICAO_SISTEMA.js. Nenhum outro
+         ficheiro do site precisa ser tocado (ver nota equivalente
+         junto à chamada de injectarCodex(), mais abaixo).
+         ============================================================ -->
+    <script src="POSICAO_SISTEMA.js" defer></script>
+    <!-- FIM — SISTEMA DE POSIÇÃO -->
+
+    <!-- ============================================================
+         INJECTOR — Motor de injecção de Codex na área de conteúdo
+         ============================================================
+         FUNCIONAMENTO:
+           injectarCodex(arquivo) faz fetch do ficheiro indicado,
+           extrai o elemento raiz do componente (.codex-blog ou outro),
+           injeta na .area-conteudo, reactiva os scripts internos
+           e chama a função de init exposta pelo componente.
+
+         USO PELO MENUS.JS:
+           Quando o Menus.js precisar injectar outro Codex ao clicar
+           num link, basta chamar:
+             window.injectarCodex('caminho/para/Codex_X.html')
+
+         ADIÇÃO DE NOVOS CODEX:
+           Cada novo Codex deve:
+             1. Expor window.init[NomeDoCodex]() no seu script interno
+             2. Ser chamado aqui via injectarCodex('Codex_X.html')
+           A função injectarCodex já trata da reactivação dos scripts.
+
+         CODEX PADRÃO:
+           Definido na constante CODEX_PADRAO abaixo.
+           Carregado automaticamente no DOMContentLoaded.
+         ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            /* Ficheiro a injectar por padrão ao abrir a página.
+               Alterar aqui para trocar o Codex inicial.            */
+            var CODEX_PADRAO = 'CODEX_BLOG.html';
+
+            /* Injeta um ficheiro Codex na .area-conteudo.
+               Exposto globalmente para uso posterior pelo Menus.js. */
+            function injectarCodex(arquivo) {
+                var area = document.querySelector('.area-conteudo');
+                if (!area) return;
+
+                fetch(arquivo)
+                    .then(function (resposta) {
+                        if (!resposta.ok) {
+                            throw new Error('Ficheiro não encontrado: ' + arquivo);
+                        }
+                        return resposta.text();
+                    })
+                    .then(function (html) {
+                        /* Converte o HTML recebido num documento temporário
+                           para extrair apenas o componente raiz             */
+                        var parser  = new DOMParser();
+                        var doc     = parser.parseFromString(html, 'text/html');
+
+                        /* Extrai o primeiro elemento filho relevante do body.
+                           Cada Codex deve ter um elemento raiz único          */
+                        var componente = doc.body.firstElementChild;
+                        if (!componente) {
+                            throw new Error('Componente não encontrado em: ' + arquivo);
+                        }
+
+                        /* Limpa a área e injeta o componente */
+                        area.innerHTML = '';
+                        area.appendChild(document.adoptNode(componente));
+
+                        /* Reactiva os scripts internos do componente.
+                           innerHTML não executa scripts — é necessário
+                           recriar cada elemento <script> manualmente.  */
+                        area.querySelectorAll('script').forEach(function (scriptOriginal) {
+                            var scriptNovo = document.createElement('script');
+
+                            /* Copia atributos (src, type, defer, etc.) */
+                            Array.from(scriptOriginal.attributes).forEach(function (attr) {
+                                scriptNovo.setAttribute(attr.name, attr.value);
+                            });
+
+                            /* Copia conteúdo inline */
+                            scriptNovo.textContent = scriptOriginal.textContent;
+
+                            /* Substitui o script original pelo novo (executa) */
+                            scriptOriginal.parentNode.replaceChild(scriptNovo, scriptOriginal);
+                        });
+                    })
+                    .catch(function (erro) {
+                        console.error('[INJECTOR]', erro);
+                        area.innerHTML = '<p>Conteúdo não disponível.</p>';
+                    });
+            }
+
+            /* Expõe injectarCodex globalmente para o Menus.js */
+            window.injectarCodex = injectarCodex;
+
+            /* Carrega o Codex padrão ao arrancar a página */
+            document.addEventListener('DOMContentLoaded', function () {
+                /* ==========================================================
+                   INÍCIO — SISTEMA DE POSIÇÃO (integração no injector)
+                   ==========================================================
+                   Linha original, sempre fixa no Codex padrão:
+                       injectarCodex(CODEX_PADRAO);
+
+                   Linha abaixo: se POSICAO_SISTEMA.js já tiver salvo um
+                   Codex em localStorage (chave "site_ultimo_codex"),
+                   reabre exatamente nele; senão, cai no CODEX_PADRAO de
+                   sempre. Funciona mesmo sem POSICAO_SISTEMA.js presente
+                   — localStorage.getItem() simplesmente devolve null e a
+                   linha se comporta como a original.
+
+                   REMOÇÃO DO SISTEMA DE POSIÇÃO:
+                     1. Apagar POSICAO_SISTEMA.js e a tag <script> que o
+                        carrega (ver marcação equivalente mais abaixo).
+                     2. Opcional: repor a linha original acima — não é
+                        obrigatório, o comportamento já volta a ser
+                        idêntico ao original assim que o passo 1 for feito.
+                   ========================================================== */
+                injectarCodex(localStorage.getItem('site_ultimo_codex') || CODEX_PADRAO);
+                /* ========================================================== 
+                   FIM — SISTEMA DE POSIÇÃO (integração no injector)
+                   ========================================================== */
+            });
+
+        }());
+    </script>
+
 </body>
 </html>

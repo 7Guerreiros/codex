@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX NARRATIVUM</title>
+
+    <!-- ============================================================
+         NOTA DE UTILIZAÇÃO
+         ============================================================
+         Segue o mesmo padrão do CODEX_BLOG.html.
+
+         MODO AUTÓNOMO (standalone):
+           Abrir directamente no browser para testes.
+
+         MODO INJECTADO (uso normal no site):
+           O injector da página pai deve:
+             1. Fazer fetch() deste ficheiro
+             2. Extrair o innerHTML de <div class="codex-narrativum">
+             3. Injectá-lo na .area-conteudo
+             4. Recriar os scripts manualmente (o próprio injectarCodex()
+                do index.html já faz isto) e chamar: window.initCodexNarrativum()
+
+         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
+         Apenas o conteúdo dentro de .codex-narrativum é usado.
+
+         DIFERENÇA FACE AO CODEX_BLOG:
+           Não há accordion nem clique. Os itens ficam sempre
+           visíveis lado a lado (grid de linhas/colunas, para
+           consulta e comparação simultânea) e o CARREGAMENTO é
+           preguiçoso por scroll: cada [data-arquivo] só faz fetch
+           quando entra (ou está prestes a entrar) na área visível
+           da página, via IntersectionObserver.
+         ============================================================ -->
+
+    <style>
+        body { margin: 0; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CODEX NARRATIVUM — Componente injectável
+     ================================================================
+     ESTRUTURA DO COMPONENTE:
+       .codex-narrativum        → wrapper raiz e âncora de todo o CSS/JS
+         <style>                → CSS 100% escopado (prefixo .codex-narrativum)
+         .cn-container           → container geral
+           .cn-assunto             → grupo (mesmo padrão do .cb-assunto)
+             .cn-titulo             → título do grupo (mesmo estilo do .cb-titulo)
+             .cn-row                → uma linha do grid
+               .cn-col-full / .cn-col-half → colunas dentro da linha
+                 [data-arquivo]        → caminho do ficheiro a injectar
+                 .cn-conteudo           → alvo da injecção + do IntersectionObserver
+         <script>                 → lógica escopada em IIFE
+
+     MANUTENÇÃO — TROCAR UM ITEM:
+       Alterar data-arquivo no .cn-conteudo correspondente.
+       Caminho sempre relativo ao index.html da página pai.
+
+     MANUTENÇÃO — ADICIONAR UMA LINHA:
+       Duplicar um bloco .cn-row inteiro. Usar .cn-col-full para
+       um item ocupando a linha toda, ou dois .cn-col-half para
+       comparação lado a lado.
+
+     MANUTENÇÃO — EMPILHAR DOIS ITENS NUMA MESMA COLUNA:
+       Ver o último .cn-row deste ficheiro: uma .cn-col-half pode
+       conter dois [data-arquivo] empilhados dentro de .cn-empilhado.
+
+     MANUTENÇÃO — LINHA COM UM LADO CURTO QUE "LIBERA" ESPAÇO:
+       Use .cn-row--flutuante em vez de .cn-row quando você já sabe
+       que um dos dois textos vai terminar bem antes do outro, e
+       quer que o texto mais longo se estenda por toda a largura
+       assim que ultrapassar o mais curto (em vez de ficar preso
+       aos 50%, deixando espaço vazio do lado). Estrutura:
+
+         <div class="cn-row cn-row--flutuante">
+             <div class="cn-col-flutuante cn-col-flutuante--esquerda">
+                 <div class="cn-conteudo" data-arquivo="..."></div>
+             </div>
+             <div class="cn-col-fluido">
+                 <div class="cn-conteudo" data-arquivo="..."></div>
+             </div>
+         </div>
+
+       Regras:
+         - O lado CURTO é sempre .cn-col-flutuante (o que você já
+           sabe que vai terminar primeiro).
+         - O lado LONGO é sempre .cn-col-fluido (sem largura fixa
+           de propósito — é o que se expande).
+         - .cn-col-flutuante SEMPRE vem primeiro no HTML, esteja
+           ela à esquerda (--esquerda) ou à direita (--direita) na
+           tela — é assim que o float calcula o contorno do texto
+           corretamente desde a primeira linha.
+         - Isto é 100% CSS nativo (float), sem JavaScript: não há
+           medição de altura, então funciona mesmo se o conteúdo
+           mudar depois de carregado (ex.: uma imagem que demora).
+         - Em ecrãs estreitos (≤768px), ambos empilham em 100% da
+           largura, como .cn-col-half.
+     ================================================================ -->
+
+<div class="codex-narrativum">
+
+    <!-- ============================================================
+         ESTILOS — Totalmente escopados a .codex-narrativum
+         ============================================================
+         REGRA CRÍTICA: nenhum selector aqui começa sem .codex-narrativum
+
+         SISTEMA DE TEMAS:
+         --cn-bg, --cn-text e --cn-borda herdam directamente das
+         variáveis globais --bg, --text e --borda geridas pelo
+         Sistema_Tema.js do pai — mesmo mecanismo do CODEX_BLOG.
+
+         SEM MOLDURAS: os itens NÃO têm caixa, borda, fundo destacado
+         nem sombra — o conteúdo flui directamente sobre o fundo
+         da página, como no CODEX_BLOG.
+         ============================================================ -->
+    <style>
+
+        .codex-narrativum {
+            --cn-bg:    var(--bg,   #ffffff);
+            --cn-text:  var(--text, #1a1a1a);
+            --cn-borda: var(--borda,#cccccc);
+        }
+
+        /* --- Container e grupo (mesmo padrão do CODEX_BLOG) --- */
+        .codex-narrativum .cn-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cn-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-narrativum .cn-container {
+                padding: 0 20px;
+            }
+        }
+
+        .codex-narrativum .cn-assunto {
+            margin-bottom: 35px;
+            padding: 0 10px;
+        }
+
+        .codex-narrativum .cn-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--cn-borda);
+            color: var(--cn-text);
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .codex-narrativum .cn-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px;
+            }
+        }
+
+        /* --- Grid de linhas/colunas (sem caixa, sem fundo, sem sombra) --- */
+        .codex-narrativum .cn-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .codex-narrativum .cn-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .codex-narrativum .cn-col-full { width: 100%; }
+        .codex-narrativum .cn-col-half { width: 50%; }
+
+        /* ============================================================
+           LINHA FLUTUANTE — coluna curta + coluna que se expande
+           ============================================================
+           Variação de .cn-row para quando UM lado é sabidamente mais
+           curto que o outro: o lado curto fica em .cn-col-flutuante
+           (float), o lado longo fica em .cn-col-fluido (sem largura
+           fixa). Assim que o conteúdo fluido ultrapassa a altura do
+           lado flutuante, ele se estica sozinho para 100% da largura
+           — comportamento nativo do float, sem nenhum JavaScript.
+
+           USO: ver nota de MANUTENÇÃO no topo do ficheiro.
+           ============================================================ */
+        .codex-narrativum .cn-row--flutuante {
+            display: block; /* floats exigem contexto de bloco, não flex */
+        }
+
+        /* Clearfix: garante que a altura da linha inclua o float,
+           e que a próxima .cn-row não sobreponha o conteúdo. */
+        .codex-narrativum .cn-row--flutuante::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+
+        .codex-narrativum .cn-col-flutuante {
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .codex-narrativum .cn-col-flutuante--esquerda {
+            float: left;
+            padding-right: 30px;
+        }
+
+        .codex-narrativum .cn-col-flutuante--direita {
+            float: right;
+            padding-left: 30px;
+        }
+
+        /* Sem largura fixa de propósito: ocupa o espaço livre ao lado
+           do float e expande para 100% assim que o ultrapassa. */
+        .codex-narrativum .cn-col-fluido { }
+
+        @media (max-width: 768px) {
+            .codex-narrativum .cn-col-flutuante {
+                float: none;
+                width: 100%;
+                padding: 0;
+                margin-bottom: 20px;
+            }
+        }
+
+        .codex-narrativum .cn-empilhado {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .codex-narrativum .cn-conteudo {
+            width: 100%;
+            min-height: 40px; /* evita salto de layout antes do fetch chegar */
+        }
+
+        .codex-narrativum .cn-carregando,
+        .codex-narrativum .cn-erro {
+            color: var(--cn-text);
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        /* Estilos herdados automaticamente pelo conteúdo fetch-ado */
+        .codex-narrativum .cn-conteudo p {
+            margin: 0 0 16px;
+            text-align: justify;
+        }
+
+        .codex-narrativum .cn-conteudo h1,
+        .codex-narrativum .cn-conteudo h2,
+        .codex-narrativum .cn-conteudo h3 {
+            margin: 20px 0 10px;
+            color: var(--cn-text);
+        }
+
+        .codex-narrativum .cn-conteudo img {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border: 1px solid var(--cn-borda);
+            border-radius: 4px;
+        }
+
+        /* --- Responsividade: empilha tudo em coluna única --- */
+        @media (max-width: 768px) {
+            .codex-narrativum .cn-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .codex-narrativum .cn-col-half {
+                width: 100%;
+            }
+        }
+
+    </style>
+
+    <!-- ============================================================
+         CONTEÚDO — Grid replicando a disposição do BASE_NARRATIVA.html
+         ============================================================
+         Caminhos em data-arquivo seguem a mesma pasta do ficheiro
+         original (BASE_NARRATIVA/), relativos ao index.html da
+         página pai.
+         ============================================================ -->
+    <div class="cn-container">
+        <div class="cn-assunto">
+            <div class="cn-titulo">CODEX ARCHETYPUM NARRATIVUM</div>
+
+            <!-- Linha 1: Monomito (curto, flutuante) + 12 Camadas/3 Amores (longo, fluido) -->
+            <div class="cn-row cn-row--flutuante">
+                <div class="cn-col-flutuante cn-col-flutuante--esquerda">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/MONOMITO.html"></div>
+                </div>
+                <div class="cn-col-fluido">
+                    <div class="cn-conteudo" data-arquivo="TEOLOGIA/12_CAMADAS.html"></div>
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/3_AMORES.html"></div>
+                </div>
+            </div>
+			
+			<div class="cn-row">
+                <div class="cn-col-half">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/ARQUETIPOS_PERSONAGENS.html"></div>
+                </div>
+                <div class="cn-col-half">
+                    <div class="cn-empilhado">
+                        <div class="cn-conteudo" data-arquivo="NARRATIVUM/22_QUADROS.html"></div>
+                        <div class="cn-conteudo" data-arquivo="NARRATIVUM/TEORIA_CORES.html"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linha 2: 3 Amores (largura total) -->
+            <div class="cn-row">
+                <div class="cn-col-full">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/EXPOSICAO_PERSONALIDADE.html"></div>
+                </div>
+            </div>
+
+            <!-- Linha 3: Imagens Aleatórias + Tipos de Personagens -->
+            <div class="cn-row">
+                <div class="cn-col-half">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/LINGUAGEM_CORPORAL.html"></div>
+                </div>
+                <div class="cn-col-half">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/COMPORTAMENTOS.html"></div>
+                </div>
+            </div>
+
+            <!-- Linha 4: Personalidade (largura total) -->
+            <div class="cn-row">
+                <div class="cn-col-full">
+                    <div class="cn-conteudo" data-arquivo="NARRATIVUM/GESTOS_SEXUAIS.html"></div>
+                </div>
+            </div>
+
+        </div><!-- /.cn-assunto -->
+    </div><!-- /.cn-container -->
+
+
+    <!-- ============================================================
+         SCRIPT — Carregamento preguiçoso por scroll (IntersectionObserver)
+         ============================================================
+         FUNCIONAMENTO:
+           1. Ao iniciar, regista um IntersectionObserver sobre cada
+              [data-arquivo] ainda não carregado.
+           2. Assim que o item entra (ou se aproxima, via rootMargin)
+              da área visível, faz fetch do ficheiro e injeta.
+           3. Cada item só é buscado uma vez — depois de carregado,
+              o observer deixa de o vigiar (unobserve).
+           4. Sem suporte a IntersectionObserver (navegador muito
+              antigo): carrega tudo de imediato, sem esperar o scroll.
+
+         COMPATIBILIDADE COM INJECÇÃO:
+           Expõe window.initCodexNarrativum() para ser chamado pelo
+           injector da página pai (index.html) após a injecção do
+           HTML — mesmo mecanismo já usado para window.initCodexBlog().
+           Guarda por dataset.carregado evita duplo registo/fetch
+           em re-injecções.
+
+         ENCAPSULAMENTO:
+           Todo o código está dentro de uma IIFE com 'use strict'.
+           Nenhuma variável escapa para o escopo global, excepto
+           a função initCodexNarrativum exposta intencionalmente.
+         ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            function initCodexNarrativum() {
+                var container = document.querySelector('.codex-narrativum');
+                if (!container) return;
+
+                var itens = container.querySelectorAll('.cn-conteudo[data-arquivo]');
+
+                if (!('IntersectionObserver' in window)) {
+                    /* Sem suporte: carrega tudo imediatamente */
+                    itens.forEach(function (item) {
+                        if (item.dataset.carregado !== 'true') carregarConteudo(item);
+                    });
+                    return;
+                }
+
+                var observer = new IntersectionObserver(function (entradas, obs) {
+                    entradas.forEach(function (entrada) {
+                        if (!entrada.isIntersecting) return;
+                        var item = entrada.target;
+                        obs.unobserve(item);
+                        carregarConteudo(item);
+                    });
+                }, { rootMargin: '200px 0px', threshold: 0.01 });
+
+                itens.forEach(function (item) {
+                    if (item.dataset.carregado === 'true') return;
+                    observer.observe(item);
+                });
+            }
+
+            function carregarConteudo(conteudoDiv) {
+                var arquivo = conteudoDiv.getAttribute('data-arquivo');
+
+                conteudoDiv.innerHTML = '<p class="cn-carregando">A carregar\u2026</p>';
+
+                fetch(arquivo)
+                    .then(function (resposta) {
+                        if (!resposta.ok) {
+                            throw new Error('Ficheiro não encontrado: ' + arquivo);
+                        }
+                        return resposta.text();
+                    })
+                    .then(function (html) {
+                        conteudoDiv.innerHTML = html;
+                        conteudoDiv.dataset.carregado = 'true';
+
+                        /* Reactiva scripts internos do fragmento (innerHTML
+                           não os executa — recriados manualmente). */
+                        conteudoDiv.querySelectorAll('script').forEach(function (scriptOriginal) {
+                            var scriptNovo = document.createElement('script');
+                            Array.from(scriptOriginal.attributes).forEach(function (attr) {
+                                scriptNovo.setAttribute(attr.name, attr.value);
+                            });
+                            scriptNovo.textContent = scriptOriginal.textContent;
+                            scriptOriginal.parentNode.replaceChild(scriptNovo, scriptOriginal);
+                        });
+                    })
+                    .catch(function (erro) {
+                        console.error('[CODEX NARRATIVUM]', erro);
+                        conteudoDiv.innerHTML = '<p class="cn-erro">Conte\u00fado n\u00e3o dispon\u00edvel.</p>';
+                        conteudoDiv.dataset.carregado = 'true';
+                    });
+            }
+
+            /* Expõe initCodexNarrativum globalmente para o injector da página pai. */
+            window.initCodexNarrativum = initCodexNarrativum;
+
+            /* Auto-inicialização quando usado em modo standalone */
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCodexNarrativum);
+            } else {
+                initCodexNarrativum();
+            }
+
+        }());
+    </script>
+
+</div><!-- /.codex-narrativum -->
+
+</body>
+</html>

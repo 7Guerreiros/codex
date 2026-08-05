@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página em Construção</title>
+
+  <!-- ============================================================
+       ORDEM DE CARREGAMENTO DO TEMA
+       ============================================================
+       Este ficheiro é pensado para ser carregado dentro de um
+       <iframe> do site (mesmo padrão do IFRAME_MAPA.html).
+
+       Sistema_Tema.js fica no topo do <head>, sem defer, correndo
+       antes de qualquer <style> ou conteúdo ser processado —
+       evita o flash de tema errado (mesmo princípio do index.html).
+       ============================================================ -->
+  <script src="Sistema_Tema.js"></script>
+
+  <style>
+    /* Transições suaves para elementos principais */
+    body, iframe {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+  </style>
+
+  <style>
+    /* =============================================================
+       BASE — Centralização e tipografia
+       =============================================================
+       As cores vêm inteiramente de Sistema_Tema.js (--bg, --text).
+       Nenhuma cor fixa é definida aqui.
+       ============================================================= */
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Georgia', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .5s, color .5s;
+    }
+
+    .em-construcao {
+      text-align: center;
+      font-size: 1.4rem;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       CONTEÚDO — Placeholder
+       ============================================================
+       MANUTENÇÃO: substituir este bloco pelo conteúdo real da
+       página, mantendo o restante da estrutura (tema, botão de
+       fecho) intocado.
+       ============================================================ -->
+  <p class="em-construcao">Em construção&hellip;</p>
+
+  <!-- ================================================================
+       BOTÃO DE FECHO DO IFRAME
+       ================================================================
+       Fecha o iframe inteiro quando embutido num modal do site,
+       enviando postMessage ao pai — mesmo mecanismo usado em todos
+       os ficheiros de iframe do site (ver Menus.js, SEÇÃO 5.1).
+       ================================================================ -->
+  <style>
+    #fechar-iframe-btn {
+      position: fixed;
+      top: 10px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text, #1a1a1a);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.6;
+      z-index: 1100;
+      transition: opacity 0.2s ease;
+    }
+    #fechar-iframe-btn:hover,
+    #fechar-iframe-btn:focus-visible {
+      opacity: 1;
+    }
+  </style>
+  <button id="fechar-iframe-btn" type="button" aria-label="Fechar" title="Fechar">&times;</button>
+
+  <script>
+    (function () {
+      'use strict';
+      var btn = document.getElementById('fechar-iframe-btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        if (window.parent) {
+          window.parent.postMessage({ type: 'FECHAR_MODAL' }, '*');
+        }
+      });
+    }());
+  </script>
+
+  <!-- Sistema_Tema.js foi carregado no topo do <head> — ver nota lá. -->
+
+</body>
+</html>

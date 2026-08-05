@@ -1,4 +1,4 @@
-/* Estilo_Conteudo.css */
+/* Estilo_Conteudo.css - Atualizado para ser compatível com Sistema_Tema.js */
 
 /* Estilos específicos para a área de conteúdo principal */
 .area-conteudo {
@@ -14,13 +14,34 @@
 
 /* Estilos internos dentro da área de conteúdo */
 .area-conteudo h1 {
-  color: var(--texto); /* Usa cor de texto principal */
+  color: var(--text); /* Usa cor de texto principal injetada pelo script */
   text-align: center;
   margin-top: 0;
 }
 
 .area-conteudo p {
-  color: var(--texto-secundario); /* Usa cor de texto secundário */
+  color: var(--text); /* Usa cor de texto principal injetada pelo script */
+  opacity: 0.85; /* Adiciona leve opacidade para criar o efeito de "texto secundário" */
   text-align: justify;
   line-height: 1.8;
+}
+
+/* ============================================================
+   ÁREA DE TEXTO SEM TAGS (ARQUIVO_BASE.html e afins)
+   ============================================================
+   Permite escrever parágrafos apenas com linhas em branco entre
+   eles, sem precisar de <br> ou <p> manuais. O white-space:
+   pre-line preserva as quebras de linha do texto-fonte enquanto
+   mantém o word-wrap normal (não vira <pre> de largura fixa).
+
+   MANUTENÇÃO: aplica-se a qualquer <div class="artigo"> dentro
+   de .area-conteudo, em qualquer profundidade de injeção
+   (ex: dentro de .codex-blog .cb-topico-conteudo).
+   ============================================================ */
+.area-conteudo .artigo {
+  white-space: pre-line;
+  color: var(--text);
+  text-align: justify;
+  line-height: 1.8;
+  font-size: 1.05rem;
 }

@@ -1,6 +1,5 @@
 /**
- * SISTEMA SOBERANO DE TEMAS - ULTRA-LIGHT & HÍBRIDO
- * Versão: 2.0 (Refinada para Performance e Zero Flicker)
+ * Versão: 2.0
  */
 (function() {
     'use strict';

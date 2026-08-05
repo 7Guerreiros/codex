@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX TEOLOGIA</title>
+
+    <!-- ============================================================
+         NOTA DE UTILIZAÇÃO
+         ============================================================
+         Este ficheiro foi concebido para funcionar de dois modos:
+
+         MODO AUTÓNOMO (standalone):
+           Abrir directamente no browser para testes.
+           Os estilos do <head> garantem uma aparência funcional.
+
+         MODO INJECTADO (uso normal no site):
+           O injector da página pai deve:
+             1. Fazer fetch() deste ficheiro
+             2. Extrair o innerHTML de <div class="codex-blog">
+             3. Injectá-lo na .area-conteudo
+             4. Recriar os scripts manualmente (ver documentação
+                do injector) e chamar: window.initCodexBlog()
+
+         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
+         Apenas o conteúdo dentro de .codex-blog é usado.
+         ============================================================ -->
+
+    <style>
+        /* Estilos mínimos apenas para visualização standalone.
+           São descartados na injecção — o pai fornece o seu próprio layout. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CODEX BLOG — Componente injectável
+     ================================================================
+     ESTRUTURA DO COMPONENTE:
+       .codex-blog                → wrapper raiz e âncora de todo o CSS/JS
+         <style>                  → CSS 100% escopado (prefixo .codex-blog)
+         .cb-container            → container de largura e padding
+           .cb-assunto            → grupo de tópicos (repetível)
+             .cb-titulo           → título do grupo
+             .cb-topico           → item accordion
+               [data-arquivo]     → caminho do ficheiro a injectar
+               .cb-topico-btn     → botão clicável (acessível)
+               .cb-topico-conteudo → área de conteúdo injectado
+         <script>                 → lógica escopada em IIFE
+
+     MANUTENÇÃO — ADICIONAR TÓPICOS:
+       Duplicar o bloco .cb-topico e actualizar:
+         - data-arquivo: caminho relativo ao index.html da página pai
+         - Texto do .cb-topico-btn
+
+     MANUTENÇÃO — ADICIONAR GRUPOS:
+       Duplicar o bloco .cb-assunto inteiro.
+
+     MANUTENÇÃO — CAMINHOS:
+       Os caminhos em data-arquivo são sempre relativos ao
+       index.html da página pai, não a este ficheiro.
+     ================================================================ -->
+
+<div class="codex-blog">
+
+    <!-- ============================================================
+         ESTILOS — Totalmente escopados a .codex-blog
+         ============================================================
+         REGRA CRÍTICA: nenhum selector aqui começa sem .codex-blog
+         Isto garante que ao ser injectado, nenhum estilo
+         "vaza" para o resto da página pai.
+
+         SISTEMA DE TEMAS:
+         As variáveis --cb-bg, --cb-text e --cb-borda herdam directamente
+         das variáveis globais --bg, --text e --borda definidas e geridas
+         pelo Sistema_Tema.js do pai (aplicadas em :root e html.tema-escuro).
+         As variáveis internas (hover, activo, muted) são definidas aqui
+         em dois estados: claro (.codex-blog) e escuro (html.tema-escuro
+         .codex-blog), espelhando o selector exacto do Sistema_Tema.js.
+         O @media (prefers-color-scheme) foi removido — o pai já trata
+         da preferência do sistema e evita conflitos.
+         ============================================================ -->
+    <style>
+
+        /* --- Modo Claro (padrão) --- */
+        /* --cb-bg, --cb-text, --cb-borda herdam as variáveis globais do
+           Sistema_Tema.js. Os valores após a vírgula são fallback standalone. */
+        .codex-blog {
+            --cb-bg:        var(--bg,   #ffffff);
+            --cb-text:      var(--text, #1a1a1a);
+            --cb-borda:     var(--borda,#cccccc);
+            --cb-bg-topico: #f9f9f9;
+            --cb-bg-hover:  #eeeeee;
+            --cb-bg-ativo:  #e0e0e0;
+            --cb-muted:     #888888;
+        }
+
+        /* --- Modo Escuro via Sistema_Tema.js (classe aplicada em <html>) ---
+           Selector espelha exactamente o do Sistema_Tema.js: html.tema-escuro
+           As variáveis base (bg, text, borda) já são actualizadas pelo pai;
+           apenas as variáveis internas precisam de ser redefinidas aqui.     */
+        html.tema-escuro .codex-blog {
+            --cb-bg-topico: #2a2a2a;
+            --cb-bg-hover:  #3a3a3a;
+            --cb-bg-ativo:  #404040;
+            --cb-muted:     #999999;
+        }
+
+        /* --- Container principal --- */
+        .codex-blog .cb-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cb-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-blog .cb-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- Grupo de tópicos (.cb-assunto) --- */
+        .codex-blog .cb-assunto {
+            margin-bottom: 35px;
+            padding: 0 10px;
+        }
+
+        .codex-blog .cb-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--cb-borda);
+            color: var(--cb-text);
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px;
+            }
+        }
+
+        /* --- Item accordion (.cb-topico) --- */
+        .codex-blog .cb-topico {
+            margin-bottom: 5px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--cb-borda);
+        }
+
+        /* --- Botão do cabeçalho --- */
+        .codex-blog .cb-topico-btn {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            background-color: var(--cb-bg-topico);
+            border: none;
+            text-align: left;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: var(--cb-text);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .codex-blog .cb-topico-btn:hover {
+            background-color: var(--cb-bg-hover);
+        }
+
+        /* Estado expandido: botão activo */
+        .codex-blog .cb-topico.expandido .cb-topico-btn {
+            background-color: var(--cb-bg-ativo);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-topico-btn {
+                padding: 14px 16px;
+                font-size: 1rem;
+            }
+        }
+
+        /* --- Painel de conteúdo --- */
+        /* Fechado por padrão; aberto pela classe .expandido no pai */
+        .codex-blog .cb-topico-conteudo {
+            display: none;
+            padding: 20px;
+            background-color: var(--cb-bg);
+            color: var(--cb-text);
+        }
+
+        .codex-blog .cb-topico.expandido .cb-topico-conteudo {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-topico-conteudo {
+                padding: 16px;
+            }
+        }
+
+        /* --- Indicador de carregamento --- */
+        .codex-blog .cb-carregando {
+            margin: 0;
+            padding: 8px 0;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--cb-muted);
+        }
+
+        /* --- Estilos para conteúdo injectado dentro dos tópicos ---
+           Estes estilos aplicam-se ao HTML carregado via fetch.
+           Adicionar aqui quaisquer regras que os ficheiros de conteúdo
+           devam herdar automaticamente. */
+        .codex-blog .cb-topico-conteudo p {
+            margin-bottom: 16px;
+            text-align: justify;
+            font-size: 1.05rem;
+        }
+
+        .codex-blog .cb-topico-conteudo h1,
+        .codex-blog .cb-topico-conteudo h2,
+        .codex-blog .cb-topico-conteudo h3 {
+            margin: 20px 0 10px;
+            color: var(--cb-text);
+        }
+
+        .codex-blog .cb-topico-conteudo img {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border: 1px solid var(--cb-borda);
+            border-radius: 4px;
+        }
+
+    </style>
+
+
+    <!-- ============================================================
+         CONTEÚDO
+         ============================================================
+         COMO ADICIONAR UM TÓPICO:
+           1. Duplicar o bloco <!-- TÓPICO abaixo
+           2. Alterar data-arquivo para o caminho do ficheiro
+           3. Alterar o texto do botão
+
+         COMO ADICIONAR UM GRUPO:
+           1. Duplicar o bloco .cb-assunto inteiro
+           2. Alterar o texto de .cb-titulo
+         ============================================================ -->
+    <div class="cb-container">
+
+        <div class="cb-assunto">
+            <div class="cb-titulo">CODEX PHILOSOPHIÆ ET THEOLOGIÆ</div>
+
+            <!-- TÓPICO -->
+      
+
+            <!-- TÓPICO -->
+            <div class="cb-topico" data-arquivo="TEOLOGIA/12_CAMADAS.html">
+                <button class="cb-topico-btn" aria-expanded="false">
+                    AS 12 CAMADAS DA PERSONALIDADE
+                </button>
+                <div class="cb-topico-conteudo" role="region" aria-hidden="true"></div>
+            </div>
+
+        </div><!-- /.cb-assunto -->
+
+    </div><!-- /.cb-container -->
+
+
+    <!-- ============================================================
+         SCRIPT — Accordion com fetch interno
+         ============================================================
+         FUNCIONAMENTO:
+           1. Clique no botão → fecha todos os tópicos abertos
+           2. Se o tópico clicado já estava aberto → apenas fecha (toggle)
+           3. Se o conteúdo ainda não foi carregado → fetch do ficheiro
+              indicado em data-arquivo no .cb-topico pai
+           4. Conteúdo já carregado → reabre sem novo fetch (cache natural)
+           5. Estado ARIA actualizado em cada acção (acessibilidade)
+
+         COMPATIBILIDADE COM INJECÇÃO:
+           O script expõe window.initCodexBlog() para ser chamado
+           pelo injector da página pai APÓS a injecção do HTML.
+           A guarda btn.dataset.iniciado evita registar o mesmo
+           listener mais de uma vez (seguro para re-injecções).
+
+           O injector deve chamar: window.initCodexBlog()
+           Se o injector recriar os scripts via cloneNode,
+           a auto-inicialização no final do script trata de tudo.
+
+         ENCAPSULAMENTO:
+           Todo o código está dentro de uma IIFE com 'use strict'.
+           Nenhuma variável escapa para o escopo global,
+           excepto a função initCodexBlog exposta intencionalmente.
+         ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            /* Inicializa o accordion dentro de .codex-blog.
+               Seguro para ser chamado múltiplas vezes (idempotente). */
+            function initCodexBlog() {
+                var container = document.querySelector('.codex-blog');
+                if (!container) return; /* Sai silenciosamente se não encontrar */
+
+                var carregando = new Set(); /* Evita fetches duplicados simultâneos */
+
+                container.querySelectorAll('.cb-topico-btn').forEach(function (btn) {
+
+                    /* Guarda contra duplo registo de listener em re-injecções */
+                    if (btn.dataset.iniciado === 'true') return;
+                    btn.dataset.iniciado = 'true';
+
+                    btn.addEventListener('click', function () {
+                        var topico   = this.closest('.cb-topico');
+                        var conteudo = topico.querySelector('.cb-topico-conteudo');
+                        var arquivo  = topico.getAttribute('data-arquivo');
+                        var aberto   = topico.classList.contains('expandido');
+
+                        /* Fecha todos os tópicos */
+                        fecharTodos(container);
+
+                        /* Toggle: se já estava aberto, apenas fecha */
+                        if (aberto) return;
+
+                        /* Conteúdo já carregado: apenas expande */
+                        if (conteudo.dataset.carregado === 'true') {
+                            expandir(topico, btn, conteudo);
+                            return;
+                        }
+
+                        /* Conteúdo novo: fetch + expande */
+                        carregarConteudo(arquivo, conteudo, topico, btn, carregando);
+                    });
+                });
+            }
+
+            /* Fecha todos os tópicos e actualiza ARIA */
+            function fecharTodos(container) {
+                container.querySelectorAll('.cb-topico').forEach(function (t) {
+                    t.classList.remove('expandido');
+                    t.querySelector('.cb-topico-btn')
+                     .setAttribute('aria-expanded', 'false');
+                    t.querySelector('.cb-topico-conteudo')
+                     .setAttribute('aria-hidden', 'true');
+                });
+            }
+
+            /* Expande um tópico e actualiza ARIA */
+            function expandir(topico, btn, conteudo) {
+                topico.classList.add('expandido');
+                btn.setAttribute('aria-expanded', 'true');
+                conteudo.setAttribute('aria-hidden', 'false');
+            }
+
+            /* Carrega o ficheiro via fetch e injeta no painel */
+            function carregarConteudo(arquivo, conteudoDiv, topico, btn, carregando) {
+                if (carregando.has(arquivo)) return; /* Bloqueia fetch duplicado */
+                carregando.add(arquivo);
+
+                /* Mostra indicador e expande antes do fetch terminar */
+                conteudoDiv.innerHTML = '<p class="cb-carregando">A carregar\u2026</p>';
+                expandir(topico, btn, conteudoDiv);
+
+                fetch(arquivo)
+                    .then(function (resposta) {
+                        if (!resposta.ok) {
+                            throw new Error('Ficheiro não encontrado: ' + arquivo);
+                        }
+                        return resposta.text();
+                    })
+                    .then(function (html) {
+                        conteudoDiv.innerHTML = html;
+                        conteudoDiv.dataset.carregado = 'true'; /* Marca como em cache */
+                        carregando.delete(arquivo);
+                    })
+                    .catch(function (erro) {
+                        console.error('[CODEX BLOG]', erro);
+                        conteudoDiv.innerHTML = '<p>Conte\u00fado n\u00e3o dispon\u00edvel.</p>';
+                        conteudoDiv.dataset.carregado = 'true'; /* Evita retry infinito */
+                        carregando.delete(arquivo);
+                    });
+            }
+
+            /* Expõe initCodexBlog globalmente para o injector da página pai.
+               O injector deve chamar window.initCodexBlog() após a injecção. */
+            window.initCodexBlog = initCodexBlog;
+
+            /* Auto-inicialização quando usado em modo standalone */
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCodexBlog);
+            } else {
+                initCodexBlog();
+            }
+
+        }());
+    </script>
+
+</div><!-- /.codex-blog -->
+
+</body>
+</html>

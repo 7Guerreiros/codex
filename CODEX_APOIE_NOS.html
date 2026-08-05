@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX APOIE-NOS</title>
+
+    <!-- ============================================================
+         NOTA DE UTILIZAÇÃO
+         ============================================================
+         Este ficheiro funciona de dois modos, exactamente como o
+         CODEX_CONTATO.html e o CODEX_SOBRE_NOS.html de onde foi
+         copiado:
+
+         MODO AUTÓNOMO (standalone):
+           Abrir directamente no browser para testes.
+
+         MODO INJECTADO (uso normal no site):
+           O injector da página pai (injectarCodex, em index.html) faz:
+             1. fetch() deste ficheiro
+             2. Extrai o innerHTML de <div class="codex-apoie-nos">
+             3. Injecta na .area-conteudo
+
+         DIFERENÇA EM RELAÇÃO AO CODEX_BLOG:
+           Este ficheiro NÃO injecta conteúdo interno. Não há
+           acordeão, não há data-arquivo, não há fetch, não há
+           window.initCodexBlog(). É uma página de apresentação —
+           quase todo o conteúdo já está aqui, pronto a ser exibido.
+           A única interactividade é o botão PIX, que copia a chave
+           para a área de transferência ao clicar (ver SCRIPT no
+           fim do componente) — não altera a aparência nem depende
+           de nenhum serviço externo.
+
+         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
+         Apenas o conteúdo dentro de .codex-apoie-nos é usado.
+         ============================================================ -->
+
+    <style>
+        /* Estilos mínimos apenas para visualização standalone. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CODEX APOIE-NOS — Componente injectável (estático, sem injecção interna)
+     ================================================================
+     ESTRUTURA DO COMPONENTE:
+       .codex-apoie-nos           → wrapper raiz e âncora de todo o CSS
+         <style>                  → CSS 100% escopado (prefixo .codex-apoie-nos)
+         .can-container           → container de largura e padding
+           .can-titulo            → título da página
+           .can-intro             → subtítulo/introdução breve
+           .can-secao             → bloco de texto (por que apoiar)
+           .can-lista             → lista de formas de apoio
+             .can-item            → cada meio de apoio (ícone + rótulo + valor)
+
+     MANUTENÇÃO — EDITAR OS MEIOS DE APOIO:
+       Basta alterar o texto e o href de cada .can-item abaixo.
+       Os valores actuais são EXEMPLOS fictícios, a substituir.
+       Excepção: o item PIX usa <button data-copiar="..."> em vez
+       de <a href="...">, porque copia a chave em vez de navegar —
+       para trocar a chave, edite os dois lugares onde ela aparece:
+       o atributo data-copiar E o texto dentro do span.can-valor.
+
+     MANUTENÇÃO — ADICIONAR UM NOVO MEIO DE APOIO:
+       Duplicar um bloco .can-item inteiro e ajustar rótulo e link.
+
+     NOTA SOBRE PAGAMENTOS:
+       Não foi incluído nenhum formulário ou botão de pagamento
+       embutido, porque o site é 100% estático (GitHub Pages, sem
+       backend) e o requisito do projecto exclui dependência de
+       serviços terceiros (CDN/API externa). Os links abaixo apontam
+       para plataformas externas de apoio (Pix, Ko-fi, etc.) — o
+       mesmo princípio dos links "mailto:" do Codex Contacto.
+     ================================================================ -->
+
+<div class="codex-apoie-nos">
+
+    <!-- ============================================================
+         ESTILOS — Totalmente escopados a .codex-apoie-nos
+         ============================================================
+         REGRA CRÍTICA: nenhum selector aqui começa sem
+         .codex-apoie-nos — mesma regra do codex-contato e do
+         codex-sobre-nos, para não vazar estilos ao injectar.
+
+         SISTEMA DE TEMAS:
+         As variáveis --can-bg, --can-text e --can-borda herdam
+         directamente das variáveis globais --bg, --text e --borda
+         geridas pelo Sistema_Tema.js do pai. As variáveis internas
+         (hover, muted) são definidas aqui em dois estados: claro
+         (.codex-apoie-nos) e escuro (html.tema-escuro .codex-apoie-nos).
+         ============================================================ -->
+    <style>
+
+        /* --- Modo Claro (padrão) --- */
+        .codex-apoie-nos {
+            --can-bg:        var(--bg,   #ffffff);
+            --can-text:      var(--text, #1a1a1a);
+            --can-borda:     var(--borda,#cccccc);
+            --can-bg-hover:  #f2f2f2;
+            --can-muted:     #777777;
+        }
+
+        /* --- Modo Escuro via Sistema_Tema.js --- */
+        html.tema-escuro .codex-apoie-nos {
+            --can-bg-hover:  #2a2a2a;
+            --can-muted:     #999999;
+        }
+
+        /* --- Container principal --- */
+        .codex-apoie-nos .can-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--can-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-apoie-nos .can-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- Título --- */
+        .codex-apoie-nos .can-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 15px 20px 0;
+            color: var(--can-text);
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        /* --- Subtítulo / introdução breve --- */
+        .codex-apoie-nos .can-intro {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.75;
+            margin: 0 0 24px;
+            padding: 0 20px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .codex-apoie-nos .can-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px 0;
+            }
+        }
+
+        /* --- Secção de texto (por que apoiar) --- */
+        .codex-apoie-nos .can-secao {
+            padding: 0 20px;
+            margin-bottom: 26px;
+        }
+
+        .codex-apoie-nos .can-secao p {
+            margin: 0 0 10px;
+            color: var(--can-text);
+        }
+
+        .codex-apoie-nos .can-secao p:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .codex-apoie-nos .can-secao {
+                padding: 0 16px;
+            }
+        }
+
+        /* --- Lista de formas de apoio --- */
+        .codex-apoie-nos .can-lista {
+            list-style: none;
+            margin: 0;
+            padding: 0 10px;
+        }
+
+        .codex-apoie-nos .can-item {
+            border-bottom: 1px solid var(--can-borda);
+        }
+
+        .codex-apoie-nos .can-item:first-of-type {
+            border-top: 1px solid var(--can-borda);
+        }
+
+        /* --- Link de cada forma de apoio --- */
+        /* Também serve para o item PIX, que usa <button> em vez de
+           <a> (para copiar a chave, sem navegar) — as propriedades
+           abaixo marcadas "reset" são inofensivas num <a> (que já
+           se comporta assim por padrão) e garantem que um <button>
+           fique visualmente idêntico. */
+        .codex-apoie-nos .can-link {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8em;
+            width: 100%;
+            padding: 16px 8px;
+            text-decoration: none;
+            color: var(--can-text);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            transition: background-color 0.2s ease, letter-spacing 0.2s ease;
+            letter-spacing: 0.02em;
+            /* reset (necessário só para <button>) */
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .codex-apoie-nos .can-link:hover,
+        .codex-apoie-nos .can-link:focus-visible {
+            background-color: var(--can-bg-hover);
+            letter-spacing: 0.05em;
+        }
+
+        .codex-apoie-nos .can-rotulo {
+            font-weight: bold;
+            min-width: 6.5em;
+            flex-shrink: 0;
+        }
+
+        .codex-apoie-nos .can-valor {
+            color: var(--can-muted);
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .codex-apoie-nos .can-link {
+                padding: 14px 8px;
+                flex-direction: column;
+                gap: 0.2em;
+            }
+            .codex-apoie-nos .can-rotulo {
+                min-width: unset;
+            }
+        }
+
+        /* --- Nota final de agradecimento --- */
+        .codex-apoie-nos .can-nota {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.75;
+            margin: 24px 0 0;
+            padding: 0 20px;
+            font-size: 0.9rem;
+        }
+
+    </style>
+
+
+    <!-- ============================================================
+         CONTEÚDO
+         ============================================================
+         Todos os valores abaixo são EXEMPLOS — substituir pelos
+         dados reais antes de publicar.
+         ============================================================ -->
+    <div class="can-container">
+
+        <div class="can-titulo">APOIE-NOS</div>
+        <p class="can-intro">Este projeto independente — seu apoio ajuda-o a continuar existindo.</p>
+
+        <div class="can-secao">
+            <p>Contos, livros e RPGs deste site são publicados sem anúncios e sem custo para quem lê. Mantê-los assim tem um custo de tempo real, e cada forma de apoio — por pequena que seja — ajuda a garantir que novos capítulos continuem a ser escritos.</p>
+        </div>
+
+        <ul class="can-lista">
+
+            <li class="can-item">
+                <a class="can-link" href="https://apoia.se/blog7guerreiros" target="_blank" rel="noopener noreferrer">
+                    <span class="can-rotulo">APOIA.SE</span>
+                    <span class="can-valor">apoia.se/blog7guerreiros</span>
+                </a>
+            </li>
+			
+			<li class="can-item">
+                <a class="can-link" href="https://www.colab55.com/@blog7guerreiros" target="_blank" rel="noopener noreferrer">
+                    <span class="can-rotulo">LOJA</span>
+                    <span class="can-valor">Loja de Camisetas</span>
+                </a>
+            </li>
+			
+			<li class="can-item">
+                <button class="can-link" type="button" data-copiar="scriptor_christianus@outlook.com">
+                    <span class="can-rotulo">PIX</span>
+                    <span class="can-valor" data-copiar-texto>scriptor_christianus@outlook.com</span>
+                </button>
+            </li>
+
+        </ul>
+		
+		<br>
+		
+		<div class="can-secao">
+    <p>Nossas metas — a serem alcançadas por meio dos apoios recebidos:</p>
+    <ul>
+        <li>Adquirir e manter um domínio próprio.</li>
+        <li>Adquirir e manter uma hospedagem profissional.</li>
+        <li>Maximizar o sistema de backups para os textos.</li>
+    </ul>
+</div>
+
+        <p class="can-nota">Agradeço pelo seu tempo em me ler.</p>
+
+    </div><!-- /.can-container -->
+
+    <!-- ============================================================
+         SCRIPT — Copiar ao clicar (botão PIX)
+         ============================================================
+         Copia o texto de data-copiar para a área de transferência,
+         usando a Clipboard API nativa do navegador (sem dependência
+         externa), e mostra "Copiado!" por 2 segundos no lugar do
+         valor exibido, revertendo em seguida.
+
+         MANUTENÇÃO — REPLICAR PARA OUTRO MEIO DE APOIO (ex.: BTC):
+           Trocar a tag <a> por <button type="button">, adicionar
+           data-copiar="<valor a copiar>" no botão e o atributo
+           data-copiar-texto no <span class="can-valor"> — o script
+           já trata automaticamente qualquer botão com esse padrão,
+           sem precisar de nenhuma alteração aqui.
+         ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            function initCopiar() {
+                var raiz = document.querySelector('.codex-apoie-nos');
+                if (!raiz) return;
+
+                raiz.querySelectorAll('[data-copiar]').forEach(function (botao) {
+                    var valorSpan     = botao.querySelector('[data-copiar-texto]');
+                    var textoOriginal = valorSpan ? valorSpan.textContent : '';
+                    var timeoutId     = null;
+
+                    botao.addEventListener('click', function () {
+                        var texto = botao.getAttribute('data-copiar');
+
+                        navigator.clipboard.writeText(texto).then(function () {
+                            if (!valorSpan) return;
+
+                            clearTimeout(timeoutId);
+                            valorSpan.textContent = 'Copiado!';
+
+                            timeoutId = setTimeout(function () {
+                                valorSpan.textContent = textoOriginal;
+                            }, 2000);
+                        }).catch(function (erro) {
+                            console.error('[CODEX_APOIE_NOS] Não foi possível copiar:', erro);
+                        });
+                    });
+                });
+            }
+
+            /* Auto-inicialização quando usado em modo standalone.
+               Quando injectado, o injector da página pai já recria
+               este <script> depois do DOM estar pronto, então o
+               ramo "else" executa imediatamente. */
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCopiar);
+            } else {
+                initCopiar();
+            }
+
+        }());
+    </script>
+
+</div><!-- /.codex-apoie-nos -->
+
+</body>
+</html>

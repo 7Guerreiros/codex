@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX CONTATO</title>
+
+    <!-- ============================================================
+         NOTA DE UTILIZAÇÃO
+         ============================================================
+         Este ficheiro funciona de dois modos, exactamente como o
+         CODEX_BLOG.html de onde foi copiado:
+
+         MODO AUTÓNOMO (standalone):
+           Abrir directamente no browser para testes.
+
+         MODO INJECTADO (uso normal no site):
+           O injector da página pai (injectarCodex, em index.html) faz:
+             1. fetch() deste ficheiro
+             2. Extrai o innerHTML de <div class="codex-contato">
+             3. Injecta na .area-conteudo
+
+         DIFERENÇA EM RELAÇÃO AO CODEX_BLOG:
+           Este ficheiro NÃO injecta conteúdo interno. Não há
+           acordeão, não há data-arquivo, não há fetch, não há
+           window.initCodexBlog(). É uma página de contacto estática
+           — todo o conteúdo já está aqui, pronto a ser exibido.
+
+         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
+         Apenas o conteúdo dentro de .codex-contato é usado.
+         ============================================================ -->
+
+    <style>
+        /* Estilos mínimos apenas para visualização standalone. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CODEX CONTATO — Componente injectável (estático, sem injecção interna)
+     ================================================================
+     ESTRUTURA DO COMPONENTE:
+       .codex-contato             → wrapper raiz e âncora de todo o CSS
+         <style>                  → CSS 100% escopado (prefixo .codex-contato)
+         .cc-container            → container de largura e padding
+           .cc-titulo             → título da página
+           .cc-lista              → lista de contactos
+             .cc-item             → cada meio de contacto (ícone + rótulo + valor)
+
+     MANUTENÇÃO — EDITAR OS CONTACTOS:
+       Basta alterar o texto e o href de cada .cc-item abaixo.
+       Os valores actuais são EXEMPLOS fictícios, a substituir.
+
+     MANUTENÇÃO — ADICIONAR UM NOVO MEIO DE CONTACTO:
+       Duplicar um bloco .cc-item inteiro e ajustar ícone, rótulo e link.
+
+     NOTA SOBRE FORMULÁRIOS:
+       Não foi incluído um formulário de contacto com envio directo,
+       porque o site é 100% estático (GitHub Pages, sem backend) e o
+       requisito do projecto exclui dependência de serviços terceiros
+       (como serviços de formulário via CDN/API externa). Os links
+       "mailto:" abaixo cumprem a mesma função sem essa dependência.
+     ================================================================ -->
+
+<div class="codex-contato">
+
+    <!-- ============================================================
+         ESTILOS — Totalmente escopados a .codex-contato
+         ============================================================
+         REGRA CRÍTICA: nenhum selector aqui começa sem .codex-contato
+         — mesma regra do codex-blog, para não vazar estilos ao injectar.
+
+         SISTEMA DE TEMAS:
+         As variáveis --cc-bg, --cc-text e --cc-borda herdam directamente
+         das variáveis globais --bg, --text e --borda geridas pelo
+         Sistema_Tema.js do pai. As variáveis internas (hover, muted)
+         são definidas aqui em dois estados: claro (.codex-contato) e
+         escuro (html.tema-escuro .codex-contato).
+         ============================================================ -->
+    <style>
+
+        /* --- Modo Claro (padrão) --- */
+        .codex-contato {
+            --cc-bg:        var(--bg,   #ffffff);
+            --cc-text:      var(--text, #1a1a1a);
+            --cc-borda:     var(--borda,#cccccc);
+            --cc-bg-hover:  #f2f2f2;
+            --cc-muted:     #777777;
+        }
+
+        /* --- Modo Escuro via Sistema_Tema.js --- */
+        html.tema-escuro .codex-contato {
+            --cc-bg-hover:  #2a2a2a;
+            --cc-muted:     #999999;
+        }
+
+        /* --- Container principal --- */
+        .codex-contato .cc-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cc-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-contato .cc-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- Título --- */
+        .codex-contato .cc-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 15px 20px 0;
+            color: var(--cc-text);
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        /* --- Subtítulo / introdução breve --- */
+        .codex-contato .cc-intro {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.75;
+            margin: 0 0 30px;
+            padding: 0 20px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .codex-contato .cc-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px 0;
+            }
+        }
+
+        /* --- Lista de contactos --- */
+        .codex-contato .cc-lista {
+            list-style: none;
+            margin: 0;
+            padding: 0 10px;
+        }
+
+        .codex-contato .cc-item {
+            border-bottom: 1px solid var(--cc-borda);
+        }
+
+        .codex-contato .cc-item:first-of-type {
+            border-top: 1px solid var(--cc-borda);
+        }
+
+        /* --- Link de cada contacto --- */
+        .codex-contato .cc-link {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8em;
+            width: 100%;
+            padding: 16px 8px;
+            text-decoration: none;
+            color: var(--cc-text);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            transition: background-color 0.2s ease, letter-spacing 0.2s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .codex-contato .cc-link:hover,
+        .codex-contato .cc-link:focus-visible {
+            background-color: var(--cc-bg-hover);
+            letter-spacing: 0.05em;
+        }
+
+        .codex-contato .cc-rotulo {
+            font-weight: bold;
+            min-width: 6.5em;
+            flex-shrink: 0;
+        }
+
+        .codex-contato .cc-valor {
+            color: var(--cc-muted);
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .codex-contato .cc-link {
+                padding: 14px 8px;
+                flex-direction: column;
+                gap: 0.2em;
+            }
+            .codex-contato .cc-rotulo {
+                min-width: unset;
+            }
+        }
+
+    </style>
+
+
+    <!-- ============================================================
+         CONTEÚDO
+         ============================================================
+         Todos os valores abaixo são EXEMPLOS — substituir pelos
+         dados reais antes de publicar.
+         ============================================================ -->
+    <div class="cc-container">
+
+        <div class="cc-titulo">CODEX CONTACTO</div>
+        <p class="cc-intro">Dúvidas, parcerias ou apenas para conversar:</p>
+
+        <ul class="cc-lista">
+
+            <li class="cc-item">
+                <a class="cc-link" href="scriptor_christianus@outlook.com">
+                    <span class="cc-rotulo">E-mail</span>
+                    <span class="cc-valor">scriptor_christianus@outlook.com</span>
+                </a>
+            </li>
+
+            <li class="cc-item">
+                <a class="cc-link" href="https://www.facebook.com/Blog7Guerreiros/" target="_blank" rel="noopener noreferrer">
+                    <span class="cc-rotulo">Facebook</span>
+                    <span class="cc-valor">@Blog7Guerreiros</span>
+                </a>
+            </li>
+
+            <li class="cc-item">
+                <a class="cc-link" href="https://www.instagram.com/blog7guerreiros" target="_blank" rel="noopener noreferrer">
+                    <span class="cc-rotulo">Instagram</span>
+                    <span class="cc-valor">@blog7guerrreiros</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div><!-- /.cc-container -->
+
+</div><!-- /.codex-contato -->
+
+</body>
+</html>
