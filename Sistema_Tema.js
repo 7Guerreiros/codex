@@ -1,5 +1,5 @@
 /**
- * Versão: 2.0
+ * Versão: 2.1
  */
 (function() {
     'use strict';
@@ -17,14 +17,38 @@
 
     const isTop = window.self === window.top;
 
+    // MANUTENÇÃO: apenas escolhas manuais são persistidas. Se o armazenamento
+    // estiver bloqueado, a escolha continua válida durante esta página.
+    let preferencia = null;
+    const mediaTema = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function temaValido(valor) {
+        return valor === 'escuro' || valor === 'claro';
+    }
+
+    function lerPreferencia() {
+        try {
+            const valor = localStorage.getItem(CONFIG.KEY);
+            return temaValido(valor) ? valor : null;
+        } catch (erro) {
+            return preferencia;
+        }
+    }
+
+    function temaAutomatico() {
+        return mediaTema.matches ? 'escuro' : 'claro';
+    }
+
     const SistemaTema = {
         init: function() {
             // 1. Aplicação Imediata (Anti-Flicker)
-            const salvo = localStorage.getItem(CONFIG.KEY);
-            const prefereEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const temaFinal = salvo || (prefereEscuro ? 'escuro' : 'claro');
-            
-            document.documentElement.classList.toggle(CONFIG.CLASS, temaFinal === 'escuro');
+            preferencia = lerPreferencia();
+            const temaFinal = preferencia || temaAutomatico();
+
+            document.documentElement.classList.toggle(
+                CONFIG.CLASS,
+                temaFinal === 'escuro'
+            );
             this.injectStyles();
 
             // 2. Lógica de Contexto
@@ -33,7 +57,7 @@
             } else {
                 this.setupSlave();
             }
-            
+
             window.alternarTemaGlobal = () => this.toggle();
         },
 
@@ -45,40 +69,88 @@
 
         setupMaster: function() {
             // Escuta mudanças de sistema
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                if (!localStorage.getItem(CONFIG.KEY)) this.apply(e.matches ? 'escuro' : 'claro');
-            });
+            const acompanharSistema = e => {
+                preferencia = lerPreferencia();
+                if (!preferencia) {
+                    this.apply(e.matches ? 'escuro' : 'claro', false);
+                }
+            };
+
+            if (mediaTema.addEventListener) {
+                mediaTema.addEventListener('change', acompanharSistema);
+            } else if (mediaTema.addListener) {
+                mediaTema.addListener(acompanharSistema);
+            }
 
             // Sincronização entre abas
             window.addEventListener('storage', e => {
-                if (e.key === CONFIG.KEY) this.apply(e.newValue, false);
+                if (e.key !== CONFIG.KEY && e.key !== null) return;
+
+                try {
+                    if (e.storageArea && e.storageArea !== localStorage) return;
+                } catch (erro) {
+                    /* Armazenamento indisponível: mantém o evento. */
+                }
+
+                preferencia = temaValido(e.newValue) ? e.newValue : null;
+                this.apply(preferencia || temaAutomatico(), false);
             });
         },
 
         setupSlave: function() {
             // Iframes apenas escutam a página mãe
             window.addEventListener('message', e => {
-                if (e.data.type === 'SET_THEME') {
-                    document.documentElement.classList.toggle(CONFIG.CLASS, e.data.theme === 'escuro');
+                // Aceita apenas mensagens válidas da página mãe, da mesma origem.
+                if (
+                    e.source !== window.parent ||
+                    e.origin !== window.location.origin
+                ) return;
+
+                if (
+                    e.data &&
+                    e.data.type === 'SET_THEME' &&
+                    temaValido(e.data.theme)
+                ) {
+                    document.documentElement.classList.toggle(
+                        CONFIG.CLASS,
+                        e.data.theme === 'escuro'
+                    );
                 }
             });
         },
 
         apply: function(tema, salvar = true) {
+            if (!temaValido(tema)) tema = temaAutomatico();
+
             const isEscuro = tema === 'escuro';
             document.documentElement.classList.toggle(CONFIG.CLASS, isEscuro);
-            if (salvar) localStorage.setItem(CONFIG.KEY, tema);
+
+            if (salvar) {
+                preferencia = tema;
+
+                try {
+                    localStorage.setItem(CONFIG.KEY, tema);
+                } catch (erro) {
+                    /* Mantém a escolha em memória nesta página. */
+                }
+            }
 
             // Notifica Iframes
             if (isTop) {
                 document.querySelectorAll('iframe').forEach(frame => {
-                    frame.contentWindow.postMessage({ type: 'SET_THEME', theme: tema }, '*');
+                    frame.contentWindow.postMessage(
+                        { type: 'SET_THEME', theme: tema },
+                        window.location.origin
+                    );
                 });
             }
         },
 
         toggle: function() {
-            const novo = document.documentElement.classList.contains(CONFIG.CLASS) ? 'claro' : 'escuro';
+            const novo = document.documentElement.classList.contains(
+                CONFIG.CLASS
+            ) ? 'claro' : 'escuro';
+
             this.apply(novo);
             return novo;
         }

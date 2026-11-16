@@ -1,113 +1,161 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Página em Construção</title>
-
-  <!-- ============================================================
-       ORDEM DE CARREGAMENTO DO TEMA
-       ============================================================
-       Este ficheiro é pensado para ser carregado dentro de um
-       <iframe> do site (mesmo padrão do IFRAME_MAPA.html).
-
-       Sistema_Tema.js fica no topo do <head>, sem defer, correndo
-       antes de qualquer <style> ou conteúdo ser processado —
-       evita o flash de tema errado (mesmo princípio do index.html).
-       ============================================================ -->
-  <script src="Sistema_Tema.js"></script>
-
-  <style>
-    /* Transições suaves para elementos principais */
-    body, iframe {
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-  </style>
-
-  <style>
-    /* =============================================================
-       BASE — Centralização e tipografia
-       =============================================================
-       As cores vêm inteiramente de Sistema_Tema.js (--bg, --text).
-       Nenhuma cor fixa é definida aqui.
-       ============================================================= */
-    body {
-      margin: 0;
-      padding: 2rem;
-      font-family: 'Georgia', serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-      background: var(--bg);
-      color: var(--text);
-      transition: background .5s, color .5s;
-    }
-
-    .em-construcao {
-      text-align: center;
-      font-size: 1.4rem;
-      opacity: 0.85;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fórum — Opus Machina</title>
+    <!-- Dependência local já utilizada pelos outros iframes. -->
+    <script src="Sistema_Tema.js"></script>
+    <!-- APRESENTAÇÃO: cores herdadas do tema, sem fontes ou imagens externas. -->
+    <style>
+        :root { color-scheme: light; --suave: #666; --papel: #f7f7f7; }
+        html.tema-escuro { color-scheme: dark; --suave: #b5b5b5; --papel: #242424; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg, #fff); color: var(--text, #111); font: 16px/1.7 Georgia, serif; }
+        .forum { min-height: 100vh; min-height: 100dvh; }
+        header { display: flex; align-items: flex-start; gap: 16px; padding: 20px 56px 20px 24px; border-bottom: 1px solid var(--borda, #ddd); }
+        .identidade { flex: 1; min-width: 0; }
+        .assinatura { display: block; margin-bottom: 4px; color: var(--suave); font: 11px/1.5 system-ui, sans-serif; letter-spacing: .16em; }
+        h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.3; }
+        button, .botao { min-height: 44px; border: 1px solid var(--borda, #ccc); border-radius: 5px; padding: 10px 16px; background: transparent; color: inherit; font: 14px/1.5 system-ui, sans-serif; cursor: pointer; }
+        button:hover, .botao:hover { background: var(--papel); }
+        button:focus-visible, a:focus-visible { outline: 2px solid var(--text, #111); outline-offset: 4px; }
+        #fechar {
+            position: fixed; top: 10px; right: 12px;
+            width: 32px; height: 32px; min-height: 0; padding: 0;
+            border: none; border-radius: 0; background: transparent;
+            color: var(--text, #1a1a1a); font-size: 1.4rem;
+            line-height: 1; cursor: pointer; opacity: .6; z-index: 1100;
+            transition: opacity .2s ease;
+        }
+        #fechar:hover, #fechar:focus-visible { opacity: 1; background: transparent; }
+        main { max-width: 640px; margin: auto; padding: 36px 24px; }
+        .mecanismo { display: block; width: 88px; height: 88px; margin: 0 auto 24px; color: var(--text, #111); }
+        .giro { transform-origin: 0px 0px; animation: girar 30s linear infinite; }
+        @keyframes girar { to { transform: rotate(360deg); } }
+        h2 { margin: 0 0 12px; font-size: 1.25rem; }
+        p { margin: 0 0 18px; }
+        .passos { margin: 24px 0; padding-left: 24px; }
+        .passos li { padding-left: 5px; margin-bottom: 12px; }
+        .acoes { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .botao { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+        dialog { width: min(360px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; border: 1px solid var(--borda, #ccc); border-radius: 6px; background: var(--bg, #fff); color: var(--text, #111); }
+        dialog::backdrop { background: rgba(0,0,0,.5); }
+        dialog label { display: block; font-size: .9rem; }
+        #senha { box-sizing: border-box; width: 100%; margin: 14px 0 18px; padding: 12px; border: 1px solid var(--borda, #ccc); border-radius: 4px; background: var(--papel); color: inherit; font: 16px monospace; }
+        #senha:focus-visible { outline: 2px solid var(--text, #111); outline-offset: 2px; }
+        #estadoCopia { margin: 14px 0 0; font: 12px/1.6 system-ui, sans-serif; }
+        .ajuda, #estado { color: var(--suave); font: 12px/1.6 system-ui, sans-serif; }
+        .ajuda { margin-top: 24px; }
+        #estado { margin-top: 16px; }
+        [hidden] { display: none !important; }
+        @media (prefers-reduced-motion: reduce) { .giro { animation: none; } #fechar { transition: none; } }
+        @media (max-width: 480px) {
+            header { padding: 16px 56px 16px 16px; }
+            main { padding: 28px 16px; }
+            .acoes { align-items: stretch; flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
+<div class="forum">
+    <header>
+        <div class="identidade">
+            <span class="assinatura">LUMINA · OPUS MACHINA</span>
+            <h1>Fórum</h1>
+        </div>
+        <button id="fechar" type="button" aria-label="Fechar fórum" title="Fechar">×</button>
+    </header>
+    <main>
+        <!-- Engrenagem decorativa local: movimento lento e opcional. -->
+        <svg class="mecanismo" viewBox="0 0 72 72" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#f4f4f4"/><stop offset=".35" stop-color="#929292"/>
+                    <stop offset=".65" stop-color="#dedede"/><stop offset="1" stop-color="#595959"/>
+                </linearGradient>
+            </defs>
+            <g transform="translate(36 36)">
+                <g class="giro">
+                    <path d="M 21.800 0.000 L 25.932 1.877 L 25.613 4.470 L 21.149 5.289 L 20.733 6.737 L 24.083 9.799 L 22.978 12.166 L 18.479 11.565 L 17.637 12.814 L 19.876 16.761 L 18.094 18.671 L 14.001 16.710 L 12.814 17.637 L 13.724 22.083 L 11.438 23.349 L 8.152 20.218 L 6.737 20.733 L 6.228 25.243 L 3.663 25.741 L 1.506 21.748 L 0.000 21.800 L -1.877 25.932 L -4.470 25.613 L -5.289 21.149 L -6.737 20.733 L -9.799 24.083 L -12.166 22.978 L -11.565 18.479 L -12.814 17.637 L -16.761 19.876 L -18.671 18.094 L -16.710 14.001 L -17.637 12.814 L -22.083 13.724 L -23.349 11.438 L -20.218 8.152 L -20.733 6.737 L -25.243 6.228 L -25.741 3.663 L -21.748 1.506 L -21.800 0.000 L -25.932 -1.877 L -25.613 -4.470 L -21.149 -5.289 L -20.733 -6.737 L -24.083 -9.799 L -22.978 -12.166 L -18.479 -11.565 L -17.637 -12.814 L -19.876 -16.761 L -18.094 -18.671 L -14.001 -16.710 L -12.814 -17.637 L -13.724 -22.083 L -11.438 -23.349 L -8.152 -20.218 L -6.737 -20.733 L -6.228 -25.243 L -3.663 -25.741 L -1.506 -21.748 L -0.000 -21.800 L 1.877 -25.932 L 4.470 -25.613 L 5.289 -21.149 L 6.737 -20.733 L 9.799 -24.083 L 12.166 -22.978 L 11.565 -18.479 L 12.814 -17.637 L 16.761 -19.876 L 18.671 -18.094 L 16.710 -14.001 L 17.637 -12.814 L 22.083 -13.724 L 23.349 -11.438 L 20.218 -8.152 L 20.733 -6.737 L 25.243 -6.228 L 25.741 -3.663 L 21.748 -1.506 Z M -3.360 0.000 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 8.400 0.000 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 0.274 11.184 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M -12.874 6.912 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M -12.874 -6.912 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 0.274 -11.184 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z" fill="url(#metal)" fill-rule="evenodd" stroke="#5c5c5c" stroke-width=".7"/>
+                    <circle r="18.48" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.2"/>
+                </g>
+                <circle r="3" fill="url(#metal)" stroke="#555"/>
+            </g>
+        </svg>
+        <h2>Um ponto de encontro entre leitores</h2>
+        <p>O fórum de 7Guerreiros funciona, por enquanto, em um grupo fechado no Facebook. Participe das conversas sobre contos, livros e RPGs do site.</p>
+        <ol class="passos">
+            <li>Revele a senha de ingresso abaixo.</li>
+            <li>Abra o grupo e solicite sua participação.</li>
+            <li>Informe a senha nas perguntas de entrada e aguarde a aprovação.</li>
+        </ol>
+        <div class="acoes">
+            <button id="revelar" type="button" aria-haspopup="dialog" aria-controls="painelSenha">Revelar senha de ingresso</button>
+            <!-- MANUTENÇÃO: substitua somente o href pelo endereço real do grupo. -->
+            <a class="botao" href="https://www.facebook.com/groups/SEU_GRUPO_AQUI/" target="_blank" rel="noopener noreferrer">Entrar no grupo ↗</a>
+        </div>
+        <!-- SENHA: edite apenas o value. O conteúdo fica acessível no HTML. -->
+        <dialog id="painelSenha" aria-labelledby="tituloSenha">
+            <h2 id="tituloSenha">Senha de ingresso</h2>
+            <label for="senha">Informe esta senha nas perguntas do grupo:</label>
+            <input id="senha" value="OPUS-MACHINA-7G" readonly>
+            <div class="acoes">
+                <button id="copiar" type="button">Copiar senha</button>
+                <button id="voltar" type="button">Voltar</button>
+            </div>
+            <p id="estadoCopia" role="status" aria-live="polite"></p>
+        </dialog>
+        <!-- Remova este aviso quando substituir os dois exemplos. -->
+        <p class="ajuda">Demonstração: o link do grupo e a senha são exemplos. O botão do grupo abre o Facebook em outra aba.</p>
+        <p id="estado" role="status" aria-live="polite"></p>
+        <noscript><p>Ative o JavaScript para revelar a senha pelo botão e fechar esta janela. O link do grupo permanece disponível.</p></noscript>
+    </main>
+</div>
+<!-- INTERAÇÕES: nenhuma gravação ou consulta ao localStorage. -->
+<script>
+(function () {
+    'use strict';
+    var revelar = document.getElementById('revelar');
+    var painel = document.getElementById('painelSenha');
 
-  <!-- ============================================================
-       CONTEÚDO — Placeholder
-       ============================================================
-       MANUTENÇÃO: substituir este bloco pelo conteúdo real da
-       página, mantendo o restante da estrutura (tema, botão de
-       fecho) intocado.
-       ============================================================ -->
-  <p class="em-construcao">Em construção&hellip;</p>
+    var senha = document.getElementById('senha');
+    var estadoCopia = document.getElementById('estadoCopia');
+    revelar.addEventListener('click', function () {
+        estadoCopia.textContent = '';
+        painel.showModal();
+    });
+    painel.addEventListener('close', function () { revelar.focus(); });
+    document.getElementById('voltar').addEventListener('click', function () { painel.close(); });
 
-  <!-- ================================================================
-       BOTÃO DE FECHO DO IFRAME
-       ================================================================
-       Fecha o iframe inteiro quando embutido num modal do site,
-       enviando postMessage ao pai — mesmo mecanismo usado em todos
-       os ficheiros de iframe do site (ver Menus.js, SEÇÃO 5.1).
-       ================================================================ -->
-  <style>
-    #fechar-iframe-btn {
-      position: fixed;
-      top: 10px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: transparent;
-      color: var(--text, #1a1a1a);
-      font-size: 1.4rem;
-      line-height: 1;
-      cursor: pointer;
-      opacity: 0.6;
-      z-index: 1100;
-      transition: opacity 0.2s ease;
-    }
-    #fechar-iframe-btn:hover,
-    #fechar-iframe-btn:focus-visible {
-      opacity: 1;
-    }
-  </style>
-  <button id="fechar-iframe-btn" type="button" aria-label="Fechar" title="Fechar">&times;</button>
-
-  <script>
-    (function () {
-      'use strict';
-      var btn = document.getElementById('fechar-iframe-btn');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        if (window.parent) {
-          window.parent.postMessage({ type: 'FECHAR_MODAL' }, '*');
+    // Clipboard exige HTTPS ou localhost. A seleção manual atende também ao HTTP local.
+    document.getElementById('copiar').addEventListener('click', async function () {
+        senha.focus();
+        senha.select();
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(senha.value);
+            } else if (!document.execCommand('copy')) {
+                throw new Error('Cópia indisponível');
+            }
+            estadoCopia.textContent = 'Senha copiada.';
+        } catch (erro) {
+            estadoCopia.textContent = 'Não foi possível copiar automaticamente. A senha está selecionada: use Copiar no seu dispositivo.';
         }
-      });
-    }());
-  </script>
+    });
 
-  <!-- Sistema_Tema.js foi carregado no topo do <head> — ver nota lá. -->
-
+    function fechar() {
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'FECHAR_MODAL' }, window.location.origin);
+        } else {
+            document.getElementById('estado').textContent = 'Este fórum está aberto fora do site.';
+        }
+    }
+    document.getElementById('fechar').addEventListener('click', fechar);
+    document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape' && !painel.open) fechar();
+    });
+}());
+</script>
 </body>
 </html>

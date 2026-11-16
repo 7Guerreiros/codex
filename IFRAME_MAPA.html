@@ -1,409 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linha do Tempo em Cruz</title>
-
-  <!-- ============================================================
-       CORREÇÃO DE CONFLITO — Ordem de carregamento do tema
-       ============================================================
-       Este ficheiro é carregado dentro de um <iframe> do site.
-       .event, .modal, .centro etc. usam var(--bg)/var(--text)/
-       var(--borda) sem fallback — se Sistema_Tema.js só corre
-       depois de todo o conteúdo ser interpretado (como estava,
-       no fim do <body>), há um instante de tela sem cor definida.
-
-       Movido para aqui, no topo do <head> e sem defer, ele corre
-       antes de qualquer <style> ou conteúdo ser processado,
-       eliminando esse flash — mesmo princípio já usado no
-       index.html do site.
-       ============================================================ -->
-  <script src="Sistema_Tema.js"></script>
-
-  <style>
-    /* Transições suaves para elementos principais */
-    body, .page-title, .bloco-personagem, .aba-botao, iframe {
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-  </style>
-  
-  <style>
-    body {
-      margin: 0;
-      padding: 2rem;
-      font-family: 'Georgia', serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-      /* Removido: var(--bg) e var(--text) - agora no Sistema_Tema.js */
-      transition: background .5s, color .5s;
-    }
-    
-    .timeline {
-      display: grid;
-      grid-template-columns: 1fr 2fr 1fr;
-      grid-template-rows: 1fr 2fr 1fr;
-      grid-template-areas:
-        ".    topo     ."
-        "esq  centro   dir"
-        ".   baixo     .";
-      gap: 1rem;
-      width: 90vw;
-      height: 90vh;
-      max-width: 1200px;
-    }
-    
-    .event {
-      /* As variáveis agora vêm do Sistema_Tema.js */
-      background: var(--bg); /* Substituído por variável */
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Placeholder temporário */
-      overflow: auto;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, background .3s, border-color .3s;
-      cursor: pointer;
-      position: relative;
-      border: 1px solid var(--borda); /* Substituído por variável */
-    }
-    
-    .event:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Placeholder temporário */
-      border-color: var(--borda); /* Substituído por variável */
-    }
-    
-    .topo {
-      grid-area: topo;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .baixo {
-      grid-area: baixo;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .esq {
-      grid-area: esq;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .dir {
-      grid-area: dir;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .centro {
-      grid-area: centro;
-      border: 3px solid var(--borda); /* Substituído por variável */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: var(--bg); /* Substituído por variável */
-      transition: border-color .3s;
-    }
-    
-    .sub-event {
-      background: var(--bg); /* Substituído por variável */
-      padding: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Placeholder temporário */
-      text-align: center;
-      font-size: 0.9rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    
-    .sub-event h3 {
-      margin: 0.3rem 0;
-      font-size: 1.1rem;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .sub-event h2 {
-      margin: 0.5rem 0;
-      font-size: 1.4rem;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .sub-event p {
-      margin: 0.5rem 0;
-      line-height: 1.4;
-      max-width: 90%;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .centro h1, .centro p { 
-      text-align: center; 
-      margin: 0.5rem;
-      z-index: 1;
-      background: var(--bg); /* Substituído por variável */
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-    }
-    
-    .centro h1 {
-      font-size: 1.8rem;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .centro p {
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    /* Modal de anotações */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      /* Agora vem do Sistema_Tema.js */
-      background: var(--modal-bg);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .modal-overlay.show {
-      display: flex;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    .modal {
-      background: var(--bg); /* Substituído por variável */
-      border-radius: 10px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.2); /* Placeholder temporário */
-      width: 90%;
-      max-width: 600px;
-      max-height: 80vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid var(--borda); /* Substituído por variável */
-      transition: background .3s, border-color .3s;
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 1.5rem;
-      background: var(--borda); /* Substituído por variável */
-      color: var(--text); /* Substituído por variável */
-      transition: background .3s, color .3s;
-    }
-    
-    .modal-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .close-modal {
-      background: none;
-      border: none;
-      color: var(--text); /* Substituído por variável */
-      font-size: 1.5rem;
-      cursor: pointer;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 50%;
-      transition: background 0.3s ease;
-    }
-    
-    .close-modal:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .modal-content {
-      padding: 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .notes-section {
-      margin-bottom: 1.5rem;
-    }
-    
-    .notes-section h3 {
-      color: var(--text); /* Substituído por variável */
-      border-bottom: 2px solid var(--borda); /* Substituído por variável */
-      padding-bottom: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .notes-section p {
-      line-height: 1.6;
-      margin-bottom: 0.8rem;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .notes-list {
-      padding-left: 1.5rem;
-      margin: 0.5rem 0;
-      color: var(--text); /* Substituído por variável */
-    }
-    
-    .notes-list li {
-      margin-bottom: 0.5rem;
-      line-height: 1.5;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    /* Responsividade */
-    @media (max-width: 768px) {
-      .timeline {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(5, 1fr);
-        grid-template-areas:
-          "topo"
-          "esq"
-          "centro"
-          "dir"
-          "baixo";
-        height: auto;
-        min-height: 90vh;
-      }
-      
-      .centro h1 {
-        font-size: 1.5rem;
-      }
-      
-      .modal {
-        width: 95%;
-        max-height: 90vh;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinos Cardeais do MÆ</title>
+<script src="Sistema_Tema.js"></script>
+<style>
+/* 1. Paleta e estrutura. O tema do site tem precedência sobre as reservas. */
+* { box-sizing: border-box; }
+:root { color-scheme: light dark; }
+body {
+  margin: 0; min-height: 100vh; padding: 2.5rem clamp(.8rem, 3vw, 3rem) 1.5rem;
+  background: var(--bg, Canvas); color: var(--text, CanvasText); font-family: Georgia, serif;
+}
+.atlas {
+  position: relative; isolation: isolate; margin: auto; max-width: 1120px;
+  display: grid; gap: clamp(16px, 3vw, 40px);
+  grid-template-columns: minmax(0, 1fr) minmax(215px, 1.2fr) minmax(0, 1fr);
+  grid-template-areas: ". norte ." "oeste centro leste" ". sul .";
+  align-items: stretch;
+}
+.norte { grid-area: norte; } .oeste { grid-area: oeste; }
+.leste { grid-area: leste; } .sul { grid-area: sul; } .centro { grid-area: centro; }
+/* 2. Placas e transmissão. Os trilhos passam por trás das placas. */
+.placa {
+  position: relative; min-width: 0; padding: 1rem clamp(.8rem, 2vw, 1.4rem);
+  border: 1px solid var(--borda, #888); border-radius: 5px;
+  box-shadow: inset 0 0 0 3px #8883, 0 5px 14px #0002;
+  background: linear-gradient(145deg, #8882, transparent 55%), var(--bg, Canvas);
+  color: inherit; font: inherit; text-align: center; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .55rem;
+  overflow-wrap: anywhere;
+}
+.placa::before, .placa::after {
+  content: ""; position: absolute; top: 9px; width: 6px; height: 6px;
+  background: linear-gradient(135deg,#ddd,#555 55%,#ccc 60%,#555);
+  border-radius: 50%; pointer-events: none;
+}
+.placa::before { left: 9px; } .placa::after { right: 9px; }
+.placa:hover, .placa.ativa { border-color: currentColor; }
+button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.ponto { font: 700 .72rem/1.25 system-ui, sans-serif; letter-spacing: .18em; }
+.placa strong { font-size: clamp(1.05rem, 2vw, 1.45rem); }
+.resumo { font-size: .9rem; line-height: 1.45; }
+.trilhos { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.trilho { fill: none; stroke: currentColor; opacity: .28; stroke-width: 5; vector-effect: non-scaling-stroke; }
+.sinal { fill: none; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; opacity: 0; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.atlas[data-ativo="norte"] .sinal-norte, .atlas[data-ativo="sul"] .sinal-sul,
+.atlas[data-ativo="oeste"] .sinal-oeste, .atlas[data-ativo="leste"] .sinal-leste { opacity: .85; stroke-dashoffset: 0; transition: stroke-dashoffset .42s ease-out; }
+.mostrador { display: block; width: min(100%, 215px); height: auto; }
+#agulha { transform: rotate(var(--direcao, -35deg)); transition: transform .42s cubic-bezier(.2,.8,.2,1); }
+.roda { transform-box: view-box; transform-origin: 0 0; }
+.atlas.em-movimento .maior { animation: giro .42s ease-out; }
+.atlas.em-movimento .menor { animation: giro .42s ease-out; --giro: -720deg; }
+@keyframes giro { to { transform: rotate(var(--giro, 360deg)); } }
+/* 3. Notas, fecho e adaptação a telas estreitas. */
+dialog {
+  width: min(90%, 600px); max-height: 80vh; padding: 0; border-radius: 8px;
+  background: var(--bg, Canvas); color: inherit; border: 1px solid var(--borda, #888);
+}
+dialog::backdrop { background: var(--modal-bg, #000b); }
+dialog header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--borda, #888); }
+dialog h2 { margin: 0; font-size: 1.15rem; }
+#modalContent { padding: .4rem 1.25rem 1rem; line-height: 1.6; }
+.fechar { background: none; color: inherit; border: 0; cursor: pointer; font: 1.5rem/1 system-ui; min-width: 32px; min-height: 32px; }
+#fechar-iframe-btn { position: fixed; top: 8px; right: 12px; z-index: 2; }
+/* Em cruz, compacta primeiro os espaços e o mostrador.
+   As linhas crescem com o texto para evitar cortes com zoom elevado. */
+@media (min-width: 701px) {
+  body {
+    padding-block: clamp(.75rem, 3vh, 2.5rem) clamp(.75rem, 2vh, 1.5rem);
+    display: grid;
+    align-items: center;
+  }
+  .atlas { width: 100%; row-gap: clamp(8px, 2vh, 32px); }
+  .placa { padding-block: clamp(.45rem, 1.8vh, 1rem); }
+  .mostrador { width: min(100%, 215px, 30vh); }
+}
+@media (min-width: 701px) and (max-height: 510px) {
+  .placa { gap: .3rem; }
+  .placa strong { font-size: clamp(1rem, 1.65vw, 1.2rem); }
+  .resumo { line-height: 1.3; }
+  .mostrador { width: min(100%, 145px, 24vh); }
+}
+@media (max-width: 700px) {
+  .atlas { grid-template-columns: minmax(0,1fr); grid-template-areas: "centro" "norte" "oeste" "leste" "sul"; }
+  .trilhos { display: none; }
+  .mostrador { width: min(56%, 175px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #agulha, .atlas .sinal { transition: none !important; }
+  .atlas.em-movimento .roda { animation: none; }
+}
+</style>
 </head>
 <body>
-  <div class="timeline">
-    <div class="event topo" data-region="norte">
-      <div class="sub-event">
-        <h3>♥️ NORTE</h3>
-        <h2>Cœur d'Hiver</h2>
-        <p>O "Reino Congelado", refúgio dos Nobres, que lançaram fora o Sol para que Nemrod não os alcançasse.</p>
-      </div>
-    </div>
-    
-    <div class="event esq" data-region="oeste">
-      <div class="sub-event">
-        <h3>♦️ OESTE</h3>
-        <h2>Floresta de Chrysopœia</h2>
-        <p>O Continente (que foi) Estilhaçado quando Nemrod recuperou a Alquimia do Sol Negro.</p>
-      </div>
-    </div>
-    
-    <div class="event centro" id="ponto-zero" data-region="centro">
-      <h1>REINOS CARDEAIS DO MÆ</h1>
-      <p>O Mundo Acima das Estrelas.</p>
-    </div>
-    
-    <div class="event dir" data-region="leste">
-      <div class="sub-event">
-        <h3>♣️ LESTE</h3>
-        <h2>Amarat</h2>
-        <p>Deserto do Leste, donde se levantou Nemrod, poderoso caçador, perseguidor dos Nobres.</p>
-      </div>
-    </div>
-    
-    <div class="event baixo" data-region="sul">
-      <div class="sub-event">
-        <h3>♠️ SUL</h3>
-        <h2>Solis Æterni</h2>
-        <p>Cidade de Cosmos, abaixo do céu de exílio do Sol Eterno.</p>
-      </div>
-    </div>
-  </div>
-  
-  <!-- ================================================================
-       BOTÃO DE FECHO DO IFRAME
-       ================================================================
-       Independente do #modalOverlay/#closeModal acima (que fecham
-       apenas o painel de Anotações). Este X fecha o iframe inteiro
-       quando embutido no modal do site, enviando postMessage ao pai
-       — o mesmo mecanismo já usado no outro ficheiro de iframe.
-       ================================================================ -->
-  <style>
-    #fechar-iframe-btn {
-      position: fixed;
-      top: 10px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: transparent;
-      color: var(--text, #1a1a1a);
-      font-size: 1.4rem;
-      line-height: 1;
-      cursor: pointer;
-      opacity: 0.6;
-      z-index: 1100;
-      transition: opacity 0.2s ease;
-    }
-    #fechar-iframe-btn:hover,
-    #fechar-iframe-btn:focus-visible {
-      opacity: 1;
-    }
-  </style>
-  <button id="fechar-iframe-btn" type="button" aria-label="Fechar" title="Fechar">&times;</button>
-
-  <!-- Modal de anotações -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">NOTAS</h2>
-        <button class="close-modal" id="closeModal">&times;</button>
-      </div>
-      <div class="modal-content" id="modalContent">
-        <!-- Conteúdo será inserido dinamicamente via JavaScript -->
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Centralizar o ponto zero ao carregar a página
-    document.addEventListener('DOMContentLoaded', () => {
-      const zero = document.getElementById('ponto-zero');
-      if (zero) zero.scrollIntoView({ block: 'center', inline: 'center' });
-      
-      // Dados das anotações por região
-      const notesData = {
+<button class="fechar" id="fechar-iframe-btn" type="button" aria-label="Fechar mapa" hidden>×</button>
+<main class="atlas" aria-label="Reinos Cardeais do MÆ">
+<svg class="trilhos" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+ <path class="trilho" d="M50 12v76M13 50h74"/>
+ <path class="sinal sinal-norte" pathLength="1" d="M50 50V12"/>
+ <path class="sinal sinal-sul" pathLength="1" d="M50 50v38"/>
+ <path class="sinal sinal-oeste" pathLength="1" d="M50 50H13"/>
+ <path class="sinal sinal-leste" pathLength="1" d="M50 50h37"/>
+</svg>
+<button class="placa centro" type="button" data-region="centro" aria-haspopup="dialog">
+<svg class="mostrador" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+  <linearGradient id="metal" x2="1" y2="1"><stop stop-color="#f4f4f4"/><stop offset=".48" stop-color="#777"/><stop offset=".58" stop-color="#ddd"/><stop offset="1" stop-color="#555"/></linearGradient>
+</defs>
+<g fill="none" stroke="currentColor">
+ <circle cx="120" cy="103" r="88" opacity=".25"/>
+ <circle cx="120" cy="103" r="82" stroke-width="4" opacity=".55"/>
+ <circle cx="120" cy="103" r="74" stroke-dasharray="1 8" stroke-width="4" opacity=".55"/>
+ <circle cx="120" cy="103" r="63" opacity=".2"/>
+ <path d="M120 50v106M67 103h106M83 66l74 74m0-74-74 74" opacity=".18"/>
+</g>
+<g fill="currentColor" font-size="12" font-family="Georgia" text-anchor="middle"><text x="120" y="49">N</text><text x="180" y="107">L</text><text x="120" y="165">S</text><text x="60" y="107">O</text></g>
+<g transform="translate(120 103)"><g id="agulha">
+ <path d="M0-48 11 0 0 41-11 0Z" fill="url(#metal)" stroke="#555"/>
+ <path d="M0-48 0 0-11 0Z" fill="#eee"/><path d="M0 0 11 0 0 41Z" fill="#666"/>
+</g><circle r="8" fill="url(#metal)" stroke="#444"/><path d="M-3 2 3-2" stroke="#444"/></g>
+<g transform="translate(159 178)"><g class="roda maior"><polygon points="23.49,0.00 28.95,1.72 28.47,5.53 22.75,5.84 22.07,8.03 26.61,11.52 24.86,14.94 19.38,13.27 17.99,15.10 21.07,19.93 18.25,22.54 13.67,19.10 11.75,20.34 12.99,25.93 9.44,27.42 6.32,22.62 4.08,23.13 3.33,28.81 -0.51,29.00 -1.80,23.42 -4.08,23.13 -6.72,28.21 -10.39,27.07 -9.70,21.39 -11.74,20.34 -15.96,24.21 -19.03,21.89 -16.44,16.78 -17.99,15.10 -23.28,17.29 -25.36,14.06 -21.18,10.15 -22.07,8.03 -27.79,8.28 -28.64,4.54 -23.38,2.29 -23.49,0.00 -28.95,-1.72 -28.47,-5.53 -22.75,-5.84 -22.07,-8.03 -26.61,-11.52 -24.86,-14.94 -19.38,-13.27 -17.99,-15.10 -21.07,-19.93 -18.25,-22.54 -13.67,-19.10 -11.75,-20.34 -12.99,-25.93 -9.44,-27.42 -6.32,-22.62 -4.08,-23.13 -3.33,-28.81 0.51,-29.00 1.80,-23.42 4.08,-23.13 6.72,-28.21 10.39,-27.07 9.70,-21.39 11.74,-20.34 15.96,-24.21 19.03,-21.89 16.44,-16.78 17.99,-15.10 23.28,-17.29 25.36,-14.06 21.18,-10.15 22.07,-8.03 27.79,-8.28 28.64,-4.54 23.38,-2.29" fill="url(#metal)" stroke="#4e4e4e"/><circle r="18.27" fill="#444" stroke="#ddd"/><path d="M-16.240000000000002 0H16.240000000000002M0 -16.240000000000002V16.240000000000002" stroke="#aaa" stroke-width="4"/><circle r="6.67" fill="url(#metal)" stroke="#444"/></g></g><g transform="translate(194 159)"><g class="roda menor"><polygon points="12.15,0.00 14.91,1.60 14.11,5.08 10.93,5.31 9.83,7.14 11.13,10.06 8.43,12.41 5.72,10.72 3.75,11.56 3.09,14.68 -0.47,14.99 -1.67,12.03 -3.75,11.56 -6.13,13.69 -9.19,11.85 -8.43,8.75 -9.83,7.14 -13.01,7.47 -14.40,4.18 -11.96,2.13 -12.15,0.00 -14.91,-1.60 -14.11,-5.08 -10.93,-5.31 -9.83,-7.14 -11.13,-10.06 -8.43,-12.41 -5.72,-10.72 -3.75,-11.56 -3.09,-14.68 0.47,-14.99 1.67,-12.03 3.75,-11.56 6.13,-13.69 9.19,-11.85 8.43,-8.75 9.83,-7.14 13.01,-7.47 14.40,-4.18 11.96,-2.13" fill="url(#metal)" stroke="#4e4e4e"/><circle r="9.45" fill="#444" stroke="#ddd"/><path d="M-8.4 0H8.4M0 -8.4V8.4" stroke="#aaa" stroke-width="4"/><circle r="3.45" fill="url(#metal)" stroke="#444"/></g></g></svg>
+<strong>REINOS CARDEAIS DO MÆ</strong>
+<span class="resumo">O Mundo Acima das Estrelas.</span>
+</button>
+<button class="placa norte" type="button" data-region="norte" aria-haspopup="dialog"><span class="ponto">♥️ NORTE</span><strong>Cœur d'Hiver</strong><span class="resumo">O "Reino Congelado", refúgio dos Nobres, que lançaram fora o Sol para que Nemrod não os alcançasse.</span></button>
+<button class="placa oeste" type="button" data-region="oeste" aria-haspopup="dialog"><span class="ponto">♦️ OESTE</span><strong>Floresta de Chrysopœia</strong><span class="resumo">O Continente (que foi) Estilhaçado quando Nemrod recuperou a Alquimia do Sol Negro.</span></button>
+<button class="placa leste" type="button" data-region="leste" aria-haspopup="dialog"><span class="ponto">♣️ LESTE</span><strong>Amarat</strong><span class="resumo">Deserto do Leste, donde se levantou Nemrod, poderoso caçador, perseguidor dos Nobres.</span></button>
+<button class="placa sul" type="button" data-region="sul" aria-haspopup="dialog"><span class="ponto">♠️ SUL</span><strong>Solis Æterni</strong><span class="resumo">Cidade de Cosmos, abaixo do céu de exílio do Sol Eterno.</span></button>
+</main>
+<dialog id="notas" aria-labelledby="modalTitle">
+ <header><h2 id="modalTitle">NOTAS</h2><form method="dialog"><button class="fechar" type="submit" aria-label="Fechar notas">×</button></form></header>
+ <div id="modalContent"></div>
+</dialog>
+<script>
+// 4. Conteúdo do mapa original e ligação dos controles.
+const notesData = {
         norte: {
           title: "♥️ O REINO IMORAL",
           content: `
             <div class="notes-section">
               <h3>Cœur d'Hiver</h3>
-              Antes chamado apenas de "Reino Congelado", de onde os Nobres expulsaram o Sol para se protegerem dos Elite.</p>
+              <p>Antes chamado apenas de "Reino Congelado", de onde os Nobres expulsaram o Sol para se protegerem dos Elite.</p>
               <p>Os Nobres, temendo o poder dos Elite criados por Nemrod, tomaram a decisão radical de expulsar o Sol para se ocutarem da perseguição, mergulhando o reino em um inverno eterno.</p>
             </div>
           `
@@ -413,7 +152,7 @@
           content: `
             <div class="notes-section">
               <h3>Floresta de Chrysopœia</h3>
-              Atualmente conhecida como o "Continente Estilhaçado".</p>
+              <p>Atualmente conhecida como o "Continente Estilhaçado".</p>
               <p>Foi lá que Nemrod re-encontrou os segredos da Alquimia, vindo depois a utilizar este conhecimento para criar os Elite, guardiões destinados a proteger sua cidade.</p>
             </div>
           `
@@ -423,7 +162,7 @@
           content: `
             <div class="notes-section">
 			<h3>Amarat</h3>
-              É o nome, tanto do vasto deserto do Leste, quanto também, da única cidade que existe nele.</p>
+              <p>É o nome, tanto do vasto deserto do Leste, quanto também, da única cidade que existe nele.</p>
             </div>
             
           `
@@ -450,69 +189,62 @@
           `
         }
       };
-      
-      // Elementos do modal
-      const modalOverlay = document.getElementById('modalOverlay');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalContent = document.getElementById('modalContent');
-      const closeModal = document.getElementById('closeModal');
-      
-      // Adicionar eventos de clique nas regiões
-      const events = document.querySelectorAll('.event');
-      events.forEach(event => {
-        event.addEventListener('click', () => {
-          const region = event.dataset.region;
-          showNotes(region);
-        });
-      });
-      
-      // Função para mostrar as anotações
-      function showNotes(region) {
-        if (notesData[region]) {
-          modalTitle.textContent = notesData[region].title; // Corrigido!
-          modalContent.innerHTML = notesData[region].content; // Corrigido!
-          modalOverlay.classList.add('show'); // Corrigido!
-        }
-      }
-      
-      // Fechar modal
-      closeModal.addEventListener('click', () => {
-        modalOverlay.classList.remove('show');
-      });
-      
-      // Fechar modal ao clicar fora
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-          modalOverlay.classList.remove('show');
-        }
-      });
-      
-      // Fechar modal com tecla ESC
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          modalOverlay.classList.remove('show');
-        }
-      });
-    });
-  </script>
-  
-  <!-- ============================================================
-       SCRIPT — Botão de fecho (isolado do script de Anotações acima)
-       ============================================================ -->
-  <script>
-    (function () {
-      'use strict';
-      var btn = document.getElementById('fechar-iframe-btn');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        if (window.parent) {
-          window.parent.postMessage({ type: 'FECHAR_MODAL' }, '*');
-        }
-      });
-    }());
-  </script>
+const atlas = document.querySelector('.atlas');
+const notas = document.getElementById('notas');
+const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)');
+const direcoes = { norte: 0, leste: 90, sul: 180, oeste: 270 };
+let angulo = -35;
+let origem = null;
+let abrir = null;
 
-  <!-- Sistema_Tema.js foi movido para o topo do <head> — ver nota lá. -->
+atlas.addEventListener('click', function (evento) {
+  const placa = evento.target.closest('button[data-region]');
+  if (!placa) return;
+  const regiao = placa.dataset.region;
+  const dados = notesData[regiao];
+  clearTimeout(abrir);
+  if (origem) origem.classList.remove('ativa');
+  origem = placa;
+  placa.classList.add('ativa');
+  atlas.dataset.ativo = regiao;
 
+  atlas.classList.remove('em-movimento');
+  if (regiao in direcoes) {
+    // Percorre o arco mais curto a partir da última direção escolhida.
+    angulo += ((direcoes[regiao] - angulo + 180) % 360 + 360) % 360 - 180;
+    atlas.style.setProperty('--direcao', angulo + 'deg');
+    if (!reduzir.matches) {
+      void atlas.offsetWidth;
+      atlas.classList.add('em-movimento');
+    }
+  }
+
+  function mostrarNotas() {
+    document.getElementById('modalTitle').textContent = dados.title;
+    document.getElementById('modalContent').innerHTML = dados.content;
+    notas.showModal();
+    notas.scrollTop = 0;
+  }
+  if (regiao === 'centro' || reduzir.matches) mostrarNotas();
+  else abrir = setTimeout(mostrarNotas, 420);
+});
+
+notas.addEventListener('close', function () { if (origem) origem.focus(); });
+notas.addEventListener('click', function (evento) {
+  if (evento.target !== notas) return;
+  const area = notas.getBoundingClientRect();
+  if (evento.clientX < area.left || evento.clientX > area.right ||
+      evento.clientY < area.top || evento.clientY > area.bottom) notas.close();
+});
+
+if (window.parent !== window) {
+  const fechar = document.getElementById('fechar-iframe-btn');
+  fechar.hidden = false;
+  fechar.addEventListener('click', function () {
+    const destino = location.protocol === 'file:' ? '*' : location.origin;
+    window.parent.postMessage({ type: 'FECHAR_MODAL' }, destino);
+  });
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NATIVITAS SILVÆ</title>
+
+    <!-- ============================================================
+         MODELO PADRÃO: CODEX_ALPHA
+         ============================================================
+         Mesmas classes, estilos e motor de leitura do Alpha.
+
+         Diferenças:
+         - Título e capítulos do conto.
+         - Atributos data-conquista.
+         - Carregamento dos dois scripts de conquistas.
+         - Chamada de desbloqueio isolada da lógica de leitura.
+
+         CAMINHOS:
+         Os capítulos são relativos ao index.html:
+             ORIGINAIS_REGNUM_FLORESTA/DIA1.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA2.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA3.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA4.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA5.html
+
+         MANUTENÇÃO:
+         Ao alterar o motor padrão no Alpha, aplicar a mesma
+         alteração neste Codex, preservando o bloco de conquistas.
+         ============================================================ -->
+
+    <style>
+        /* Apenas para visualização standalone. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="codex-blog">
+
+    <!-- ============================================================
+         CONQUISTAS
+         ============================================================
+         As chamadas permanecem activas.
+         data-opcional permite continuar a leitura se o arquivo
+         emitir erro de carregamento.
+
+         A grafia dos nomes foi preservada conforme o Codex recebido.
+         ============================================================ -->
+    <script
+        src="SISTEMA_LUMINA_CONQUISTAS_LISTA.js"
+        data-opcional
+    ></script>
+
+    <script
+        src="SISTEMA_LUMINA_CONQUISTAS.js"
+        data-opcional
+    ></script>
+
+    <!-- ============================================================
+         ESTILOS PADRÃO DO ALPHA
+         Sem estilos exclusivos de livro.
+         ============================================================ -->
+    <style>
+        .codex-blog {
+            --cb-bg:        var(--bg, #ffffff);
+            --cb-text:      var(--text, #1a1a1a);
+            --cb-borda:     var(--borda, #cccccc);
+            --cb-bg-topico: #f9f9f9;
+            --cb-bg-hover:  #eeeeee;
+            --cb-bg-ativo:  #e0e0e0;
+            --cb-muted:     #888888;
+        }
+
+        html.tema-escuro .codex-blog {
+            --cb-bg-topico: #2a2a2a;
+            --cb-bg-hover:  #3a3a3a;
+            --cb-bg-ativo:  #404040;
+            --cb-muted:     #999999;
+        }
+
+        .codex-blog .cb-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cb-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-blog .cb-container {
+                padding: 0 20px;
+            }
+        }
+
+        .codex-blog .cb-assunto {
+            margin-bottom: 35px;
+            padding: 0 10px;
+        }
+
+        .codex-blog .cb-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--cb-borda);
+            color: var(--cb-text);
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px;
+            }
+        }
+
+        .codex-blog .cb-topico {
+            margin-bottom: 5px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--cb-borda);
+        }
+
+        .codex-blog .cb-topico-btn {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            background-color: var(--cb-bg-topico);
+            border: none;
+            text-align: left;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: var(--cb-text);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .codex-blog .cb-topico-btn:hover {
+            background-color: var(--cb-bg-hover);
+        }
+
+        .codex-blog .cb-topico.expandido .cb-topico-btn {
+            background-color: var(--cb-bg-ativo);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-topico-btn {
+                padding: 14px 16px;
+                font-size: 1rem;
+            }
+        }
+
+        .codex-blog .cb-topico-conteudo {
+            display: none;
+            padding: 20px;
+            background-color: var(--cb-bg);
+            color: var(--cb-text);
+        }
+
+        .codex-blog .cb-topico.expandido .cb-topico-conteudo {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .codex-blog .cb-topico-conteudo {
+                padding: 16px;
+            }
+        }
+
+        .codex-blog .cb-carregando {
+            margin: 0;
+            padding: 8px 0;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--cb-muted);
+        }
+
+        .codex-blog .cb-topico-conteudo p {
+            margin-bottom: 16px;
+            text-align: justify;
+            font-size: 1.05rem;
+        }
+
+        .codex-blog .cb-topico-conteudo h1,
+        .codex-blog .cb-topico-conteudo h2,
+        .codex-blog .cb-topico-conteudo h3 {
+            margin: 20px 0 10px;
+            color: var(--cb-text);
+        }
+
+        .codex-blog .cb-topico-conteudo img {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border: 1px solid var(--cb-borda);
+            border-radius: 4px;
+        }
+    </style>
+
+    <!-- ============================================================
+         DADOS DO CONTO
+         Mesma estrutura de conteúdo do Alpha.
+         ============================================================ -->
+    <div class="cb-container">
+        <div class="cb-assunto">
+
+            <div class="cb-titulo">NATIVITAS SILVÆ</div>
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA1.html"
+                data-conquista="REGN-FLO-01"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA I: SONITUS DESERTI
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA2.html"
+                data-conquista="REGN-FLO-02"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA II: OBSESSIO
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA3.html"
+                data-conquista="REGN-FLO-03"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA III: PERTURBATIO ANIMI
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA4.html"
+                data-conquista="REGN-FLO-04"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA IV: IN ALBO
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA5.html"
+                data-conquista="REGN-FLO-05"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA V: UMBRA ÆTERNA
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MOTOR PADRÃO DO ALPHA
+         Único acréscimo: bloco identificado de conquistas.
+         ============================================================ -->
+    <script>
+        (function () {
+            'use strict';
+
+            function initCodexBlog() {
+                var container = document.querySelector(
+                    '.codex-blog'
+                );
+
+                if (!container) return;
+
+                var escolha = 0;
+
+                container.querySelectorAll(
+                    '.cb-topico-btn'
+                ).forEach(function (btn) {
+                    if (
+                        btn.dataset.iniciado === 'true'
+                    ) {
+                        return;
+                    }
+
+                    btn.dataset.iniciado = 'true';
+
+                    var topico = btn.closest(
+                        '.cb-topico'
+                    );
+
+                    var painel = topico.querySelector(
+                        '.cb-topico-conteudo'
+                    );
+
+                    var pendente = null;
+
+                    btn.abrirCapitulo = async function () {
+                        var atual = ++escolha;
+
+                        fecharTodos(container);
+                        expandir(topico, btn, painel);
+
+                        /* ========================================
+                           INÍCIO — ACRÉSCIMO DE CONQUISTAS
+                           Falhas desse sistema não impedem a leitura.
+                           ======================================== */
+                        var conquista = topico.getAttribute(
+                            'data-conquista'
+                        );
+
+                        if (
+                            conquista &&
+                            window.ConquistasSistema
+                        ) {
+                            try {
+                                window.ConquistasSistema.desbloquear(
+                                    conquista
+                                );
+                            } catch (erroConquista) {
+                                console.warn(
+                                    '[CONQUISTAS]',
+                                    erroConquista
+                                );
+                            }
+                        }
+                        /* FIM — ACRÉSCIMO DE CONQUISTAS */
+
+                        try {
+                            if (
+                                painel.dataset.carregado !== 'true'
+                            ) {
+                                if (!pendente) {
+                                    pendente = carregarConteudo(
+                                        topico.getAttribute(
+                                            'data-arquivo'
+                                        ),
+                                        painel
+                                    ).finally(function () {
+                                        pendente = null;
+                                    });
+                                }
+
+                                await pendente;
+                            }
+
+                            if (
+                                atual !== escolha ||
+                                !topico.isConnected
+                            ) {
+                                return;
+                            }
+
+                            window.dispatchEvent(
+                                new CustomEvent(
+                                    'site:capitulo-aberto',
+                                    {
+                                        detail: {
+                                            arquivo:
+                                                topico.getAttribute(
+                                                    'data-arquivo'
+                                                ),
+                                            topico: topico
+                                        }
+                                    }
+                                )
+                            );
+                        } catch (erro) {
+                            if (
+                                atual === escolha &&
+                                topico.isConnected
+                            ) {
+                                painel.innerHTML =
+                                    '<p>Conteúdo não disponível.</p>';
+                            }
+
+                            throw erro;
+                        }
+                    };
+
+                    btn.addEventListener(
+                        'click',
+                        function () {
+                            if (
+                                topico.classList.contains(
+                                    'expandido'
+                                )
+                            ) {
+                                ++escolha;
+                                fecharTodos(container);
+                                return;
+                            }
+
+                            btn.abrirCapitulo().catch(
+                                function (erro) {
+                                    console.warn(
+                                        '[CODEX BLOG]',
+                                        erro
+                                    );
+
+                                    if (
+                                        topico.isConnected &&
+                                        topico.classList.contains(
+                                            'expandido'
+                                        ) &&
+                                        typeof window.injectarCodex ===
+                                            'function'
+                                    ) {
+                                        window.injectarCodex(
+                                            'CODEX_ALPHA.html'
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    );
+                });
+            }
+
+            function fecharTodos(container) {
+                container.querySelectorAll(
+                    '.cb-topico'
+                ).forEach(function (t) {
+                    t.classList.remove('expandido');
+
+                    t.querySelector(
+                        '.cb-topico-btn'
+                    ).setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                    t.querySelector(
+                        '.cb-topico-conteudo'
+                    ).setAttribute(
+                        'aria-hidden',
+                        'true'
+                    );
+                });
+            }
+
+            function expandir(topico, btn, painel) {
+                topico.classList.add('expandido');
+
+                btn.setAttribute(
+                    'aria-expanded',
+                    'true'
+                );
+
+                painel.setAttribute(
+                    'aria-hidden',
+                    'false'
+                );
+            }
+
+            async function carregarConteudo(arquivo, painel) {
+                var controller = new AbortController();
+
+                var timer = setTimeout(function () {
+                    controller.abort();
+                }, 15000);
+
+                painel.innerHTML =
+                    '<p class="cb-carregando">A carregar…</p>';
+
+                try {
+                    var resposta = await fetch(
+                        arquivo,
+                        { signal: controller.signal }
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            'Ficheiro não encontrado: ' +
+                            arquivo
+                        );
+                    }
+
+                    var html = await resposta.text();
+
+                    if (!html.trim()) {
+                        throw new Error(
+                            'Capítulo vazio: ' + arquivo
+                        );
+                    }
+
+                    painel.innerHTML = html;
+                    painel.dataset.carregado = 'true';
+                } catch (erro) {
+                    delete painel.dataset.carregado;
+                    throw erro;
+                } finally {
+                    clearTimeout(timer);
+                }
+            }
+
+            window.initCodexBlog = initCodexBlog;
+
+            if (document.readyState === 'loading') {
+                document.addEventListener(
+                    'DOMContentLoaded',
+                    initCodexBlog
+                );
+            } else {
+                initCodexBlog();
+            }
+        }());
+    </script>
+
+</div>
+
+</body>
+</html>

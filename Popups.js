@@ -1,678 +1,574 @@
-/* ============================================================
-   POPUPS.JS — Sistema de popups: Privacidade + Redes Sociais
-   ============================================================
-
-   MÓDULOS:
-     1. AVISO DE PRIVACIDADE
-        — Aparece 30 s após carregamento
-        — Aceito ou × : grava localStorage → nunca mais aparece
-
-     2. REDES SOCIAIS (em 3 grupos: instagram, facebook, outras)
-        — No máximo 2 popups por CARREGAMENTO DE PÁGINA (não persiste
-          entre visitas — cada nova visita pode mostrar até 2 de novo,
-          continuando de onde as contas ainda não seguidas indicarem)
-        — Primeiro popup aparece DELAY_REDES_MS após o aviso de
-          privacidade ser fechado; o segundo (se houver) aparece
-          DELAY_REDES_MS depois do primeiro ser resolvido (fechado
-          ou seguido) — nunca dois popups ao mesmo tempo.
-        — Alterna entre um grupo "primário" e um "secundário":
-            primário   = primeiro grupo (na ordem instagram → facebook
-                         → outras) que ainda tiver alguma rede não
-                         seguida
-            secundário = o grupo seguinte a esse, nas mesmas condições
-          Dentro do grupo escolhido, a rede exibida é sorteada entre
-          as ainda não seguidas desse grupo.
-          Exemplo prático: enquanto houver rede de instagram por
-          seguir, ele é sempre o primário (aparece em todo popup de
-          "número ímpar" do ciclo) e facebook é o secundário. Assim
-          que as 2 páginas do instagram forem seguidas, facebook vira
-          o primário e "outras" vira o secundário — e assim por diante.
-        — × : conta como "fechado" para aquela rede (ver contador
-          abaixo); volta a aparecer depois do próximo intervalo
-        — Seguir : grava localStorage → essa rede nunca mais aparece
-        — Contador de fechamentos: se a MESMA rede for fechada (×)
-          7 vezes ao todo (mesmo em visitas diferentes), ela passa a
-          ser tratada como se tivesse sido seguida — nunca mais
-          aparece, sem precisar de clique em "Seguir"
-        — Todas seguidas/fechadas 7x (ou todas inactivas) : não
-          exibe mais nenhum popup de rede
-
-   CONFIGURAÇÃO (editar apenas esta secção):
-     REDES                — dados, grupo e activação de cada rede
-     GRUPOS_ORDEM         — ordem de prioridade dos 3 grupos
-     DELAY_PRIVACIDADE_MS — atraso do aviso de privacidade (ms)
-     DELAY_REDES_MS       — atraso ENTRE cada popup de rede social (ms)
-     LIMITE_FECHAMENTOS   — quantos × equivalem a "seguida"
-
-   MANUTENÇÃO:
-     • Trocar URLs/nomes     : editar o objecto REDES abaixo
-     • Adicionar/mudar grupo : campo "grupo" de cada rede em REDES
-     • Desactivar uma rede   : activo: false no objecto da rede
-     • Trocar atrasos        : editar os DELAY_*_MS
-     • Trocar limite de ×    : editar LIMITE_FECHAMENTOS
-     • Resetar privacidade   : localStorage.removeItem('popup_privacidade_aceite')
-     • Resetar rede X        : localStorage.removeItem('popup_rede_seguida_X')
-     • Resetar contador de X : localStorage.removeItem('popup_rede_fechada_X')
-     • Desactivar tudo       : comentar iniciarPrivacidade() e iniciarRedes() na Secção 7
-
-   DEPENDÊNCIAS: nenhuma — ficheiro completamente auto-suficiente
-   ============================================================ */
-
+/**
+ * Popups.js — 2.2 · Controlador independente de mensagens de Lumina.
+ * Arquivo único: configurações, mensagens, aparência e funcionamento.
+ * Não altera o motor, a fila ou os dados de conquistas.
+ * Gerais: até 1 obrigatório + 1 rede/aviso + 1 dica por carregamento.
+ * Dica: sorteio único de 25%. Conteúdo: 1 aviso por ID por carregamento.
+ * Edite tempos e textos no bloco 1. Não requer catálogo externo.
+ */
 (function () {
     'use strict';
+    if (window.__luminaPopupsIniciado) return;
+    window.__luminaPopupsIniciado = true;
+    // ==================== 1. CONFIGURAÇÕES E MENSAGENS ====================
+    // Edite tempos e textos abaixo. Preserve IDs para manter os registros.
+    // activo: false exclui uma mensagem do sorteio sem apagar seu cadastro.
+    var catalogo = {
+        configuracao: {
+            boasVindasMs: 10000,
+            intervaloMs: 60000,
+            limiteFechamentos: 7,
+            chanceDica: 0.25,
+            // Este ID já pertence ao Instagram no catálogo original.
+            instagramPrimeiro: 'threads-1'
+        },
+        obrigatorios: [
+            {
+                id: 'privacidade', activo: true,
+                titulo: 'Bem-vindo a 7Guerreiros',
+                texto: 'Sou Lumina, a guardiã deste arquivo. Suas preferências, anotações e progresso ficam guardados neste navegador. O site usa armazenamento local para esses recursos; imagens e links externos podem se conectar a outros serviços.',
+                botao: 'ENTENDO'
+            },
+            {
+                id: 'dados-neste-dispositivo', activo: true,
+                titulo: 'Um lembrete sobre suas anotações',
+                texto: 'Seu Caderno e seus registros acompanham este navegador. Limpar os dados do site pode apagá-los. Use a opção TXT do Caderno para guardar uma cópia das anotações.',
+                botao: 'ENTENDI, LUMINA'
+            }
+        ],
+        // Dados e IDs anteriores preservados. As cores agora vêm do tema.
+        redes: [
 
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 1 — CONFIGURAÇÃO
-       ══════════════════════════════════════════════════════════ */
-
-    var DELAY_PRIVACIDADE_MS = 10000;   /* 30 segundos */
-    var DELAY_REDES_MS       = 60000;   /* 60 segundos — entre CADA popup de rede, não só o primeiro */
-    var LIMITE_FECHAMENTOS   = 7;       /* × acumulados para uma rede equivaler a "seguida" */
-
-    /* Chaves do localStorage */
-    var STORAGE_KEY_PRIVACIDADE   = 'popup_privacidade_aceite';
-    var STORAGE_KEY_PREFIX_REDE   = 'popup_rede_seguida_';    /* + id da rede */
-    var STORAGE_KEY_PREFIX_FECHOU = 'popup_rede_fechada_';    /* + id da rede — contador de × */
-
-    /* Ordem de prioridade dos grupos: o primeiro desta lista que ainda
-       tiver alguma rede não seguida é sempre o grupo "primário" (ver
-       gruposAtivos() na Secção 2 e mostrarProximoPopupDeRede() na
-       Secção 6). Reordenar aqui muda a prioridade sem tocar em mais
-       nada. */
-    var GRUPOS_ORDEM = ['instagram', 'facebook', 'outras'];
-
-    /* ── Dados de cada rede social ────────────────────────────
-       id            → único por CONTA (não por rede) — usado nas
-                        chaves de localStorage; ex.: duas contas de
-                        Instagram precisam de dois id diferentes
-       grupo         → 'instagram' | 'facebook' | 'outras'
-       nome          → nome de exibição no botão ("Me siga no <nome>")
-       activo: true  → conta participa no sorteio do seu grupo
-       activo: false → conta ignorada sem apagar o código
-       icone         → naipe de baralho (símbolo Unicode local)
-       ──────────────────────────────────────────────────────── */
-    var REDES = [
-
-        /* ── GRUPO: INSTAGRAM ── */
+        /* ── GRUPO: PRIMARIO ── */
         {
             id:       'instagram-1',
             grupo:    'instagram',
-            nome:     'INSTAGRAM',
+            nome:     'THREADS',
             activo:   true,
-            icone:    '♥️',
-            user:     '@scriptorchristianus',
-            url:      'https://www.instagram.com/scriptorchristianus/',
-            corBotao: '#c0392b',
+            icone:    '♣️',
+            user:     '@ScriptorChristianus',
+            url:      'https://www.threads.com/@ScriptorChristianus',
+            corBotao: '#000000',
             corTexto: '#fff'
         },
         {
             id:       'instagram-2',
             grupo:    'instagram',
-            nome:     'INSTAGRAM',
-            activo:   true,
-            icone:    '♥️',
-            user:     '@revista7guerreiros',
-            url:      'https://www.instagram.com/revista7guerreiros/',
-            corBotao: '#c0392b',
-            corTexto: '#fff'
-        },
-
-        /* ── GRUPO: FACEBOOK ── */
-        {
-            id:       'facebook-1',
-            grupo:    'facebook',
             nome:     'FACEBOOK',
             activo:   true,
-            icone:    '♠️',
+            icone:    '♣️',
             user:     '@ScriptorOficial',
             url:      'https://www.facebook.com/ScriptorOficial/',
             corBotao: '#0088cc',
             corTexto: '#fff'
         },
+
+        /* ── GRUPO: SECUDARIO ── */
+        {
+            id:       'facebook-1',
+            grupo:    'facebook',
+            nome:     'INKSPIRED',
+            activo:   true,
+            icone:    '♠️',
+            user:     '@7guerreiro',
+            url:      'https://getinkspired.com/pt/u/7guerreiros/',
+            corBotao: '#1A3B41',
+            corTexto: '#fff'
+        },
         {
             id:       'facebook-2',
             grupo:    'facebook',
-            nome:     'FACEBOOK',
+            nome:     'MASTODON',
             activo:   true,
             icone:    '♠️',
-            user:     '@Blog7Guerreiros',
-            url:      'https://www.facebook.com/Blog7Guerreiros',
-            corBotao: '#0088cc',
+            user:     '@7Guerreiros',
+            url:      'https://mastodon.social/@7Guerreiros',
+            corBotao: '#6364FF',
             corTexto: '#fff'
         },
 
-        /* ── GRUPO: OUTRAS ── */
+        /* ── GRUPO: FINAL ── */
         {
             id:       'threads-1',
             grupo:    'outras',
-            nome:     'THREADS',
+            nome:     'INSTAGRAM',
             activo:   true,
-            icone:    '♦️',
-            user:     '@revista7guerreiros',
-            url:      'https://www.threads.com/@revista7guerreiros',
-            corBotao: '#000000',
+            icone:    '♥️',
+            user:     '@7guerreirosoficial',
+            url:      'https://www.instagram.com/7guerreirosoficial/',
+            corBotao: '#c0392b',
             corTexto: '#fff'
         },
         {
             id:       'threads-2',
             grupo:    'outras',
-            nome:     'THREADS',
+            nome:     'FACEBOOK',
             activo:   true,
-            icone:    '♦️',
-            user:     '@blog7guerreiros',
-            url:      'https://www.threads.com/@blog7guerreiros',
-            corBotao: '#000000',
+            icone:    '♣️',
+            user:     '@7Guerreiros',
+            url:      'https://www.facebook.com/7guerreiros/',
+            corBotao: '#0088cc',
             corTexto: '#fff'
         },
         {
             id:       'mastodon-1',
             grupo:    'outras',
-            nome:     'MASTODON',
+            nome:     'THREADS',
             activo:   true,
-            icone:    '♣️',
-            user:     '@7Guerreiros@mastodon.social',
-            url:      'https://mastodon.social/@7Guerreiros',
-            corBotao: '#6364FF',
+            icone:    '♥️',
+            user:     '@7guerreirosoficial',
+            url:      'https://www.threads.com/@7guerreirosoficial',
+            corBotao: '#000000',
             corTexto: '#fff'
         }
-    ];
+        ],
+        avisos: [
+            // Modelo: altere o texto e ative quando precisar de um anúncio.
+            { id: 'aviso-exemplo', activo: false, titulo: 'Uma novidade no arquivo',
+              texto: 'Aqui Lumina apresentará um anúncio do site.', botao: 'ENTENDI' }
+        ],
+        dicas: [
+            { id: 'dica-caderno', activo: true, titulo: 'Guarde suas impressões',
+              texto: 'Uma frase chamou sua atenção? Seu Caderno do Leitor pode guardar uma anotação. Você também pode baixá-la em TXT.' },
+            { id: 'dica-retorno', activo: true, titulo: 'Volte às suas histórias',
+              texto: 'Continue usando o mesmo navegador e preserve os dados do site para manter seus registros de leitura.' },
+            { id: 'dica-tema', activo: true, titulo: 'Escolha sua luz',
+              texto: 'Experimente o tema claro ou escuro do site e escolha o que deixa sua leitura mais confortável.' }
+        ],
+        conteudos: [
+            // Uma vez por carregamento da página, ao abrir este Codex.
+            { id: 'teologia-ficcional', activo: true, codex: 'CODEX_TEOLOGIA.html',
+              titulo: 'Antes de explorar esta teologia',
+              texto: 'Este conteúdo inclui elementos fictícios do universo 7Guerreiros. Leia-o como parte da construção desse universo, distinguindo a ficção das referências reais.',
+              botao: 'ENTENDI, LUMINA' }
+        ]
+    };
+    // Alias mantido para compatibilidade; o catálogo pertence a este arquivo.
+    window.LuminaPopupsLista = catalogo;
 
-
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 2 — UTILITÁRIOS LOCALSTORAGE
-       ══════════════════════════════════════════════════════════ */
-
-    function lsGet(chave) {
-        try { return localStorage.getItem(chave); } catch (e) { return null; }
+    // ==================== 2. ARMAZENAMENTO E FILA ====================
+    var CHAVES = {
+        privacidade: 'popup_privacidade_aceite',
+        seguida: 'popup_rede_seguida_',
+        fechada: 'popup_rede_fechada_',
+        confirmados: 'popup_lumina_confirmados_v1',
+        silencioso: 'popup_lumina_silencioso',
+        ultimaDica: 'popup_lumina_ultima_dica'
+    };
+    var memoria = new Map();
+    function ler(chave) {
+        if (memoria.has(chave)) return memoria.get(chave);
+        try { return localStorage.getItem(chave); } catch (erro) { return null; }
     }
-
-    function lsSet(chave, valor) {
-        try { localStorage.setItem(chave, valor); } catch (e) { /* silencioso */ }
+    function gravar(chave, valor) {
+        try { localStorage.setItem(chave, valor); memoria.delete(chave); return true; }
+        catch (erro) { memoria.set(chave, valor); return false; }
     }
-
-    function privacidadeAceite() {
-        return lsGet(STORAGE_KEY_PRIVACIDADE) === '1';
+    function confirmados() {
+        try {
+            var ids = JSON.parse(ler(CHAVES.confirmados) || '[]');
+            return Array.isArray(ids) ? ids.filter(function (id) { return typeof id === 'string'; }) : [];
+        } catch (erro) { return []; }
     }
-
-    function redeSeguida(id) {
-        return lsGet(STORAGE_KEY_PREFIX_REDE + id) === '1';
+    function confirmado(item) {
+        if (item.tipo === 'rede') return ler(CHAVES.seguida + item.dados.id) === '1';
+        if (item.tipo === 'obrigatorio' && item.dados.id === 'privacidade') return ler(CHAVES.privacidade) === '1';
+        return confirmados().indexOf(item.tipo + ':' + item.dados.id) !== -1;
     }
-
-    function marcarRedeSeguida(id) {
-        lsSet(STORAGE_KEY_PREFIX_REDE + id, '1');
+    function confirmar(item) {
+        if (item.tipo === 'rede') { gravar(CHAVES.seguida + item.dados.id, '1'); return; }
+        if (item.tipo === 'obrigatorio' && item.dados.id === 'privacidade') {
+            gravar(CHAVES.privacidade, '1'); return;
+        }
+        var ids = confirmados();
+        var id = item.tipo + ':' + item.dados.id;
+        if (ids.indexOf(id) === -1) { ids.push(id); gravar(CHAVES.confirmados, JSON.stringify(ids)); }
     }
-
-    function marcarPrivacidadeAceite() {
-        lsSet(STORAGE_KEY_PRIVACIDADE, '1');
+    function nomeArquivo(caminho) {
+        try { return new URL(caminho, document.baseURI).pathname.split('/').pop().toLowerCase(); }
+        catch (erro) { return ''; }
     }
-
-    /* Devolve todas as redes activas de um grupo (seguidas ou não) */
-    function redesDoGrupo(grupo) {
-        return REDES.filter(function (r) {
-            return r.grupo === grupo && r.activo;
-        });
+    function sortear(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+    var config, iniciado = false;
+    var actual = null, fila = [], quadro = null;
+    var timerInicial = null, timerGeral = null, timerSaida = null;
+    var inicialConcluido = false, silencioso = ler(CHAVES.silencioso) === '1';
+    var etapa = 'aguardando', dicaSorteada = false, dicaExibida = false;
+    var conteudosExibidos = new Set(), codexActual = '';
+    function promocional(item) { return item.tipo === 'rede' || item.tipo === 'aviso' || item.tipo === 'dica'; }
+    function valido(item) {
+        if (promocional(item) && silencioso) return false;
+        if (item.tipo === 'conteudo') return item.codex === codexActual && !conteudosExibidos.has(item.dados.id);
+        return item.tipo === 'dica' || !confirmado(item);
     }
-
-    /* Devolve só as redes activas e ainda não seguidas de um grupo */
-    function redesDisponiveisDoGrupo(grupo) {
-        return redesDoGrupo(grupo).filter(function (r) {
-            return !redeSeguida(r.id);
-        });
+    function restaurarFoco(item) {
+        if (item.el && item.el.contains(document.activeElement) && item.foco && item.foco.isConnected) {
+            item.foco.focus({ preventScroll: true });
+        }
     }
-
-    /* Devolve, na ordem de GRUPOS_ORDEM, só os grupos que ainda têm
-       pelo menos uma rede não seguida — usado para decidir quem é
-       "primário" (ativos[0]) e "secundário" (ativos[1]) a cada popup */
-    function gruposAtivos() {
-        return GRUPOS_ORDEM.filter(function (grupo) {
-            return redesDisponiveisDoGrupo(grupo).length > 0;
-        });
+    function retirarActual() {
+        if (!actual) return;
+        restaurarFoco(actual);
+        if (quadro !== null) cancelAnimationFrame(quadro);
+        quadro = null;
+        clearTimeout(timerSaida); timerSaida = null;
+        actual.el.remove(); actual.el = null;
+        actual = null;
     }
-
-    /* Conta mais um fechamento (×) para esta rede e devolve o total
-       acumulado — usado para aplicar LIMITE_FECHAMENTOS */
-    function contarFechamento(id) {
-        var atual = parseInt(lsGet(STORAGE_KEY_PREFIX_FECHOU + id), 10);
-        if (isNaN(atual)) atual = 0;
-        atual += 1;
-        lsSet(STORAGE_KEY_PREFIX_FECHOU + id, String(atual));
-        return atual;
-    }
-
-    /* Selecciona um item aleatório de um array */
-    function aleatorio(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 3 — ESTILOS GLOBAIS (injectados uma única vez)
-       ══════════════════════════════════════════════════════════ */
-
+    // ==================== 3. APARÊNCIA ====================
     function injectarEstilosGlobais() {
         if (document.getElementById('popups-estilos')) return;
-
-        var css = [
-
-            /* ── BASE COMUM A TODOS OS POPUPS ── */
-
-            /* Largura e forma partilhadas — 260 px para todos */
-            '.popup-rede, #popup-privacidade {',
-            '  position: fixed;',
-            '  bottom: 28px;',
-            '  right: 24px;',
-            '  left: auto;',
-            '  width: 260px;',
-            '  background: #ffffff;',
-            '  border: 1px solid #e2e2e2;',
-            '  border-radius: 12px;',
-            '  padding: 0;',
-            '  font-family: inherit;',
-            '  box-sizing: border-box;',
-            '  overflow: hidden;',
-            '  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);',
-            '  opacity: 0;',
-            '  transform: translateY(20px);',
-            '  transition: opacity 0.4s cubic-bezier(.22,.68,0,1.2), transform 0.4s cubic-bezier(.22,.68,0,1.2);',
-            '}',
-
-            /* Redes ficam acima do aviso de privacidade */
-            '.popup-rede   { z-index: 10001; }',
-            '#popup-privacidade { z-index: 10000; }',
-
-            '.popup-rede.popup-visivel,',
-            '#popup-privacidade.popup-visivel {',
-            '  opacity: 1;',
-            '  transform: translateY(0);',
-            '}',
-
-            /* ── POPUPS DE REDE SOCIAL ── */
-
-            '.popup-rede .popup-corpo {',
-            '  padding: 14px 14px 16px;',
-            '}',
-
-            '.popup-rede .popup-cabecalho {',
-            '  display: flex;',
-            '  align-items: center;',
-            '  justify-content: space-between;',
-            '  margin-bottom: 12px;',
-            '}',
-
-            /* Ícone: quadrado com naipe de baralho — cor/fundo definidos inline */
-            '.popup-rede .popup-icone {',
-            '  flex-shrink: 0;',
-            '  margin-right: 10px;',
-            '  font-size: 1.3rem;',
-            '  line-height: 1;',
-            '  user-select: none;',
-            '}',
-
-            '.popup-rede .popup-rede-nome {',
-            '  font-size: 0.7rem;',
-            '  color: #666;',
-            '  margin: 0 0 2px;',
-            '  line-height: 1.2;',
-            '}',
-
-            '.popup-rede .popup-usuario {',
-            '  font-size: 0.9rem;',
-            '  font-weight: 700;',
-            '  color: #111;',
-            '  margin: 0;',
-            '  line-height: 1.2;',
-            '}',
-
-            '.popup-rede .popup-fechar {',
-            '  background: none;',
-            '  border: none;',
-            '  cursor: pointer;',
-            '  font-size: 0.85rem;',
-            '  color: #bbb;',
-            '  padding: 2px 4px;',
-            '  line-height: 1;',
-            '  flex-shrink: 0;',
-            '  margin-left: 6px;',
-            '  border-radius: 4px;',
-            '  transition: color 0.15s, background 0.15s;',
-            '}',
-            '.popup-rede .popup-fechar:hover { color: #333; background: #f0f0f0; }',
-
-            '.popup-rede .popup-btn-seguir {',
-            '  display: block;',
-            '  width: 100%;',
-            '  padding: 8px 0;',
-            '  color: #fff;',
-            '  border: none;',
-            '  border-radius: 6px;',
-            '  font-size: 0.78rem;',
-            '  font-weight: 700;',
-            '  letter-spacing: 0.06em;',
-            '  cursor: pointer;',
-            '  text-align: center;',
-            '  text-decoration: none;',
-            '  transition: filter 0.2s, transform 0.15s;',
-            '  box-sizing: border-box;',
-            '}',
-            '.popup-rede .popup-btn-seguir:hover  { filter: brightness(1.1); transform: translateY(-1px); }',
-            '.popup-rede .popup-btn-seguir:active { transform: translateY(0); filter: brightness(0.96); }',
-
-            /* ── AVISO DE PRIVACIDADE ── */
-
-            '#popup-privacidade .priv-topo {',
-            '  height: 3px;',
-            '  background: #222;',
-            '}',
-
-            '#popup-privacidade .priv-corpo {',
-            '  padding: 12px 14px 14px;',   /* compacto */
-            '}',
-
-            '#popup-privacidade .priv-cabecalho {',
-            '  display: flex;',
-            '  align-items: center;',
-            '  justify-content: space-between;',
-            '  margin-bottom: 8px;',
-            '}',
-
-            '#popup-privacidade .priv-titulo {',
-            '  font-size: 0.8rem;',
-            '  font-weight: 700;',
-            '  color: #111;',
-            '  margin: 0;',
-            '  letter-spacing: 0.02em;',
-            '}',
-
-            '#popup-privacidade .priv-fechar {',
-            '  background: none;',
-            '  border: none;',
-            '  cursor: pointer;',
-            '  font-size: 0.85rem;',
-            '  color: #bbb;',
-            '  padding: 2px 4px;',
-            '  line-height: 1;',
-            '  border-radius: 4px;',
-            '  transition: color 0.15s, background 0.15s;',
-            '}',
-            '#popup-privacidade .priv-fechar:hover { color: #333; background: #f0f0f0; }',
-
-            '#popup-privacidade .priv-texto {',
-            '  font-size: 0.72rem;',
-            '  color: #666;',
-            '  line-height: 1.5;',
-            '  margin: 0 0 12px;',
-            '}',
-
-            '#popup-privacidade .priv-btn-aceitar {',
-            '  display: block;',
-            '  width: 100%;',
-            '  padding: 7px 0;',
-            '  background: #111;',
-            '  color: #fff;',
-            '  border: none;',
-            '  border-radius: 6px;',
-            '  font-size: 0.78rem;',
-            '  font-weight: 700;',
-            '  letter-spacing: 0.06em;',
-            '  cursor: pointer;',
-            '  text-align: center;',
-            '  transition: background 0.2s, transform 0.15s;',
-            '}',
-            '#popup-privacidade .priv-btn-aceitar:hover  { background: #333; transform: translateY(-1px); }',
-            '#popup-privacidade .priv-btn-aceitar:active { transform: translateY(0); }'
-
-        ].join('\n');
-
         var tag = document.createElement('style');
-        tag.id  = 'popups-estilos';
-        tag.textContent = css;
+        tag.id = 'popups-estilos';
+        tag.textContent = `
+            .popup-rede, #popup-privacidade {
+                box-sizing: border-box; position: fixed; bottom: 24px; right: 24px;
+                width: 340px; max-width: calc(100% - 48px);
+                max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px);
+                overflow: auto; padding: 14px;
+                background: var(--bg, #fff); color: var(--text, #1a1a1a);
+                border: 1px solid var(--borda, #ccc); border-radius: 6px;
+                box-shadow: 0 8px 24px rgba(0,0,0,.25);
+                font-family: Georgia, 'Times New Roman', serif;
+                z-index: 10001; opacity: 0; transform: translateY(16px);
+                transition: opacity .3s ease, transform .3s ease;
+            }
+            .popup-rede[hidden], #popup-privacidade[hidden] { display: none !important; }
+            .popup-rede.popup-visivel, #popup-privacidade.popup-visivel {
+                opacity: 1; transform: translateY(0);
+            }
+            .popup-rede *, #popup-privacidade * { box-sizing: border-box; }
+            :is(.popup-rede, #popup-privacidade) .popup-lumina-assinatura, #popup-privacidade .popup-lumina-assinatura {
+                margin: 0 28px 8px 0; font-size: .7rem;
+                letter-spacing: .08em; text-transform: uppercase; opacity: .6;
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-cabecalho { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+            :is(.popup-rede, #popup-privacidade) .popup-icone {
+                display: grid; place-items: center; flex-shrink: 0;
+                width: 56px; height: 56px; border: 1px solid var(--borda, #ccc);
+                border-radius: 4px; font-size: 1.5rem; filter: grayscale(1);
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-identidade { min-width: 0; }
+            :is(.popup-rede, #popup-privacidade) .popup-rede-nome { margin: 0 0 2px; font-size: .7rem; opacity: .6; }
+            :is(.popup-rede, #popup-privacidade) .popup-usuario { margin: 0; font-size: 1rem; font-weight: bold; overflow-wrap: anywhere; }
+            :is(.popup-rede, #popup-privacidade) .popup-fechar, #popup-privacidade .priv-fechar {
+                position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
+                padding: 0; border: 0; background: transparent; color: inherit;
+                font: 1.4rem/1 Georgia, serif; cursor: pointer; opacity: .6;
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-fechar:hover, #popup-privacidade .priv-fechar:hover { opacity: 1; }
+            :is(.popup-rede, #popup-privacidade) .popup-btn-seguir, #popup-privacidade .priv-btn-aceitar {
+                display: block; width: 100%; min-height: 40px; padding: 9px 12px;
+                border: 1px solid var(--text, #111); border-radius: 4px;
+                background: var(--text, #111); color: var(--bg, #fff);
+                font: bold .78rem/1.5 Georgia, serif; letter-spacing: .06em;
+                text-align: center; text-decoration: none; cursor: pointer;
+            }
+            .popup-rede a:hover, #popup-privacidade .priv-btn-aceitar:hover { opacity: .85; }
+            #popup-privacidade .priv-titulo { margin: 0 0 6px; font-size: 1rem; font-weight: bold; }
+            #popup-privacidade .priv-texto { margin: 0 0 12px; font-size: .8rem; line-height: 1.4; opacity: .75; }
+            .popup-rede :focus-visible, #popup-privacidade :focus-visible {
+                outline: 2px solid var(--text, #111); outline-offset: 2px;
+            }
+            @media (max-width: 480px) {
+                .popup-rede, #popup-privacidade { left: 24px; right: 24px; width: auto; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .popup-rede, #popup-privacidade { transition: none; transform: none; }
+            }
+            :is(.popup-rede, #popup-privacidade) .lumina-texto { margin: 0 0 12px; font-size: .8rem; line-height: 1.4; opacity: .75; overflow-wrap: anywhere; }
+
+            /* Visual compacto: mesmas medidas-base dos popups de conquistas.
+               O conteúdo mantém altura natural, sem cortar texto ou botões. */
+            .popup-rede, #popup-privacidade {
+                display: grid; grid-template-columns: 56px minmax(0, 1fr);
+                column-gap: 14px; align-items: center;
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-lumina-assinatura {
+                grid-column: 2; margin: 0 22px 2px 0;
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-cabecalho { display: contents; }
+            :is(.popup-rede, #popup-privacidade) .popup-icone {
+                grid-column: 1; grid-row: 1 / span 4;
+                border: 0; border-radius: 0; background: transparent; filter: none;
+            }
+            :is(.popup-rede, #popup-privacidade) .popup-identidade { grid-column: 2; }
+            :is(.popup-rede, #popup-privacidade) .popup-rede-nome { display: none; }
+            :is(.popup-rede, #popup-privacidade) .popup-usuario { line-height: 1.25; margin-bottom: 2px; }
+            :is(.popup-rede, #popup-privacidade) .lumina-texto { grid-column: 2; margin: 0; }
+            :is(.popup-rede, #popup-privacidade) .popup-btn-seguir {
+                grid-column: 2; justify-self: start; width: auto; min-height: 26px;
+                margin-top: 6px; padding: 3px 10px; font-size: .74rem;
+                line-height: 1.4; letter-spacing: .02em;
+            }
+            .lumina-popup-svg { display: block; width: 56px; height: 56px; }
+            .lumina-popup-rotor { transform-origin: 0px 0px; animation: lumina-popup-giro 20s linear infinite; }
+            .lumina-popup-rotor-menor { animation-duration: 13s; animation-direction: reverse; }
+            @keyframes lumina-popup-giro { to { transform: rotate(360deg); } }
+            :is(.popup-rede, #popup-privacidade)[hidden] .lumina-popup-rotor { animation-play-state: paused; }
+            @media (prefers-reduced-motion: reduce) {
+                .lumina-popup-rotor { animation: none; }
+            }
+        `;
         document.head.appendChild(tag);
     }
 
 
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 4 — UTILITÁRIO DE ANIMAÇÃO (comum a todos)
-       ══════════════════════════════════════════════════════════ */
-
-    function mostrarPopup(el) {
-        void el.offsetWidth; /* força reflow para a transição funcionar */
-        el.classList.add('popup-visivel');
-        var btnFechar = el.querySelector('.popup-fechar, .priv-fechar');
-        if (btnFechar) btnFechar.focus();
-    }
-
-    function fecharPopup(el, callback) {
-        el.classList.remove('popup-visivel');
-        setTimeout(function () {
-            if (el && el.parentNode) el.parentNode.removeChild(el);
-            if (callback) callback();
-        }, 420);
-    }
-
-
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 5 — MÓDULO: AVISO DE PRIVACIDADE
-       ══════════════════════════════════════════════════════════
-       MANUTENÇÃO:
-         • Editar o texto em priv-texto para alterar o aviso
-         • DELAY_PRIVACIDADE_MS controla o tempo de espera
-         • Resetar: localStorage.removeItem('popup_privacidade_aceite')
-         • Desactivar: comentar iniciarPrivacidade() na Secção 7
-       ══════════════════════════════════════════════════════════ */
-
-    function criarPopupPrivacidade() {
-        var el = document.createElement('div');
-        el.id = 'popup-privacidade';
-        el.setAttribute('role', 'dialog');
-        el.setAttribute('aria-label', 'Aviso de privacidade');
-        el.setAttribute('aria-modal', 'false');
-
-        el.innerHTML = [
-            '<div class="priv-topo"></div>',
-            '<div class="priv-corpo">',
-            '  <div class="priv-cabecalho">',
-            '    <p class="priv-titulo">AVISO DE PRIVACIDADE:</p>',
-            '    <button class="priv-fechar" aria-label="Fechar aviso">&#x2715;</button>',
-            '  </div>',
-            '  <p class="priv-texto">',
-            '    Este site usa apenas o armazenamento local para recordar as suas',
-            '    preferências. Nenhum dado pessoal é recolhido ou partilhado.',
-            '  </p>',
-            '  <button class="priv-btn-aceitar">ENTENDO</button>',
-            '</div>'
-        ].join('');
-
-        return el;
-    }
-
-    function iniciarPrivacidade(callbackAposFechado) {
-        /* Já aceitou anteriormente — não exibir; iniciar redes imediatamente */
-        if (privacidadeAceite()) {
-            if (callbackAposFechado) callbackAposFechado();
-            return;
-        }
-
-        var el = criarPopupPrivacidade();
-        document.body.appendChild(el);
-
-        setTimeout(function () {
-            mostrarPopup(el);
-        }, DELAY_PRIVACIDADE_MS);
-
-        /* × e Aceito têm o mesmo efeito: gravar, fechar e disparar callback */
-        function aceitar() {
-            marcarPrivacidadeAceite();
-            fecharPopup(el, callbackAposFechado);
-        }
-
-        el.querySelector('.priv-fechar').addEventListener('click', aceitar);
-        el.querySelector('.priv-btn-aceitar').addEventListener('click', aceitar);
-    }
-
-
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 6 — MÓDULO: POPUP DE REDE SOCIAL
-       ══════════════════════════════════════════════════════════
-       MANUTENÇÃO:
-         • Adicionar rede    : inserir novo objecto em REDES (Secção 1),
-                                com um id único e o campo "grupo" certo
-         • Desactivar rede   : activo: false no objecto da rede
-         • Resetar rede X    : localStorage.removeItem('popup_rede_seguida_X')
-         • Resetar contador de × de X : localStorage.removeItem('popup_rede_fechada_X')
-         • Desactivar tudo   : comentar iniciarRedes() na Secção 7
-       ══════════════════════════════════════════════════════════ */
-
-    function criarPopupRede(rede) {
-        var el = document.createElement('div');
-        el.className = 'popup-rede';
-        el.setAttribute('role', 'dialog');
-        el.setAttribute('aria-label', 'Seguir em ' + rede.id);
-        el.setAttribute('aria-modal', 'false');
-
-        el.innerHTML = [
-            '<div class="popup-corpo">',
-            '  <div class="popup-cabecalho">',
-            '    <div style="display:flex;align-items:center;flex:1;min-width:0;">',
-            '      <div class="popup-icone" aria-hidden="true">',
-            '        ' + rede.icone,
-            '      </div>',
-            '      <div>',
-            '        <p class="popup-rede-nome">ME SIGA NO ' + rede.nome + '</p>',
-            '        <p class="popup-usuario">' + rede.user + '</p>',
-            '      </div>',
-            '    </div>',
-            '    <button class="popup-fechar" aria-label="Fechar popup">&#x2715;</button>',
-            '  </div>',
-            '  <a class="popup-btn-seguir"',
-            '     href="' + rede.url + '"',
-            '     target="_blank"',
-            '     rel="noopener noreferrer"',
-            '     role="button"',
-            '     style="background:' + rede.corBotao + ';color:' + rede.corTexto + '">',
-            '    SEGUIR',
-            '  </a>',
-            '</div>'
-        ].join('');
-
-        return el;
-    }
-
-    /* Controla qual "slot" (primário ou secundário) o próximo popup
-       vai ocupar. Alterna a cada popup mostrado — ver
-       mostrarProximoPopupDeRede(). Reiniciado em cada carregamento
-       de página por iniciarRedes(). */
-    var proximoSlot = 'primario';
-
-    /* Quantos popups de rede já foram mostrados NESTE carregamento
-       de página (não persiste — é só memória, reinicia sozinho a
-       cada visita/recarregamento). Ao atingir LIMITE_POPUPS_SESSAO,
-       nenhum outro popup é agendado até a próxima visita — nessa
-       próxima visita, o ciclo primário/secundário continua de onde
-       as contas ainda não seguidas indicarem (não repete do zero as
-       que já foram seguidas ou fechadas 7×). */
-    var LIMITE_POPUPS_SESSAO = 2;
-    var popupsExibidosNestaSessao = 0;
-
-    /* Agenda o próximo popup para daqui a DELAY_REDES_MS. Chamada:
-         • por iniciarRedes(), para o primeiro popup da visita
-         • depois de CADA popup ser resolvido (× ou Seguir), para
-           encadear o próximo — ver exibirPopupRede()
-       Não agenda nada se não houver mais nenhum grupo activo, OU se
-       o limite de popups desta sessão já tiver sido atingido. */
-    function agendarProximoPopup() {
-        if (popupsExibidosNestaSessao >= LIMITE_POPUPS_SESSAO) return;
-        if (gruposAtivos().length === 0) return;
-
-        setTimeout(function () {
-            mostrarProximoPopupDeRede();
-        }, DELAY_REDES_MS);
-    }
-
-    /* Decide o grupo do próximo popup (primário ou secundário,
-       conforme proximoSlot), sorteia uma rede não seguida dentro
-       desse grupo, e exibe. Os grupos activos são recalculados a
-       cada chamada — por isso a troca de "quem é o primário" (ex.:
-       instagram → facebook, assim que o instagram acabar) acontece
-       sozinha, sem nenhum estado extra para gerir. */
-    function mostrarProximoPopupDeRede() {
-        if (popupsExibidosNestaSessao >= LIMITE_POPUPS_SESSAO) return;
-
-        var ativos = gruposAtivos();
-        if (ativos.length === 0) return;
-
-        var grupoPrimario   = ativos[0];
-        var grupoSecundario = ativos[1] || ativos[0]; /* só 1 grupo activo: usa-o nos dois slots */
-
-        var grupoEscolhido = (proximoSlot === 'primario') ? grupoPrimario : grupoSecundario;
-        proximoSlot = (proximoSlot === 'primario') ? 'secundario' : 'primario';
-
-        var disponiveis = redesDisponiveisDoGrupo(grupoEscolhido);
-        if (disponiveis.length === 0) {
-            /* Segurança: não deveria acontecer (gruposAtivos() já
-               filtra por isto), mas evita travar o ciclo se acontecer. */
-            agendarProximoPopup();
-            return;
-        }
-
-        exibirPopupRede(aleatorio(disponiveis));
-    }
-
-    function exibirPopupRede(rede) {
-        popupsExibidosNestaSessao += 1;
-
-        var el = criarPopupRede(rede);
-        document.body.appendChild(el);
-        mostrarPopup(el);
-
-        /* × : conta o fechamento; ao atingir LIMITE_FECHAMENTOS, trata
-           esta rede como seguida (nunca mais aparece). De qualquer
-           forma, fecha e agenda o próximo popup. */
-        el.querySelector('.popup-fechar').addEventListener('click', function () {
-            if (contarFechamento(rede.id) >= LIMITE_FECHAMENTOS) {
-                marcarRedeSeguida(rede.id);
+    // ==================== 4. EXIBIÇÃO E INTERAÇÕES ====================
+    // Presença visual externa: não depende da API de conquistas.
+    function cantoOcupado() { return !!document.getElementById('conquista-popup'); }
+    function sincronizar() {
+        if (!iniciado) return;
+        if (actual) {
+            if (cantoOcupado()) {
+                restaurarFoco(actual); actual.el.hidden = true;
+                actual.el.classList.remove('popup-visivel');
+            } else if (!actual.fechando && actual.el.hidden) {
+                revelarActual();
             }
-            fecharPopup(el, agendarProximoPopup);
+            return;
+        }
+        if (!inicialConcluido || cantoOcupado()) return;
+        while (fila.length) {
+            var item = fila.shift();
+            if (!valido(item)) { if (item.finalizar) item.finalizar(); continue; }
+            exibir(item); break;
+        }
+    }
+    function revelarActual() {
+        var item = actual;
+        item.el.hidden = false;
+        void item.el.offsetWidth;
+        item.el.classList.add('popup-visivel');
+        if (!item.exibido) {
+            item.exibido = true;
+            if (item.tipo === 'conteudo') conteudosExibidos.add(item.dados.id);
+            if (item.tipo === 'dica') {
+                dicaExibida = true;
+                gravar(CHAVES.ultimaDica, item.dados.id);
+            }
+        }
+    }
+    function enfileirar(item) {
+        fila.push(item);
+        fila.sort(function (a, b) { return a.prioridade - b.prioridade; });
+        // Avisos de conteúdo interrompem apenas mensagens promocionais.
+        if (item.tipo === 'conteudo' && actual && promocional(actual) && !actual.fechando) {
+            var suspenso = actual;
+            retirarActual();
+            fila.push(suspenso);
+            fila.sort(function (a, b) { return a.prioridade - b.prioridade; });
+        }
+        sincronizar();
+    }
+    // SVG local com dentes, recortes e relevo metálico, sem moldura.
+    // Usado apenas na apresentação; independente do motor de conquistas.
+    function engrenagensPopup() {
+        function roda(dentes, raio) {
+            var d = '';
+            function furo(x, y, r) {
+                return ' M ' + (x-r) + ' ' + y + ' a ' + r + ' ' + r +
+                    ' 0 1 0 ' + (2*r) + ' 0 a ' + r + ' ' + r +
+                    ' 0 1 0 ' + (-2*r) + ' 0 Z';
+            }
+            for (var i = 0; i < dentes; i++) {
+                [0, .23, .55, .78].forEach(function (f, j) {
+                    var a = (i+f)*Math.PI*2/dentes;
+                    var r = j === 1 || j === 2 ? raio : raio*.84;
+                    d += (i === 0 && j === 0 ? 'M ' : ' L ') +
+                        (Math.cos(a)*r).toFixed(3) + ' ' + (Math.sin(a)*r).toFixed(3);
+                });
+            }
+            d += ' Z' + furo(0, 0, raio*.13);
+            for (var j = 0; j < 5; j++) {
+                var a = j*Math.PI*2/5;
+                d += furo(Math.cos(a)*raio*.46, Math.sin(a)*raio*.46, raio*.13);
+            }
+            return '<path d="'+d+'" fill="url(#lumina-popup-metal)" fill-rule="evenodd" stroke="#555" stroke-width=".7"/>' +
+                '<circle r="'+(raio*.71)+'" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1"/>';
+        }
+        return '<svg class="lumina-popup-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 80" aria-hidden="true" focusable="false">' +
+            '<defs><linearGradient id="lumina-popup-metal" x1="0" y1="0" x2="1" y2="1">' +
+            '<stop stop-color="#f4f4f4"/><stop offset=".32" stop-color="#999"/>' +
+            '<stop offset=".6" stop-color="#e1e1e1"/><stop offset="1" stop-color="#565656"/>' +
+            '</linearGradient></defs>' +
+            '<g transform="translate(29 40)"><g class="lumina-popup-rotor">'+roda(20, 26)+'</g>' +
+            '<circle r="3" fill="url(#lumina-popup-metal)" stroke="#555"/></g>' +
+            '<g transform="translate(72 40)"><g class="lumina-popup-rotor lumina-popup-rotor-menor">'+roda(13, 17)+'</g>' +
+            '<circle r="2" fill="url(#lumina-popup-metal)" stroke="#555"/></g></svg>';
+    }
+    function criar(item) {
+        var dados = item.dados, rede = item.tipo === 'rede';
+        var el = document.createElement('div');
+        if (item.tipo === 'obrigatorio' && dados.id === 'privacidade') el.id = 'popup-privacidade';
+        else el.className = 'popup-rede';
+        el.hidden = true;
+        el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'false');
+        el.setAttribute('aria-label', rede ? 'Lumina · ' + dados.nome : dados.titulo);
+        el.innerHTML = '<p class="popup-lumina-assinatura">Sistema Lumina</p>' +
+            '<button type="button" class="popup-fechar" aria-label="Fechar aviso">×</button>' +
+            '<div class="popup-cabecalho"><div class="popup-icone" aria-hidden="true"></div>' +
+            '<div class="popup-identidade"><p class="popup-rede-nome"></p><p class="popup-usuario"></p></div></div>' +
+            '<p class="lumina-texto"></p>';
+        el.querySelector('.popup-icone').innerHTML = engrenagensPopup();
+        el.querySelector('.popup-rede-nome').textContent = rede ? 'UM CONVITE DE LUMINA' :
+            (item.tipo === 'dica' ? 'DICA DE LEITURA' : 'UMA MENSAGEM PARA VOCÊ');
+        el.querySelector('.popup-usuario').textContent = rede ? dados.user : dados.titulo;
+        el.querySelector('.lumina-texto').textContent = rede
+            ? 'Vamos continuar nossa conversa? Encontre-me no ' + dados.nome + '.' : dados.texto;
+        var acao = document.createElement(rede ? 'a' : 'button');
+        acao.className = 'popup-btn-seguir';
+        if (rede) {
+            acao.style.backgroundColor = dados.corBotao;
+            acao.style.borderColor = dados.corBotao;
+            acao.style.color = dados.corTexto;
+        }
+        if (rede) { acao.href = dados.url; acao.target = '_blank'; acao.rel = 'noopener noreferrer'; }
+        else acao.type = 'button';
+        acao.textContent = rede ? 'SEGUIR' : (dados.botao || 'ENTENDI, LUMINA');
+        el.appendChild(acao);
+        acao.addEventListener('click', function (evento) {
+            if (!actual || actual !== item || item.fechando || el.hidden) { evento.preventDefault(); return; }
+            resolver(item, true);
         });
-
-        /* Seguir : grava e fecha — esta rede nunca mais aparece;
-           agenda o próximo popup normalmente. */
-        el.querySelector('.popup-btn-seguir').addEventListener('click', function () {
-            marcarRedeSeguida(rede.id);
-            fecharPopup(el, agendarProximoPopup);
+        el.querySelector('.popup-fechar').addEventListener('click', function () { resolver(item, false); });
+        el.addEventListener('keydown', function (evento) {
+            if (evento.key === 'Escape') { evento.preventDefault(); resolver(item, false); }
+        });
+        return el;
+    }
+    function exibir(item) {
+        actual = item; item.fechando = false; item.foco = document.activeElement;
+        item.el = criar(item); document.body.appendChild(item.el);
+        revelarActual(); // Nunca desloca o foco do visitante.
+    }
+    function resolver(item, aceitou) {
+        if (actual !== item || item.fechando || item.el.hidden || !item.exibido) return;
+        item.fechando = true;
+        if (item.tipo === 'rede') {
+            if (aceitou) confirmar(item);
+            else {
+                var vezes = parseInt(ler(CHAVES.fechada + item.dados.id), 10);
+                vezes = Number.isFinite(vezes) && vezes > 0 ? vezes : 0;
+                vezes++;
+                gravar(CHAVES.fechada + item.dados.id, String(vezes));
+                if (vezes >= config.limiteFechamentos) confirmar(item);
+            }
+        } else if (item.tipo === 'obrigatorio' || item.tipo === 'aviso') confirmar(item);
+        restaurarFoco(item);
+        item.el.inert = true;
+        item.el.classList.remove('popup-visivel');
+        timerSaida = setTimeout(function () {
+            timerSaida = null;
+            if (actual !== item) return;
+            retirarActual();
+            if (item.finalizar) item.finalizar();
+            sincronizar();
+        }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300);
+    }
+    function disponiveis(tipo) {
+        return (catalogo[tipo] || []).filter(function (dados) {
+            return dados.activo && !confirmado({ tipo: tipo === 'redes' ? 'rede' :
+                (tipo === 'avisos' ? 'aviso' : 'obrigatorio'), dados: dados });
         });
     }
-
-    function iniciarRedes() {
-        /* DELAY_REDES_MS conta a partir do momento em que esta função é
-           chamada, ou seja: após o popup de privacidade ser fechado (ou
-           imediatamente se já tiver sido aceite em visita anterior) —
-           ver Secção 7. O mesmo DELAY_REDES_MS é reaproveitado entre
-           todos os popups seguintes (ver agendarProximoPopup()). */
-        proximoSlot = 'primario';
-        popupsExibidosNestaSessao = 0;
-        agendarProximoPopup();
+    function escolherSocial() {
+        var redes = disponiveis('redes'), avisos = disponiveis('avisos');
+        var primeiro = redes.find(function (r) { return r.id === config.instagramPrimeiro; });
+        if (primeiro) return { tipo: 'rede', dados: primeiro };
+        var todos = redes.map(function (r) { return { tipo: 'rede', dados: r }; })
+            .concat(avisos.map(function (r) { return { tipo: 'aviso', dados: r }; }));
+        return todos.length ? sortear(todos) : null;
     }
-
-
-    /* ══════════════════════════════════════════════════════════
-       SECÇÃO 7 — ARRANQUE
-       ══════════════════════════════════════════════════════════
-       Para desactivar um módulo inteiro, comentar a sua linha:
-         • iniciarPrivacidade() — desactiva o aviso de privacidade
-         • iniciarRedes()       — desactiva todos os popups de redes
-       ══════════════════════════════════════════════════════════ */
-
+    function agendarEtapa() {
+        if (silencioso || timerGeral !== null || etapa === 'aguardando' || etapa === 'fim') return;
+        if (etapa === 'social' && !disponiveis('redes').length && !disponiveis('avisos').length) etapa = 'dica';
+        if (etapa === 'dica' && (!dicaSorteada || dicaExibida)) { etapa = 'fim'; return; }
+        timerGeral = setTimeout(function () {
+            timerGeral = null;
+            if (silencioso) return;
+            if (etapa === 'social') {
+                var item = escolherSocial();
+                if (!item) { etapa = 'dica'; agendarEtapa(); return; }
+                item.prioridade = 2;
+                item.finalizar = function () { etapa = 'dica'; agendarEtapa(); };
+                enfileirar(item);
+            } else if (etapa === 'dica') {
+                var dicas = catalogo.dicas.filter(function (d) { return d.activo; });
+                if (dicas.length > 1) dicas = dicas.filter(function (d) { return d.id !== ler(CHAVES.ultimaDica); });
+                etapa = 'fim';
+                if (dicas.length) enfileirar({ tipo: 'dica', dados: sortear(dicas), prioridade: 3 });
+            }
+        }, config.intervaloMs);
+    }
+    function avisarCodex(arquivo) {
+        codexActual = nomeArquivo(arquivo);
+        if (!iniciado) return;
+        fila = fila.filter(function (item) { return item.tipo !== 'conteudo' || item.codex === codexActual; });
+        if (actual && actual.tipo === 'conteudo' && actual.codex !== codexActual) retirarActual();
+        catalogo.conteudos.forEach(function (dados) {
+            if (!dados.activo || nomeArquivo(dados.codex) !== codexActual || conteudosExibidos.has(dados.id)) return;
+            if ((actual && actual.tipo === 'conteudo' && actual.dados.id === dados.id) ||
+                fila.some(function (item) { return item.tipo === 'conteudo' && item.dados.id === dados.id; })) return;
+            enfileirar({ tipo: 'conteudo', dados: dados, codex: codexActual, prioridade: 1 });
+        });
+        sincronizar();
+    }
+    window.addEventListener('site:codex-injetado', function (evento) {
+        if (evento.detail && typeof evento.detail.arquivo === 'string') avisarCodex(evento.detail.arquivo);
+    });
+    function definirSilencioso(valor) {
+        // O cheat só anuncia sucesso quando a preferência persistente foi salva.
+        try { localStorage.setItem(CHAVES.silencioso, valor ? '1' : '0'); }
+        catch (erro) { return false; }
+        memoria.delete(CHAVES.silencioso);
+        aplicarSilencio(valor);
+        return true;
+    }
+    function aplicarSilencio(valor) {
+        silencioso = !!valor;
+        if (silencioso) {
+            clearTimeout(timerGeral); timerGeral = null;
+            fila = fila.filter(function (item) { return !promocional(item); });
+            if (actual && promocional(actual)) {
+                var concluido = actual.fechando ? actual.finalizar : null;
+                retirarActual();
+                if (concluido) concluido();
+            }
+            sincronizar();
+        } else if (iniciado && !fila.some(promocional) && !(actual && promocional(actual))) agendarEtapa();
+    }
+    window.SistemaLuminaPopups = {
+        desativar: function () { return definirSilencioso(true); },
+        ativar: function () { return definirSilencioso(false); },
+        avisarCodex: avisarCodex
+    };
+    window.addEventListener('storage', function (evento) {
+        if (evento.key === CHAVES.silencioso || evento.key === null) aplicarSilencio(ler(CHAVES.silencioso) === '1');
+    });
     function iniciar() {
+        if (iniciado) return;
+        iniciado = true;
+        config = catalogo.configuracao;
         injectarEstilosGlobais();
-        /* Redes só arrancam após o aviso de privacidade ser fechado (ou
-           imediatamente, se já tiver sido aceite em visita anterior) */
-        iniciarPrivacidade(iniciarRedes);
+        dicaSorteada = Math.random() < config.chanceDica;
+        var observer = new MutationObserver(sincronizar);
+        observer.observe(document.body, { childList: true });
+        var pendentes = disponiveis('obrigatorios');
+        var primeiro = pendentes.find(function (d) { return d.id === 'privacidade'; }) ||
+            (pendentes.length ? sortear(pendentes) : null);
+        if (primeiro) {
+            timerInicial = setTimeout(function () {
+                timerInicial = null; inicialConcluido = true;
+                enfileirar({ tipo: 'obrigatorio', dados: primeiro, prioridade: 0,
+                    finalizar: function () { etapa = 'social'; agendarEtapa(); } });
+            }, config.boasVindasMs);
+        } else { inicialConcluido = true; etapa = 'social'; agendarEtapa(); }
+        if (codexActual) avisarCodex(codexActual);
+        sincronizar();
     }
-
+    // ==================== 5. ARRANQUE ====================
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', iniciar);
-    } else {
-        iniciar();
-    }
-
+        document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+    } else iniciar();
 }());

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caderno do Leitor — Lumina</title>
+
+    <!-- DEPENDÊNCIAS LOCAIS: tema e catálogo de conquistas. -->
+    <script src="Sistema_Tema.js"></script>
+    <script src="SISTEMA_LUMINA_CONQUISTAS_LISTA.js"></script>
+
+    <!-- APRESENTAÇÃO: aparência monocromática e responsiva. -->
+    <style>
+:root { --papel: #f7f7f7; --suave: #666; }
+html.tema-escuro { --papel: #242424; --suave: #b5b5b5; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg, #fff); color: var(--text, #111); font: 16px/1.6 Georgia, serif; }
+button, textarea { font: inherit; }
+button { min-height: 40px; padding: 6px 12px; border: 1px solid var(--borda, #ddd); border-radius: 5px; color: inherit; background: transparent; cursor: pointer; }
+button:hover { background: var(--papel); }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--text, #111); outline-offset: 3px; }
+button:disabled { opacity: .5; cursor: default; }
+.caderno { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+.cabecalho { flex: none; display: flex; align-items: flex-start; gap: 16px; padding: 20px 24px 14px; border-bottom: 1px solid var(--borda, #ddd); }
+.identidade { flex: 1; min-width: 0; }
+h1 { margin: 0; font-size: clamp(1.3rem, 3vw, 1.8rem); line-height: 1.3; }
+.assinatura { display: block; margin-bottom: 4px; font: 11px/1.4 system-ui, sans-serif; letter-spacing: .16em; color: var(--suave); }
+.estado { margin: 7px 0 0; font: 12px/1.5 system-ui, sans-serif; color: var(--suave); }
+#fechar-iframe-btn { flex: none; width: 40px; padding: 0; font: 26px/1 system-ui, sans-serif; }
+.conteudo { flex: 1; min-height: 0; overflow-y: auto; padding: 24px; scrollbar-gutter: stable; }
+.colunas { max-width: 1120px; margin: auto; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .85fr); gap: 28px; align-items: start; }
+section { min-width: 0; }
+h2 { font-size: 1.1rem; margin: 0; }
+h3 { margin: 0 0 10px; font-size: 1rem; }
+.barra-secao { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.contagem { font: 12px/1.5 system-ui, sans-serif; color: var(--suave); }
+.nota-container { margin-bottom: 16px; border: 1px solid var(--borda, #ddd); border-radius: 7px; overflow: hidden; }
+.nota-cabecalho { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--papel); border-bottom: 1px solid var(--borda, #ddd); }
+.nota-cabecalho label { flex: 1; font: 12px/1.5 system-ui, sans-serif; font-weight: 600; }
+.nota-cabecalho button { font: 12px/1.3 system-ui, sans-serif; }
+.nota-texto { display: block; width: 100%; min-height: 156px; border: 0; padding: 16px; background: transparent; color: inherit; line-height: 1.8; resize: none; overflow: hidden; }
+.nota-texto:focus-visible { outline-offset: -3px; }
+.nota-texto::placeholder { color: var(--suave); }
+.contador-caracteres { display: block; padding: 0 12px 8px; text-align: right; font: 11px/1.5 system-ui, sans-serif; color: var(--suave); }
+.contador-caracteres.limite { font-weight: 700; color: var(--text, #111); }
+.btn-nova-nota { width: 100%; }
+.cartao-leitura { border: 1px solid var(--borda, #ddd); border-radius: 7px; padding: 18px; margin-bottom: 20px; }
+.total { display: block; margin-bottom: 4px; font-size: 1.6rem; line-height: 1.3; }
+.ajuda { margin: 7px 0 0; font: 12px/1.6 system-ui, sans-serif; color: var(--suave); }
+#progressoAtual { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--borda, #ddd); }
+#obraAtual { overflow-wrap: anywhere; }
+progress { display: block; width: 100%; height: 7px; border: 0; margin: 12px 0 8px; accent-color: var(--text, #111); background: var(--borda, #ddd); }
+progress::-webkit-progress-bar { background: var(--borda, #ddd); border-radius: 5px; }
+progress::-webkit-progress-value { background: var(--text, #111); border-radius: 5px; }
+progress::-moz-progress-bar { background: var(--text, #111); }
+.lista-leituras { list-style: none; margin: 0; padding: 0; }
+.lista-leituras li { padding: 12px 0; border-bottom: 1px solid var(--borda, #ddd); overflow-wrap: anywhere; }
+.lista-leituras strong { display: block; font-size: .94rem; font-weight: normal; }
+.lista-leituras time { display: block; margin-top: 4px; font: 11px/1.5 system-ui, sans-serif; color: var(--suave); }
+.capitulos-lidos { margin: 10px 0 0; padding-left: 22px; font-size: .88rem; }
+.lista-leituras .capitulos-lidos li { padding: 4px 0; border: 0; }
+[hidden] { display: none !important; }
+
+@media (max-width: 720px) {
+    .cabecalho { padding: 16px; }
+    .conteudo { padding: 16px; }
+    .colunas { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
+    </style>
+</head>
+<body>
+<div class="caderno">
+    <header class="cabecalho">
+        <div class="identidade">
+            <span class="assinatura">LUMINA · ARQUIVO DO LEITOR</span>
+            <h1>Caderno do Leitor</h1>
+            <p class="estado" id="estado"
+               role="status" aria-live="polite"></p>
+        </div>
+        <button id="fechar-iframe-btn" type="button"
+                aria-label="Fechar Caderno do Leitor"
+                title="Fechar">×</button>
+    </header>
+
+    <main class="conteudo">
+        <div class="colunas">
+            <section aria-labelledby="tituloNotas">
+                <div class="barra-secao">
+                    <h2 id="tituloNotas">Suas anotações</h2>
+                    <span class="contagem" id="contagemNotas"></span>
+                </div>
+                <div id="areaNotas"></div>
+                <button class="btn-nova-nota" id="btnNovaNota"
+                        type="button">+ Nova nota</button>
+            </section>
+
+            <section aria-labelledby="tituloLeituras">
+                <div class="barra-secao">
+                    <h2 id="tituloLeituras">Progresso de leitura</h2>
+                </div>
+
+                <div class="cartao-leitura">
+                    <strong class="total" id="totalLeituras">0</strong>
+                    <span>capítulos registrados</span>
+                    <p class="ajuda" id="resumoLivros"></p>
+                    <p class="ajuda">A lista usa as conquistas desbloqueadas como registro de leitura. Conquistas liberadas por cheat também aparecem aqui.</p>
+                </div>
+
+                <h3>Livros e capítulos</h3>
+                <p class="ajuda" id="avisoLeituras" role="status"></p>
+                <ul class="lista-leituras" id="listaLeituras"></ul>
+            </section>
+        </div>
+    </main>
+</div>
+
+<!-- FUNCIONAMENTO: notas, consulta das conquistas e fechamento. -->
+<script>
+(function () {
+    'use strict';
+
+    // ==================== ANOTAÇÕES ====================
+    // Chaves e formato preservados para manter as notas existentes.
+
+    var CHAVE_NOTAS = 'notasMultiplas7G';
+    var CHAVE_NUMERO = 'numeroNota7G';
+    var notas = [];
+    var proximoNumero = 1;
+    var podeSalvar = true;
+    var area = document.getElementById('areaNotas');
+    var nova = document.getElementById('btnNovaNota');
+    var estado = document.getElementById('estado');
+
+    function informar(texto) {
+        estado.textContent = texto;
+    }
+
+    function salvar() {
+        if (!podeSalvar) {
+            informar(
+                'Alterações apenas nesta sessão. Use TXT para guardar uma cópia.'
+            );
+            return;
+        }
+
+        try {
+            localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notas));
+            localStorage.setItem(CHAVE_NUMERO, String(proximoNumero));
+            informar('Salvo neste dispositivo.');
+        } catch (erro) {
+            informar(
+                'Não foi possível salvar. Use TXT para guardar uma cópia.'
+            );
+        }
+    }
+
+    function expandir(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height =
+            Math.max(156, textarea.scrollHeight) + 'px';
+    }
+
+    function baixar(nota) {
+        var texto = nota.conteudo ||
+            ('Nota ' + nota.numero + '\n\n');
+
+        var url = URL.createObjectURL(new Blob(
+            [texto],
+            { type: 'text/plain;charset=utf-8' }
+        ));
+
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = '7Guerreiros_Nota' +
+            String(nota.numero).padStart(3, '0') + '.txt';
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(function () {
+            URL.revokeObjectURL(url);
+        }, 1000);
+    }
+
+    function botao(texto, rotulo, acao) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = texto;
+        b.setAttribute('aria-label', rotulo);
+        b.addEventListener('click', acao);
+        return b;
+    }
+
+    function renderizar(foco) {
+        area.replaceChildren();
+
+        notas.forEach(function (nota, index) {
+            var cartao = document.createElement('article');
+            cartao.className = 'nota-container';
+
+            var cabecalho = document.createElement('div');
+            cabecalho.className = 'nota-cabecalho';
+
+            var label = document.createElement('label');
+            label.htmlFor = 'nota-' + index;
+            label.textContent = 'Nota ' + nota.numero;
+
+            var textarea = document.createElement('textarea');
+            textarea.id = label.htmlFor;
+            textarea.className = 'nota-texto';
+            textarea.maxLength = 500;
+            textarea.placeholder = 'Escreva sua anotação…';
+            textarea.value = nota.conteudo;
+
+            var contador = document.createElement('span');
+            contador.className = 'contador-caracteres';
+
+            function contar() {
+                contador.textContent = textarea.value.length + '/500';
+                contador.classList.toggle(
+                    'limite',
+                    textarea.value.length >= 450
+                );
+            }
+
+            textarea.addEventListener('input', function () {
+                nota.conteudo = textarea.value;
+                contar();
+                expandir(textarea);
+
+                // Imediato: fechar não perde a última edição.
+                salvar();
+            });
+
+            cabecalho.append(
+                label,
+                botao(
+                    'TXT',
+                    'Baixar nota ' + nota.numero + ' em TXT',
+                    function () {
+                        baixar(nota);
+                    }
+                ),
+                botao(
+                    'Excluir',
+                    'Excluir nota ' + nota.numero,
+                    function () {
+                        if (notas.length === 1) {
+                            nota.conteudo = '';
+                        } else {
+                            notas.splice(index, 1);
+                        }
+
+                        salvar();
+                        renderizar(
+                            Math.min(index, notas.length - 1)
+                        );
+                    }
+                )
+            );
+
+            cartao.append(cabecalho, textarea, contador);
+            area.appendChild(cartao);
+            contar();
+            expandir(textarea);
+        });
+
+        document.getElementById('contagemNotas').textContent =
+            notas.length + '/7 notas';
+
+        nova.disabled = notas.length >= 7;
+
+        if (typeof foco === 'number') {
+            var alvo = area.querySelectorAll('textarea')[foco];
+            if (alvo) alvo.focus();
+        }
+    }
+
+    function criarNota(persistir) {
+        if (notas.length >= 7) return;
+
+        notas.push({
+            id: Date.now(),
+            numero: proximoNumero++,
+            conteudo: ''
+        });
+
+        if (persistir) salvar();
+        renderizar(persistir ? notas.length - 1 : undefined);
+    }
+
+    try {
+        var salvo = localStorage.getItem(CHAVE_NOTAS);
+        var dados = salvo === null ? [] : JSON.parse(salvo);
+
+        if (!Array.isArray(dados) ||
+            !dados.every(function (n) {
+                return n &&
+                    typeof n.conteudo === 'string' &&
+                    Number.isInteger(n.numero) &&
+                    n.numero > 0;
+            })) {
+            throw new Error('Notas inválidas');
+        }
+
+        notas = dados;
+
+        var numeroSalvo =
+            parseInt(localStorage.getItem(CHAVE_NUMERO), 10) || 1;
+
+        proximoNumero = Math.max(
+            numeroSalvo,
+            1,
+            ...notas.map(function (n) {
+                return n.numero + 1;
+            })
+        );
+
+        informar('Anotações guardadas neste dispositivo.');
+    } catch (erro) {
+        podeSalvar = false;
+        informar(
+            'Não foi possível ler as notas salvas. Os dados existentes serão preservados.'
+        );
+    }
+
+    if (!notas.length) {
+        criarNota(false);
+    } else {
+        renderizar();
+    }
+
+    nova.addEventListener('click', function () {
+        criarNota(true);
+    });
+
+    // ==================== LIVROS E CONQUISTAS ====================
+    // Consulta os IDs existentes, sem criar outra chave de leitura.
+    // Manutenção: títulos e capítulos são definidos no catálogo.
+    // Várias conquistas do mesmo capítulo contam como um capítulo.
+
+    var CHAVE_CONQUISTAS = 'conquistas_desbloqueadas';
+
+    function atualizarLeituras() {
+        var lista = document.getElementById('listaLeituras');
+        var aviso = document.getElementById('avisoLeituras');
+        var total = document.getElementById('totalLeituras');
+        var resumo = document.getElementById('resumoLivros');
+
+        lista.replaceChildren();
+
+        try {
+            var catalogo = window.SistemaLuminaIlustracoes ||
+                window.CONQUISTAS_LISTA;
+
+            if (!catalogo) {
+                throw new Error('Catálogo indisponível');
+            }
+
+            var bruto = localStorage.getItem(CHAVE_CONQUISTAS);
+            var salvos = bruto === null ? [] : JSON.parse(bruto);
+
+            if (!Array.isArray(salvos)) {
+                throw new Error('Registros inválidos');
+            }
+
+            var ids = Array.from(new Set(
+                salvos.filter(function (id) {
+                    return typeof id === 'string' && id.length > 0;
+                })
+            ));
+
+            var grupos = new Map();
+            var semCatalogo = 0;
+
+            ids.forEach(function (id) {
+                var dados = Object.prototype.hasOwnProperty.call(
+                    catalogo,
+                    id
+                ) ? catalogo[id] : null;
+
+                if (!dados || !dados.livro || !dados.capitulo) {
+                    semCatalogo++;
+                    return;
+                }
+
+                var livroId = dados.livro_id || dados.livro;
+
+                if (!grupos.has(livroId)) {
+                    grupos.set(livroId, {
+                        nome: dados.livro,
+                        capitulos: new Map()
+                    });
+                }
+
+                var chave = dados.arquivo || dados.capitulo;
+                var capitulos = grupos.get(livroId).capitulos;
+
+                if (!capitulos.has(chave)) {
+                    capitulos.set(chave, dados);
+                }
+            });
+
+            var quantidade = 0;
+
+            grupos.forEach(function (livro) {
+                var item = document.createElement('li');
+
+                var titulo = document.createElement('strong');
+                titulo.textContent = livro.nome;
+
+                var contagem = document.createElement('p');
+                contagem.className = 'ajuda';
+                contagem.textContent = livro.capitulos.size +
+                    ' capítulo(s) registrado(s)';
+
+                var capitulos = document.createElement('ol');
+                capitulos.className = 'capitulos-lidos';
+
+                Array.from(livro.capitulos.values()).sort(
+                    function (a, b) {
+                        return (Number(a.ordem) || 0) -
+                            (Number(b.ordem) || 0);
+                    }
+                ).forEach(function (capitulo) {
+                    var linha = document.createElement('li');
+
+                    // Texto seguro: os títulos não são tratados como HTML.
+                    linha.textContent = capitulo.capitulo;
+                    capitulos.appendChild(linha);
+                });
+
+                quantidade += livro.capitulos.size;
+                item.append(titulo, contagem, capitulos);
+                lista.appendChild(item);
+            });
+
+            total.textContent = quantidade;
+
+            resumo.textContent =
+                grupos.size + ' livro(s) com registros · ' +
+                ids.length + ' conquista(s) desbloqueada(s)';
+
+            aviso.textContent = ids.length === 0
+                ? 'Nenhum capítulo registrado ainda.'
+                : (semCatalogo
+                    ? semCatalogo +
+                        ' conquista(s) sem livro ou capítulo identificado no catálogo.'
+                    : '');
+        } catch (erro) {
+            total.textContent = '—';
+            resumo.textContent = '';
+            aviso.textContent =
+                'Não foi possível consultar os registros de conquistas.';
+        }
+    }
+
+    atualizarLeituras();
+
+    // Mudanças originadas em outras janelas ou iframes.
+    window.addEventListener('storage', function (e) {
+        if (e.key === CHAVE_CONQUISTAS || e.key === null) {
+            atualizarLeituras();
+        }
+    });
+
+    window.addEventListener(
+        'lumina:ilustracoes-alteradas',
+        atualizarLeituras
+    );
+
+    // Eventos personalizados não atravessam iframes automaticamente.
+    try {
+        if (window.parent !== window) {
+            var pai = window.parent;
+
+            pai.addEventListener(
+                'lumina:ilustracoes-alteradas',
+                atualizarLeituras
+            );
+
+            window.addEventListener('pagehide', function () {
+                pai.removeEventListener(
+                    'lumina:ilustracoes-alteradas',
+                    atualizarLeituras
+                );
+            }, { once: true });
+        }
+    } catch (erro) {
+        /* O evento storage continua disponível. */
+    }
+
+    // ==================== FECHAMENTO E REDIMENSIONAMENTO ====================
+
+    function fechar() {
+        if (window.parent !== window) {
+            window.parent.postMessage(
+                { type: 'FECHAR_MODAL' },
+                window.location.origin
+            );
+        } else {
+            informar('Este caderno está aberto fora do site.');
+        }
+    }
+
+    document.getElementById('fechar-iframe-btn')
+        .addEventListener('click', fechar);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') fechar();
+    });
+
+    window.addEventListener('resize', function () {
+        area.querySelectorAll('textarea').forEach(expandir);
+    });
+}());
+</script>
+</body>
+</html>

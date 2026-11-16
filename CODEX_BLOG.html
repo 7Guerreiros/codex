@@ -3,32 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX BLOG</title>
+
+    <title>BLOG 7GUERREIROS</title>
 
     <!-- ============================================================
-         NOTA DE UTILIZAÇÃO
+         MODELO PADRÃO: CODEX_ALPHA
          ============================================================
-         Este ficheiro foi concebido para funcionar de dois modos:
+         Mesmas classes, estilos e motor de leitura do Alpha.
 
-         MODO AUTÓNOMO (standalone):
-           Abrir directamente no browser para testes.
-           Os estilos do <head> garantem uma aparência funcional.
+         Diferenças:
+         - Título e capítulos do conto.
+         - Atributos data-conquista.
+         - Carregamento dos dois scripts de conquistas.
+         - Chamada de desbloqueio isolada da lógica de leitura.
 
-         MODO INJECTADO (uso normal no site):
-           O injector da página pai deve:
-             1. Fazer fetch() deste ficheiro
-             2. Extrair o innerHTML de <div class="codex-blog">
-             3. Injectá-lo na .area-conteudo
-             4. Recriar os scripts manualmente (ver documentação
-                do injector) e chamar: window.initCodexBlog()
+         CAMINHOS:
+         Os capítulos são relativos ao index.html:
+             ORIGINAIS_REGNUM_FLORESTA/DIA1.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA2.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA3.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA4.html
+             ORIGINAIS_REGNUM_FLORESTA/DIA5.html
 
-         IMPORTANTE: o <head> e o <body> são ignorados na injecção.
-         Apenas o conteúdo dentro de .codex-blog é usado.
+         MANUTENÇÃO:
+         Ao alterar o motor padrão no Alpha, aplicar a mesma
+         alteração neste Codex, preservando o bloco de conquistas.
          ============================================================ -->
 
     <style>
-        /* Estilos mínimos apenas para visualização standalone.
-           São descartados na injecção — o pai fornece o seu próprio layout. */
+        /* Apenas para visualização standalone. */
         body {
             margin: 0;
             padding: 20px;
@@ -37,72 +40,42 @@
 </head>
 <body>
 
-<!-- ================================================================
-     CODEX BLOG — Componente injectável
-     ================================================================
-     ESTRUTURA DO COMPONENTE:
-       .codex-blog                → wrapper raiz e âncora de todo o CSS/JS
-         <style>                  → CSS 100% escopado (prefixo .codex-blog)
-         .cb-container            → container de largura e padding
-           .cb-assunto            → grupo de tópicos (repetível)
-             .cb-titulo           → título do grupo
-             .cb-topico           → item accordion
-               [data-arquivo]     → caminho do ficheiro a injectar
-               .cb-topico-btn     → botão clicável (acessível)
-               .cb-topico-conteudo → área de conteúdo injectado
-         <script>                 → lógica escopada em IIFE
-
-     MANUTENÇÃO — ADICIONAR TÓPICOS:
-       Duplicar o bloco .cb-topico e actualizar:
-         - data-arquivo: caminho relativo ao index.html da página pai
-         - Texto do .cb-topico-btn
-
-     MANUTENÇÃO — ADICIONAR GRUPOS:
-       Duplicar o bloco .cb-assunto inteiro.
-
-     MANUTENÇÃO — CAMINHOS:
-       Os caminhos em data-arquivo são sempre relativos ao
-       index.html da página pai, não a este ficheiro.
-     ================================================================ -->
-
 <div class="codex-blog">
 
     <!-- ============================================================
-         ESTILOS — Totalmente escopados a .codex-blog
+         CONQUISTAS
          ============================================================
-         REGRA CRÍTICA: nenhum selector aqui começa sem .codex-blog
-         Isto garante que ao ser injectado, nenhum estilo
-         "vaza" para o resto da página pai.
+         As chamadas permanecem activas.
+         data-opcional permite continuar a leitura se o arquivo
+         emitir erro de carregamento.
 
-         SISTEMA DE TEMAS:
-         As variáveis --cb-bg, --cb-text e --cb-borda herdam directamente
-         das variáveis globais --bg, --text e --borda definidas e geridas
-         pelo Sistema_Tema.js do pai (aplicadas em :root e html.tema-escuro).
-         As variáveis internas (hover, activo, muted) são definidas aqui
-         em dois estados: claro (.codex-blog) e escuro (html.tema-escuro
-         .codex-blog), espelhando o selector exacto do Sistema_Tema.js.
-         O @media (prefers-color-scheme) foi removido — o pai já trata
-         da preferência do sistema e evita conflitos.
+         A grafia dos nomes foi preservada conforme o Codex recebido.
+         ============================================================ -->
+    <script
+        src="SISTEMA_LUMINA_CONQUISTAS_LISTA.js"
+        data-opcional
+    ></script>
+
+    <script
+        src="SISTEMA_LUMINA_CONQUISTAS.js"
+        data-opcional
+    ></script>
+
+    <!-- ============================================================
+         ESTILOS PADRÃO DO ALPHA
+         Sem estilos exclusivos de livro.
          ============================================================ -->
     <style>
-
-        /* --- Modo Claro (padrão) --- */
-        /* --cb-bg, --cb-text, --cb-borda herdam as variáveis globais do
-           Sistema_Tema.js. Os valores após a vírgula são fallback standalone. */
         .codex-blog {
-            --cb-bg:        var(--bg,   #ffffff);
+            --cb-bg:        var(--bg, #ffffff);
             --cb-text:      var(--text, #1a1a1a);
-            --cb-borda:     var(--borda,#cccccc);
+            --cb-borda:     var(--borda, #cccccc);
             --cb-bg-topico: #f9f9f9;
             --cb-bg-hover:  #eeeeee;
             --cb-bg-ativo:  #e0e0e0;
             --cb-muted:     #888888;
         }
 
-        /* --- Modo Escuro via Sistema_Tema.js (classe aplicada em <html>) ---
-           Selector espelha exactamente o do Sistema_Tema.js: html.tema-escuro
-           As variáveis base (bg, text, borda) já são actualizadas pelo pai;
-           apenas as variáveis internas precisam de ser redefinidas aqui.     */
         html.tema-escuro .codex-blog {
             --cb-bg-topico: #2a2a2a;
             --cb-bg-hover:  #3a3a3a;
@@ -110,7 +83,6 @@
             --cb-muted:     #999999;
         }
 
-        /* --- Container principal --- */
         .codex-blog .cb-container {
             max-width: 100%;
             padding: 0;
@@ -126,7 +98,6 @@
             }
         }
 
-        /* --- Grupo de tópicos (.cb-assunto) --- */
         .codex-blog .cb-assunto {
             margin-bottom: 35px;
             padding: 0 10px;
@@ -149,7 +120,6 @@
             }
         }
 
-        /* --- Item accordion (.cb-topico) --- */
         .codex-blog .cb-topico {
             margin-bottom: 5px;
             border-radius: 4px;
@@ -157,7 +127,6 @@
             border: 1px solid var(--cb-borda);
         }
 
-        /* --- Botão do cabeçalho --- */
         .codex-blog .cb-topico-btn {
             display: block;
             width: 100%;
@@ -177,7 +146,6 @@
             background-color: var(--cb-bg-hover);
         }
 
-        /* Estado expandido: botão activo */
         .codex-blog .cb-topico.expandido .cb-topico-btn {
             background-color: var(--cb-bg-ativo);
             font-weight: bold;
@@ -190,8 +158,6 @@
             }
         }
 
-        /* --- Painel de conteúdo --- */
-        /* Fechado por padrão; aberto pela classe .expandido no pai */
         .codex-blog .cb-topico-conteudo {
             display: none;
             padding: 20px;
@@ -209,7 +175,6 @@
             }
         }
 
-        /* --- Indicador de carregamento --- */
         .codex-blog .cb-carregando {
             margin: 0;
             padding: 8px 0;
@@ -218,10 +183,6 @@
             color: var(--cb-muted);
         }
 
-        /* --- Estilos para conteúdo injectado dentro dos tópicos ---
-           Estes estilos aplicam-se ao HTML carregado via fetch.
-           Adicionar aqui quaisquer regras que os ficheiros de conteúdo
-           devam herdar automaticamente. */
         .codex-blog .cb-topico-conteudo p {
             margin-bottom: 16px;
             text-align: justify;
@@ -242,186 +203,366 @@
             border: 1px solid var(--cb-borda);
             border-radius: 4px;
         }
-
     </style>
 
-
     <!-- ============================================================
-         CONTEÚDO
-         ============================================================
-         COMO ADICIONAR UM TÓPICO:
-           1. Duplicar o bloco <!-- TÓPICO abaixo
-           2. Alterar data-arquivo para o caminho do ficheiro
-           3. Alterar o texto do botão
-
-         COMO ADICIONAR UM GRUPO:
-           1. Duplicar o bloco .cb-assunto inteiro
-           2. Alterar o texto de .cb-titulo
+         DADOS DO CONTO
+         Mesma estrutura de conteúdo do Alpha.
          ============================================================ -->
     <div class="cb-container">
-
         <div class="cb-assunto">
+
             <div class="cb-titulo">CODEX BLOG</div>
 
-            <!-- TÓPICO -->
-            <!-- data-arquivo: caminho relativo ao index.html da página pai -->
-            <div class="cb-topico" data-arquivo="BLOG/IAS_ERRAM.html">
-                <button class="cb-topico-btn" aria-expanded="false">
-                    SÉRIE MYTHOLOGIA DAS IAS I: AS IAS ERRAM?
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA1.html"
+                data-conquista="REGN-FLO-01"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA I: SONITUS DESERTI
                 </button>
-                <div class="cb-topico-conteudo" role="region" aria-hidden="true"></div>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
             </div>
 
-            <!-- TÓPICO -->
-            <div class="cb-topico" data-arquivo="BLOG/.html">
-                <button class="cb-topico-btn" aria-expanded="false">
-                    SÉRIE MYTHOLOGIA DAS IAS  II: A SINGULARIDADE!
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA2.html"
+                data-conquista="REGN-FLO-02"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA II: OBSESSIO
                 </button>
-                <div class="cb-topico-conteudo" role="region" aria-hidden="true"></div>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
             </div>
-			
-			<div class="cb-topico" data-arquivo="BLOG/.html">
-                <button class="cb-topico-btn" aria-expanded="false">
-                    SÉRIE MYTHOLOGIA DAS IAS  III: ENGENHARIA DE PROMPT
+
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA3.html"
+                data-conquista="REGN-FLO-03"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA III: PERTURBATIO ANIMI
                 </button>
-                <div class="cb-topico-conteudo" role="region" aria-hidden="true"></div>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
             </div>
 
-        </div><!-- /.cb-assunto -->
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA4.html"
+                data-conquista="REGN-FLO-04"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA IV: IN ALBO
+                </button>
 
-    </div><!-- /.cb-container -->
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
 
+            <div
+                class="cb-topico"
+                data-arquivo="ORIGINAIS_REGNUM_FLORESTA/DIA5.html"
+                data-conquista="REGN-FLO-05"
+            >
+                <button
+                    class="cb-topico-btn"
+                    aria-expanded="false"
+                >
+                    DIA V: UMBRA ÆTERNA
+                </button>
+
+                <div
+                    class="cb-topico-conteudo"
+                    role="region"
+                    aria-hidden="true"
+                ></div>
+            </div>
+
+        </div>
+    </div>
 
     <!-- ============================================================
-         SCRIPT — Accordion com fetch interno
-         ============================================================
-         FUNCIONAMENTO:
-           1. Clique no botão → fecha todos os tópicos abertos
-           2. Se o tópico clicado já estava aberto → apenas fecha (toggle)
-           3. Se o conteúdo ainda não foi carregado → fetch do ficheiro
-              indicado em data-arquivo no .cb-topico pai
-           4. Conteúdo já carregado → reabre sem novo fetch (cache natural)
-           5. Estado ARIA actualizado em cada acção (acessibilidade)
-
-         COMPATIBILIDADE COM INJECÇÃO:
-           O script expõe window.initCodexBlog() para ser chamado
-           pelo injector da página pai APÓS a injecção do HTML.
-           A guarda btn.dataset.iniciado evita registar o mesmo
-           listener mais de uma vez (seguro para re-injecções).
-
-           O injector deve chamar: window.initCodexBlog()
-           Se o injector recriar os scripts via cloneNode,
-           a auto-inicialização no final do script trata de tudo.
-
-         ENCAPSULAMENTO:
-           Todo o código está dentro de uma IIFE com 'use strict'.
-           Nenhuma variável escapa para o escopo global,
-           excepto a função initCodexBlog exposta intencionalmente.
+         MOTOR PADRÃO DO ALPHA
+         Único acréscimo: bloco identificado de conquistas.
          ============================================================ -->
     <script>
         (function () {
             'use strict';
 
-            /* Inicializa o accordion dentro de .codex-blog.
-               Seguro para ser chamado múltiplas vezes (idempotente). */
             function initCodexBlog() {
-                var container = document.querySelector('.codex-blog');
-                if (!container) return; /* Sai silenciosamente se não encontrar */
+                var container = document.querySelector(
+                    '.codex-blog'
+                );
 
-                var carregando = new Set(); /* Evita fetches duplicados simultâneos */
+                if (!container) return;
 
-                container.querySelectorAll('.cb-topico-btn').forEach(function (btn) {
+                var escolha = 0;
 
-                    /* Guarda contra duplo registo de listener em re-injecções */
-                    if (btn.dataset.iniciado === 'true') return;
+                container.querySelectorAll(
+                    '.cb-topico-btn'
+                ).forEach(function (btn) {
+                    if (
+                        btn.dataset.iniciado === 'true'
+                    ) {
+                        return;
+                    }
+
                     btn.dataset.iniciado = 'true';
 
-                    btn.addEventListener('click', function () {
-                        var topico   = this.closest('.cb-topico');
-                        var conteudo = topico.querySelector('.cb-topico-conteudo');
-                        var arquivo  = topico.getAttribute('data-arquivo');
-                        var aberto   = topico.classList.contains('expandido');
+                    var topico = btn.closest(
+                        '.cb-topico'
+                    );
 
-                        /* Fecha todos os tópicos */
+                    var painel = topico.querySelector(
+                        '.cb-topico-conteudo'
+                    );
+
+                    var pendente = null;
+
+                    btn.abrirCapitulo = async function () {
+                        var atual = ++escolha;
+
                         fecharTodos(container);
+                        expandir(topico, btn, painel);
 
-                        /* Toggle: se já estava aberto, apenas fecha */
-                        if (aberto) return;
+                        /* ========================================
+                           INÍCIO — ACRÉSCIMO DE CONQUISTAS
+                           Falhas desse sistema não impedem a leitura.
+                           ======================================== */
+                        var conquista = topico.getAttribute(
+                            'data-conquista'
+                        );
 
-                        /* Conteúdo já carregado: apenas expande */
-                        if (conteudo.dataset.carregado === 'true') {
-                            expandir(topico, btn, conteudo);
-                            return;
+                        if (
+                            conquista &&
+                            window.ConquistasSistema
+                        ) {
+                            try {
+                                window.ConquistasSistema.desbloquear(
+                                    conquista
+                                );
+                            } catch (erroConquista) {
+                                console.warn(
+                                    '[CONQUISTAS]',
+                                    erroConquista
+                                );
+                            }
                         }
+                        /* FIM — ACRÉSCIMO DE CONQUISTAS */
 
-                        /* Conteúdo novo: fetch + expande */
-                        carregarConteudo(arquivo, conteudo, topico, btn, carregando);
-                    });
+                        try {
+                            if (
+                                painel.dataset.carregado !== 'true'
+                            ) {
+                                if (!pendente) {
+                                    pendente = carregarConteudo(
+                                        topico.getAttribute(
+                                            'data-arquivo'
+                                        ),
+                                        painel
+                                    ).finally(function () {
+                                        pendente = null;
+                                    });
+                                }
+
+                                await pendente;
+                            }
+
+                            if (
+                                atual !== escolha ||
+                                !topico.isConnected
+                            ) {
+                                return;
+                            }
+
+                            window.dispatchEvent(
+                                new CustomEvent(
+                                    'site:capitulo-aberto',
+                                    {
+                                        detail: {
+                                            arquivo:
+                                                topico.getAttribute(
+                                                    'data-arquivo'
+                                                ),
+                                            topico: topico
+                                        }
+                                    }
+                                )
+                            );
+                        } catch (erro) {
+                            if (
+                                atual === escolha &&
+                                topico.isConnected
+                            ) {
+                                painel.innerHTML =
+                                    '<p>Conteúdo não disponível.</p>';
+                            }
+
+                            throw erro;
+                        }
+                    };
+
+                    btn.addEventListener(
+                        'click',
+                        function () {
+                            if (
+                                topico.classList.contains(
+                                    'expandido'
+                                )
+                            ) {
+                                ++escolha;
+                                fecharTodos(container);
+                                return;
+                            }
+
+                            btn.abrirCapitulo().catch(
+                                function (erro) {
+                                    console.warn(
+                                        '[CODEX BLOG]',
+                                        erro
+                                    );
+
+                                    if (
+                                        topico.isConnected &&
+                                        topico.classList.contains(
+                                            'expandido'
+                                        ) &&
+                                        typeof window.injectarCodex ===
+                                            'function'
+                                    ) {
+                                        window.injectarCodex(
+                                            'CODEX_ALPHA.html'
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    );
                 });
             }
 
-            /* Fecha todos os tópicos e actualiza ARIA */
             function fecharTodos(container) {
-                container.querySelectorAll('.cb-topico').forEach(function (t) {
+                container.querySelectorAll(
+                    '.cb-topico'
+                ).forEach(function (t) {
                     t.classList.remove('expandido');
-                    t.querySelector('.cb-topico-btn')
-                     .setAttribute('aria-expanded', 'false');
-                    t.querySelector('.cb-topico-conteudo')
-                     .setAttribute('aria-hidden', 'true');
+
+                    t.querySelector(
+                        '.cb-topico-btn'
+                    ).setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                    t.querySelector(
+                        '.cb-topico-conteudo'
+                    ).setAttribute(
+                        'aria-hidden',
+                        'true'
+                    );
                 });
             }
 
-            /* Expande um tópico e actualiza ARIA */
-            function expandir(topico, btn, conteudo) {
+            function expandir(topico, btn, painel) {
                 topico.classList.add('expandido');
-                btn.setAttribute('aria-expanded', 'true');
-                conteudo.setAttribute('aria-hidden', 'false');
+
+                btn.setAttribute(
+                    'aria-expanded',
+                    'true'
+                );
+
+                painel.setAttribute(
+                    'aria-hidden',
+                    'false'
+                );
             }
 
-            /* Carrega o ficheiro via fetch e injeta no painel */
-            function carregarConteudo(arquivo, conteudoDiv, topico, btn, carregando) {
-                if (carregando.has(arquivo)) return; /* Bloqueia fetch duplicado */
-                carregando.add(arquivo);
+            async function carregarConteudo(arquivo, painel) {
+                var controller = new AbortController();
 
-                /* Mostra indicador e expande antes do fetch terminar */
-                conteudoDiv.innerHTML = '<p class="cb-carregando">A carregar\u2026</p>';
-                expandir(topico, btn, conteudoDiv);
+                var timer = setTimeout(function () {
+                    controller.abort();
+                }, 15000);
 
-                fetch(arquivo)
-                    .then(function (resposta) {
-                        if (!resposta.ok) {
-                            throw new Error('Ficheiro não encontrado: ' + arquivo);
-                        }
-                        return resposta.text();
-                    })
-                    .then(function (html) {
-                        conteudoDiv.innerHTML = html;
-                        conteudoDiv.dataset.carregado = 'true'; /* Marca como em cache */
-                        carregando.delete(arquivo);
-                    })
-                    .catch(function (erro) {
-                        console.error('[CODEX BLOG]', erro);
-                        conteudoDiv.innerHTML = '<p>Conte\u00fado n\u00e3o dispon\u00edvel.</p>';
-                        conteudoDiv.dataset.carregado = 'true'; /* Evita retry infinito */
-                        carregando.delete(arquivo);
-                    });
+                painel.innerHTML =
+                    '<p class="cb-carregando">A carregar…</p>';
+
+                try {
+                    var resposta = await fetch(
+                        arquivo,
+                        { signal: controller.signal }
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            'Ficheiro não encontrado: ' +
+                            arquivo
+                        );
+                    }
+
+                    var html = await resposta.text();
+
+                    if (!html.trim()) {
+                        throw new Error(
+                            'Capítulo vazio: ' + arquivo
+                        );
+                    }
+
+                    painel.innerHTML = html;
+                    painel.dataset.carregado = 'true';
+                } catch (erro) {
+                    delete painel.dataset.carregado;
+                    throw erro;
+                } finally {
+                    clearTimeout(timer);
+                }
             }
 
-            /* Expõe initCodexBlog globalmente para o injector da página pai.
-               O injector deve chamar window.initCodexBlog() após a injecção. */
             window.initCodexBlog = initCodexBlog;
 
-            /* Auto-inicialização quando usado em modo standalone */
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initCodexBlog);
+                document.addEventListener(
+                    'DOMContentLoaded',
+                    initCodexBlog
+                );
             } else {
                 initCodexBlog();
             }
-
         }());
     </script>
 
-</div><!-- /.codex-blog -->
+</div>
 
 </body>
 </html>

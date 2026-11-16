@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX AUTOR</title>
+
+    <!-- ============================================================
+         UTILIZAÇÃO E MANUTENÇÃO
+         ============================================================
+         Componente raiz: .codex-sobre-nos.
+
+         No site, o injector incorpora o componente e reactiva seus
+         scripts. Em modo autónomo, a inicialização ocorre quando
+         o documento estiver pronto.
+
+         Livros: editar AUTOR_LIVROS.json, ao lado do index.html.
+         Estrutura do JSON: array de { "titulo", "comentario" }.
+         Usar \n\n para separar parágrafos nos comentários.
+
+         Correcções desta versão:
+         - Fecha o comentário ao redimensionar a janela.
+         - Preserva Ctrl + roda do mouse para o zoom.
+         - Identifica o diálogo pelo título do livro.
+         - Pausa a estante fora de vista ou com a aba oculta.
+
+         Conteúdo, aparência e demais sistemas preservados.
+         ============================================================ -->
+
+    <style>
+        /* Estilos mínimos apenas para visualização standalone. */
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="codex-sobre-nos">
+
+    <!-- ============================================================
+         ESTILOS DO COMPONENTE
+         As cores herdam o Sistema_Tema.js da página principal.
+         ============================================================ -->
+    <style>
+        /* --- Modo claro --- */
+        .codex-sobre-nos {
+            --cso-bg:     var(--bg, #ffffff);
+            --cso-text:   var(--text, #1a1a1a);
+            --cso-borda:  var(--borda, #cccccc);
+            --cso-muted:  #777777;
+        }
+
+        /* --- Modo escuro --- */
+        html.tema-escuro .codex-sobre-nos {
+            --cso-muted: #999999;
+        }
+
+        /* --- Container principal --- */
+        .codex-sobre-nos .cso-container {
+            max-width: 100%;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--cso-text);
+        }
+
+        @media (min-width: 769px) {
+            .codex-sobre-nos .cso-container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- Título e introdução --- */
+        .codex-sobre-nos .cso-titulo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 15px 20px 0;
+            color: var(--cso-text);
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        .codex-sobre-nos .cso-intro {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.75;
+            margin: 0 0 30px;
+            padding: 0 20px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-titulo {
+                font-size: 1.3rem;
+                padding: 12px 16px 0;
+            }
+        }
+
+        /* --- Secções temáticas --- */
+        .codex-sobre-nos .cso-secao {
+            padding: 0 20px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid var(--cso-borda);
+            padding-bottom: 22px;
+        }
+
+        .codex-sobre-nos .cso-secao:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .codex-sobre-nos .cso-secao-titulo {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 0 0 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .codex-sobre-nos .cso-secao-texto p {
+            margin: 0 0 10px;
+            color: var(--cso-text);
+        }
+
+        .codex-sobre-nos .cso-secao-texto p:last-child {
+            margin-bottom: 0;
+        }
+
+        .codex-sobre-nos .cso-secao-texto .cso-destaque {
+            color: var(--cso-muted);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-secao {
+                padding: 0 16px;
+                padding-bottom: 18px;
+            }
+        }
+
+        /* --- Perfil: foto, estante e biografia --- */
+        .codex-sobre-nos .cso-perfil-secao {
+            padding: 0 20px;
+            margin-bottom: 26px;
+            border-bottom: 1px solid var(--cso-borda);
+            padding-bottom: 26px;
+        }
+
+        .codex-sobre-nos .cso-perfil-secao::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-perfil-secao {
+                padding: 0 16px;
+                padding-bottom: 22px;
+            }
+        }
+
+        .codex-sobre-nos .cso-perfil-coluna-esquerda {
+            float: left;
+            width: 260px;
+            margin-right: 28px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .codex-sobre-nos .cso-perfil-coluna-esquerda {
+                float: none;
+                width: auto;
+                margin-right: 0;
+            }
+        }
+
+        /*
+         * O contexto de formatação impede que a caixa de texto
+         * se estenda por baixo da estante e intercepte seus cliques.
+         */
+        .codex-sobre-nos .cso-perfil-coluna-direita {
+            overflow: hidden;
+        }
+
+        .codex-sobre-nos .cso-perfil-secao .cso-secao {
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden;
+        }
+
+        .codex-sobre-nos .cso-divisor {
+            overflow: hidden;
+            height: 0;
+            border-top: 1px solid var(--cso-borda);
+            margin: 0 0 20px;
+        }
+
+        .codex-sobre-nos .cso-foto-perfil {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            border: 1px solid var(--cso-borda);
+            filter: grayscale(1);
+            margin-bottom: 14px;
+        }
+
+        .codex-sobre-nos .cso-sugestoes-titulo {
+            font-weight: bold;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Estante vertical --- */
+        /* MANUTENÇÃO: height controla a quantidade de itens visíveis. */
+        .codex-sobre-nos .cso-estante-moldura {
+            width: 100%;
+            height: 175px;
+            overflow: hidden;
+            position: relative;
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                transparent 0,
+                #000 20px,
+                #000 calc(100% - 20px),
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                to bottom,
+                transparent 0,
+                #000 20px,
+                #000 calc(100% - 20px),
+                transparent 100%
+            );
+        }
+
+        .codex-sobre-nos .cso-estante-trilho {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            will-change: transform;
+        }
+
+        .codex-sobre-nos .cso-livro-item {
+            flex: 0 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 18px;
+            border: 1px solid var(--cso-borda);
+            background: var(--cso-bg);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .codex-sobre-nos .cso-livro-item:hover,
+        .codex-sobre-nos .cso-livro-item:focus {
+            transform: translateX(3px);
+        }
+
+        .codex-sobre-nos .cso-livro-item:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: -3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .codex-sobre-nos .cso-estante-moldura {
+                overflow-y: auto;
+                scrollbar-width: none;
+            }
+
+            .codex-sobre-nos .cso-estante-moldura::-webkit-scrollbar {
+                display: none;
+            }
+
+            .codex-sobre-nos .cso-estante-trilho {
+                transform: none !important;
+            }
+
+            .codex-sobre-nos .cso-livro-item {
+                transition: none;
+            }
+
+            .codex-sobre-nos .cso-livro-item[aria-hidden="true"] {
+                display: none;
+            }
+        }
+
+        .codex-sobre-nos .cso-livro-titulo {
+            font-size: 0.82rem;
+            font-weight: bold;
+            line-height: 1.25;
+        }
+
+        /* --- Biografia --- */
+        .codex-sobre-nos .cso-bio-titulo {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 0 0 10px;
+        }
+
+        .codex-sobre-nos .cso-bio-texto p {
+            margin: 0 0 10px;
+        }
+
+        .codex-sobre-nos .cso-bio-texto p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Caixa local de comentário --- */
+        .codex-sobre-nos .cso-comentario-caixa {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            max-width: min(260px, calc(100vw - 54px));
+            background: var(--cso-bg);
+            color: var(--cso-text);
+            border: 1px solid var(--cso-borda);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            padding: 16px 18px 14px;
+        }
+
+        .codex-sobre-nos .cso-comentario-caixa.cso-comentario-activa {
+            display: block;
+        }
+
+        .codex-sobre-nos .cso-comentario-fechar {
+            position: absolute;
+            top: 2px;
+            right: 6px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            line-height: 1;
+            color: var(--cso-text);
+            cursor: pointer;
+            padding: 6px 8px;
+        }
+
+        .codex-sobre-nos .cso-comentario-texto {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            padding-right: 14px;
+            max-height: calc(100vh - 48px);
+            max-height: calc(100dvh - 48px);
+            overflow-y: auto;
+            overflow-wrap: anywhere;
+        }
+
+        .codex-sobre-nos .cso-comentario-texto p {
+            margin: 0 0 8px;
+        }
+
+        .codex-sobre-nos .cso-comentario-texto p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Player decorativo --- */
+        .codex-sobre-nos .cso-player-simbolico {
+            width: 100%;
+            max-width: 260px;
+            margin: 1rem auto 0;
+        }
+
+        .codex-sobre-nos .cso-player-simbolico svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /*
+         * Perfil e textos até a revista em duas colunas.
+         * As reflexões permanecem fora desta grelha.
+         */
+        @media (min-width: 769px) {
+            .codex-sobre-nos .cso-perfil-secao {
+                display: grid;
+                grid-template-columns: 260px minmax(0, 1fr);
+                column-gap: 28px;
+            }
+
+            .codex-sobre-nos .cso-perfil-coluna-esquerda {
+                float: none;
+                margin-right: 0;
+            }
+
+            .codex-sobre-nos .cso-perfil-secao::after {
+                display: none;
+            }
+        }
+    </style>
+
+    <!-- ============================================================
+         CONTEÚDO
+         ============================================================ -->
+    <div class="cso-container">
+
+        <div class="cso-titulo">IT'S-A ME, O AUTOR:</div>
+        <p class="cso-intro">Litteris et armis, præstantibusque ingeniis.</p>
+
+        <div class="cso-perfil-secao">
+
+            <!-- Coluna esquerda: foto, sugestões e player simbólico. -->
+            <div class="cso-perfil-coluna-esquerda">
+                <img
+                    class="cso-foto-perfil"
+                    src="IMAGENS/PERFIL.jpg"
+                    alt="Foto de perfil do autor"
+                >
+
+                <div class="cso-sugestoes-titulo">MINHAS SUGESTÕES:</div>
+
+                <div class="cso-estante-moldura">
+                    <!-- Preenchido a partir de AUTOR_LIVROS.json. -->
+                    <div class="cso-estante-trilho"></div>
+                </div>
+
+                <figure class="cso-player-simbolico">
+                    <svg
+                        id="cso-player"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 260 174"
+                        aria-labelledby="cso-player-titulo"
+                    >
+                        <title id="cso-player-titulo">Player simb&#243;lico: Blind Guardian &#8211; Hallelujah</title>
+
+                        <style>
+                            .cso-eq-barra {
+                                transform-box: fill-box;
+                                transform-origin: center bottom;
+                                animation: cso-eq-pulso 1.35s ease-in-out infinite alternate;
+                            }
+
+                            @keyframes cso-eq-pulso {
+                                0% {
+                                    transform: scaleY(.45);
+                                }
+
+                                60% {
+                                    transform: scaleY(.95);
+                                }
+
+                                100% {
+                                    transform: scaleY(.65);
+                                }
+                            }
+
+                            .cso-link-spotify:hover rect,
+                            .cso-link-spotify:focus-visible rect {
+                                stroke: #fff;
+                            }
+
+                            @media (prefers-reduced-motion: reduce) {
+                                .cso-eq-barra {
+                                    animation: none;
+                                }
+                            }
+                        </style>
+
+                        <defs>
+                            <linearGradient id="cso-player-metal" x2="0" y2="1">
+                                <stop stop-color="#595959"/>
+                                <stop offset=".5" stop-color="#353535"/>
+                                <stop offset="1" stop-color="#252525"/>
+                            </linearGradient>
+
+                            <linearGradient id="cso-player-bisel" x2="0" y2="1">
+                                <stop stop-color="#777"/>
+                                <stop offset="1" stop-color="#303030"/>
+                            </linearGradient>
+
+                            <g id="cso-player-parafuso">
+                                <circle r="3" fill="#999" stroke="#222"/>
+                                <path d="M-1.4 1.4l2.8-2.8" stroke="#333"/>
+                            </g>
+                        </defs>
+
+                        <!-- Carcaça, rebites e visor. -->
+                        <rect x="1" y="1" width="258" height="172" rx="11" fill="url(#cso-player-metal)" stroke="#151515" stroke-width="2"/>
+                        <rect x="5" y="5" width="250" height="164" rx="8" fill="none" stroke="#999" stroke-opacity=".42"/>
+
+                        <use href="#cso-player-parafuso" x="12" y="12"/>
+                        <use href="#cso-player-parafuso" x="248" y="12"/>
+                        <use href="#cso-player-parafuso" x="12" y="162"/>
+                        <use href="#cso-player-parafuso" x="248" y="162"/>
+
+                        <rect x="18" y="15" width="224" height="115" rx="6" fill="#171717" stroke="#777"/>
+
+                        <text id="cso-artista" x="32" y="36" fill="#bfbfbf" font-family="system-ui,sans-serif" font-size="9" letter-spacing="1.7">BLIND GUARDIAN</text>
+                        <text id="cso-faixa" x="32" y="57" fill="#fafafa" font-family="Georgia,serif" font-size="18">Hallelujah</text>
+
+                        <path d="M217 31h5v7h7v5h-7v13h-5V43h-7v-5h7z" fill="#ddd"/>
+                        <path d="M32 70H228" stroke="#464646"/>
+
+                        <!-- Equalizador e posição simbólica. -->
+                        <g fill="#bfbfbf">
+                            <rect class="cso-eq-barra" x="33" y="85" width="6" height="5" style="animation-delay:-0.55s"/>
+                            <rect class="cso-eq-barra" x="42" y="82" width="6" height="8" style="animation-delay:-0.12s"/>
+                            <rect class="cso-eq-barra" x="51" y="78" width="6" height="12" style="animation-delay:-0.9s"/>
+                            <rect class="cso-eq-barra" x="60" y="80" width="6" height="10" style="animation-delay:-0.31s"/>
+                            <rect class="cso-eq-barra" x="69" y="74" width="6" height="16" style="animation-delay:-0.72s"/>
+                            <rect class="cso-eq-barra" x="78" y="78" width="6" height="12" style="animation-delay:-0.18s"/>
+                            <rect class="cso-eq-barra" x="87" y="82" width="6" height="8" style="animation-delay:-1.01s"/>
+                            <rect class="cso-eq-barra" x="96" y="85" width="6" height="5" style="animation-delay:-0.45s"/>
+                        </g>
+
+                        <path d="M33 103H227" stroke="#606060" stroke-width="2" stroke-linecap="round"/>
+
+                        <g id="cso-progresso" aria-hidden="true">
+                            <line id="cso-avanco" x1="33" y1="103" x2="111" y2="103" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+                            <circle id="cso-marcador" cx="111" cy="103" r="3.5" fill="#eee"/>
+                            <text id="cso-tempo" x="33" y="120" fill="#ddd" font-family="monospace" font-size="10">01:39</text>
+                        </g>
+
+                        <a
+                            id="cso-spotify"
+                            class="cso-link-spotify"
+                            href="https://open.spotify.com/search/Blind%20Guardian%20Hallelujah"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Procurar Hallelujah, do Blind Guardian, no Spotify"
+                        >
+                            <rect x="172" y="109" width="56" height="16" rx="4" fill="#303030" stroke="#888"/>
+                            <text x="200" y="120" text-anchor="middle" fill="#eee" font-family="system-ui,sans-serif" font-size="9">Spotify ↗</text>
+                        </a>
+
+                        <!-- Controles decorativos gravados na placa. -->
+                        <g fill="url(#cso-player-bisel)" stroke="#1b1b1b">
+                            <rect x="55" y="139" width="42" height="22" rx="4"/>
+                            <rect x="103" y="137" width="54" height="26" rx="5"/>
+                            <rect x="163" y="139" width="42" height="22" rx="4"/>
+                        </g>
+
+                        <g fill="#eee">
+                            <path d="M81 145l-8 5 8 5z M70 145h2v10h-2z"/>
+                            <path d="M125 144h3v12h-3z M132 144h3v12h-3z"/>
+                            <path d="M179 145l8 5-8 5z M188 145h2v10h-2z"/>
+                        </g>
+                    </svg>
+                </figure>
+
+                <!-- ====================================================
+                     PLAYER SIMBÓLICO
+                     Mantida a lógica existente, sem reprodução de áudio.
+                     ==================================================== -->
+                <script>
+                (function () {
+                    // Uma entrada por gravação sugerida.
+                    const faixas = [
+                        {
+                            musica: 'Hallelujah',
+                            artista: 'Blind Guardian',
+                            spotify: 'https://open.spotify.com/search/Blind%20Guardian%20Hallelujah'
+                        },
+                        {
+                            musica: 'Fairy Tale',
+                            artista: 'André Matos',
+                            spotify: 'https://open.spotify.com/search/Shaman%20Fairy%20Tale%20Andr%C3%A9%20Matos'
+                        },
+                        {
+                            musica: 'Lord of the Rings',
+                            artista: 'Blind Guardian',
+                            spotify: 'https://open.spotify.com/search/Blind%20Guardian%20Lord%20of%20the%20Rings'
+                        },
+                        {
+                            musica: 'Gethsemane',
+                            artista: 'Tarja Turunen',
+                            spotify: 'https://open.spotify.com/search/Nightwish%20Gethsemane%20Tarja%20Turunen'
+                        }
+                    ];
+
+                    const player = document.currentScript
+                        .previousElementSibling
+                        .querySelector('#cso-player');
+
+                    const faixa = faixas[
+                        Math.floor(Math.random() * faixas.length)
+                    ];
+
+                    player.querySelector('#cso-artista').textContent =
+                        faixa.artista.toUpperCase();
+
+                    player.querySelector('#cso-faixa').textContent =
+                        faixa.musica;
+
+                    player.querySelector('title').textContent =
+                        'Player simbólico — ' +
+                        faixa.artista +
+                        ' — ' +
+                        faixa.musica;
+
+                    const spotify = player.querySelector('#cso-spotify');
+
+                    spotify.setAttribute('href', faixa.spotify);
+
+                    spotify.setAttribute(
+                        'aria-label',
+                        'Procurar ' +
+                        faixa.musica +
+                        ', de ' +
+                        faixa.artista +
+                        ', no Spotify'
+                    );
+
+                    // Relógio ilustrativo: barra e relógio no mesmo ciclo.
+                    const grupo = player.querySelector('#cso-progresso');
+                    const linha = player.querySelector('#cso-avanco');
+                    const marcador = player.querySelector('#cso-marcador');
+                    const tempo = player.querySelector('#cso-tempo');
+
+                    const reduzir = window.matchMedia(
+                        '(prefers-reduced-motion: reduce)'
+                    );
+
+                    const ciclo = 24000;
+                    const transicao = 700;
+
+                    let inicio;
+                    let quadro = null;
+                    let segundoAnterior = -1;
+
+                    function desenhar(decorrido, opacidade) {
+                        const x = (
+                            111 + 34 * decorrido / ciclo
+                        ).toFixed(2);
+
+                        linha.setAttribute('x2', x);
+                        marcador.setAttribute('cx', x);
+                        grupo.style.opacity = opacidade;
+
+                        const segundos =
+                            99 + Math.floor(decorrido / 1000);
+
+                        if (segundos !== segundoAnterior) {
+                            tempo.textContent =
+                                String(
+                                    Math.floor(segundos / 60)
+                                ).padStart(2, '0') +
+                                ':' +
+                                String(
+                                    segundos % 60
+                                ).padStart(2, '0');
+
+                            segundoAnterior = segundos;
+                        }
+                    }
+
+                    function animar(agora) {
+                        quadro = null;
+
+                        if (
+                            reduzir.matches ||
+                            !player.isConnected
+                        ) {
+                            return;
+                        }
+
+                        if (inicio === undefined) {
+                            inicio = agora - transicao;
+                        }
+
+                        const decorrido = (agora - inicio) % ciclo;
+
+                        const opacidade = Math.min(
+                            1,
+                            decorrido / transicao,
+                            (ciclo - decorrido) / transicao
+                        );
+
+                        desenhar(decorrido, opacidade);
+                        quadro = requestAnimationFrame(animar);
+                    }
+
+                    function ajustarMovimento() {
+                        if (quadro !== null) {
+                            cancelAnimationFrame(quadro);
+                        }
+
+                        quadro = null;
+                        inicio = undefined;
+
+                        desenhar(0, 1);
+
+                        if (!reduzir.matches) {
+                            quadro = requestAnimationFrame(animar);
+                        }
+                    }
+
+                    if (reduzir.addEventListener) {
+                        reduzir.addEventListener(
+                            'change',
+                            ajustarMovimento
+                        );
+                    } else {
+                        reduzir.addListener(ajustarMovimento);
+                    }
+
+                    ajustarMovimento();
+
+                    // Liberta recursos quando o Codex é substituído.
+                    const codex = player.closest('.codex-sobre-nos');
+
+                    const observador = new MutationObserver(function () {
+                        if (codex.isConnected) return;
+
+                        observador.disconnect();
+
+                        if (quadro !== null) {
+                            cancelAnimationFrame(quadro);
+                        }
+
+                        if (reduzir.removeEventListener) {
+                            reduzir.removeEventListener(
+                                'change',
+                                ajustarMovimento
+                            );
+                        } else {
+                            reduzir.removeListener(ajustarMovimento);
+                        }
+                    });
+
+                    observador.observe(
+                        codex.parentNode,
+                        { childList: true }
+                    );
+                })();
+                </script>
+            </div>
+
+            <!-- Coluna direita: biografia e informações editoriais. -->
+            <div class="cso-perfil-textos">
+                <div class="cso-perfil-coluna-direita">
+                    <div class="cso-bio-titulo">SCRIPTOR CHRISTIANUS</div>
+
+                    <div class="cso-bio-texto">
+                        <p>Cristão protestante, continuísta e dispensacionalista. Casado e praticante de Artes Marciais. Fã de literatura, principalmente de J.R.R. Tolkien, Dante Alighieri, John Milton e todo o ciclo Arthuriano. Aprecio igualmente os quadrinhos clássicos, assim como a música clássica e o “metal melódico”.
+                        <p>E Escritor, nas horas vagas.
+                    </div>
+                </div>
+
+                <div class="cso-divisor" aria-hidden="true"></div>
+
+                <div class="cso-secao">
+                    <div class="cso-secao-titulo">BLOG 7GUERREIROS</div>
+
+                    <div class="cso-secao-texto">
+                        <p>Texto de exemplo — substituir. O 7Guerreiros é um projecto independente dedicado à escrita de contos, livros e jogos narrativos (Twine RPGs), nascido do gosto por histórias que misturam ficção, mitologia e imaginação. Cada obra publicada aqui é feita artesanalmente, sem intermediários, num espaço monocromático e auto-suficiente.</p>
+                    </div>
+                </div>
+
+                <div class="cso-secao">
+                    <div class="cso-secao-titulo">REVISTA 7GUERREIROS</div>
+
+                    <div class="cso-secao-texto">
+                        <p>Texto de exemplo — substituir. A Revista 7Guerreiros é a publicação periódica associada ao projecto, onde contos e demais textos ganham forma editorial própria — distinta deste espaço pessoal, mas nascida da mesma vontade de contar histórias.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========================================================
+             REFLEXÕES
+             MANUTENÇÃO: duplicar um template para adicionar uma opção.
+             ======================================================== -->
+        <section
+            class="cso-secao cso-reflexoes"
+            aria-labelledby="cso-reflexoes-titulo"
+        >
+            <h2
+                class="cso-secao-titulo"
+                id="cso-reflexoes-titulo"
+            >COMNETÁRIOS:</h2>
+
+            <div class="cso-secao-texto cso-reflexao-escolhida"></div>
+
+            <template>
+                <p><strong>2 TIMÓTEO 4</strong>:3 Porque virá tempo em que não suportarão a sã doutrina; mas, tendo comichão nos ouvidos, amontoarão para si doutores conforme as suas próprias concupiscências; 4 E desviarão os ouvidos da verdade, voltando às fábulas. (ACF)</p>
+                <p>Houve um tempo em que eu pensei que "voltar-se às fábulas" pudesse significar (apenas) algo como, viver pautando-se por aquilo que aparece na televisão (ou na internet). Agora vejo que o significado é bem mais abrangente: "darão ouvidos apenas ao que desejam ouvir", assim, "acreditarão em fábulas", não se refere (primariamente) a contos de fadas ou quixotismos voluntários, mas abarca desde o docetismo, por exemplo, passando pelas indulgencias e outras deturpações, até chegar nas narrativas atuais que vêm transformando a própria ótica pela qual se observa o mundo numa narrativa (fábula) que não somente os têm afastado de maneira organizada, da Verdade, como também os têm levado a tentar destruí-la em nome do próprio Deus.</p>
+            </template>
+
+            <template>
+                <p>Após perceber a própria mortalidade e buscar pela Verdade, o passo seguinte na microjornada é desenvolver uma intimidade maior com esta Verdade (Deus), ou seja, alcançar uma compreensão maior (Camada IX) da revelação Divina, o porquê (intelectual, filosófico e espiritual) da macrojornada – <em>“alcançar uma visão mais profunda sobre a verdade do universo”</em>. Todas as outras preocupações ficaram para trás, não há mais a necessidade de elogios ou de lucro, mas a verdade é tudo o que traz sentido a existência ao passo que, a ignorância, trás o sofrimento!</p>
+                <p>Se, na Era de Sardes, Lutero trouxe a justificação a macrojornada, agora, na Era de Filadélfia (1750-1906), <strong>JOHN WESLEY</strong> (1703-1791), o profeta levantado por Deus (o relato de sua conversão encontra-se no livro, <strong>A JOURNAL OF THE REV. JOHN WESLEY</strong>, um diário do próprio profeta) compartilhou a santificação e o aprofundamento da Verdade, complementando a Mensagem de seu predecessor.</p>
+            </template>
+
+            <script>
+            (function () {
+                const secao = document.currentScript.parentElement;
+                const opcoes = secao.querySelectorAll('template');
+
+                if (!opcoes.length) return;
+
+                const escolhida = opcoes[
+                    Math.floor(Math.random() * opcoes.length)
+                ];
+
+                secao.querySelector('.cso-reflexao-escolhida')
+                    .appendChild(
+                        escolhida.content.cloneNode(true)
+                    );
+            })();
+            </script>
+        </section>
+    </div>
+
+    <!-- ============================================================
+         CAIXA LOCAL DE COMENTÁRIO
+         Elemento único reutilizado pelos itens da estante.
+         ============================================================ -->
+    <div
+        class="cso-comentario-caixa"
+        id="csoComentarioCaixa"
+        role="dialog"
+        aria-modal="false"
+        aria-live="polite"
+    >
+        <button
+            class="cso-comentario-fechar"
+            id="csoComentarioFechar"
+            aria-label="Fechar"
+        >&times;</button>
+
+        <div
+            class="cso-comentario-texto"
+            id="csoComentarioTexto"
+        ></div>
+    </div>
+
+    <!-- ============================================================
+         ESTANTE E COMENTÁRIOS
+         ============================================================
+         Velocidade da estante: VELOCIDADE_AUTO_PX_S.
+         Pausa após roda do mouse: PAUSA_APOS_INTERACAO_MS.
+
+         Os listeners globais e observadores são encerrados quando
+         o injector remove este Codex.
+         ============================================================ -->
+    <script>
+    (function () {
+
+        // ========================================================
+        // 1. CARREGAMENTO DA LISTA DE LIVROS
+        // ========================================================
+
+        function carregarListaLivros(trilho, sinal, callback) {
+            fetch('AUTOR_LIVROS.json', { signal: sinal })
+                .then(function (resposta) {
+                    if (!resposta.ok) {
+                        throw new Error(
+                            'AUTOR_LIVROS.json não encontrado'
+                        );
+                    }
+
+                    return resposta.json();
+                })
+                .then(function (livros) {
+                    if (
+                        sinal.aborted ||
+                        !trilho.isConnected
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        !Array.isArray(livros) ||
+                        !livros.length
+                    ) {
+                        throw new Error(
+                            'Lista de livros vazia ou inválida'
+                        );
+                    }
+
+                    var htmlCopiaReal = livros.map(function (livro) {
+                        return criarItemHTML(livro, false);
+                    }).join('');
+
+                    var htmlCopiaOculta = livros.map(function (livro) {
+                        return criarItemHTML(livro, true);
+                    }).join('');
+
+                    trilho.innerHTML =
+                        htmlCopiaReal + htmlCopiaOculta;
+
+                    callback();
+                })
+                .catch(function (erro) {
+                    if (
+                        sinal.aborted ||
+                        !trilho.isConnected
+                    ) {
+                        return;
+                    }
+
+                    console.error('[CSO_LIVROS]', erro);
+
+                    trilho.innerHTML =
+                        '<div class="cso-livro-item" ' +
+                        'style="cursor:default;">' +
+                        'Lista de livros não disponível.</div>';
+                });
+        }
+
+        function escaparHTML(texto) {
+            var div = document.createElement('div');
+            div.textContent = texto;
+
+            return div.innerHTML.replace(/"/g, '&quot;');
+        }
+
+        /*
+         * A segunda cópia permite o movimento contínuo.
+         * Ela permanece fora da navegação por Tab e da leitura assistiva.
+         */
+        function criarItemHTML(livro, oculto) {
+            var titulo = escaparHTML(livro.titulo || '');
+            var comentario = escaparHTML(livro.comentario || '');
+
+            var atributos = oculto
+                ? 'tabindex="-1" aria-hidden="true"'
+                : 'tabindex="0" role="button" aria-haspopup="dialog"';
+
+            return '<div class="cso-livro-item" ' +
+                       atributos + ' ' +
+                       'data-titulo="' + titulo + '" ' +
+                       'data-comentario="' + comentario + '">' +
+                       '<div class="cso-livro-titulo">' +
+                           titulo +
+                       '</div>' +
+                   '</div>';
+        }
+
+        // ========================================================
+        // 2. MOVIMENTO DA ESTANTE
+        // ========================================================
+
+        function inicializarEstante(moldura, trilho, sinal) {
+            var VELOCIDADE_AUTO_PX_S = 18;
+            var PAUSA_APOS_INTERACAO_MS = 1200;
+
+            var pos = 0;
+            var metadeAltura = 0;
+            var ultimoTimestamp = null;
+            var ultimaInteracaoEm = 0;
+            var emFoco = false;
+            var visivel = true;
+            var observadorVisibilidade = null;
+
+            var reduzir = window.matchMedia(
+                '(prefers-reduced-motion: reduce)'
+            );
+
+            var primeiraCopia = trilho.querySelector(
+                '[aria-hidden="true"]'
+            );
+
+            var quadro = null;
+
+            function recalcularMetadeAltura() {
+                metadeAltura = primeiraCopia
+                    ? primeiraCopia.offsetTop -
+                      trilho.firstElementChild.offsetTop
+                    : 0;
+
+                normalizarPos();
+                aplicarTransform();
+            }
+
+            function normalizarPos() {
+                if (metadeAltura <= 0) return;
+
+                pos = (
+                    (pos % metadeAltura) + metadeAltura
+                ) % metadeAltura;
+            }
+
+            function aplicarTransform() {
+                trilho.style.transform =
+                    'translateY(-' + pos + 'px)';
+            }
+
+            function passoAnimacao(timestamp) {
+                quadro = null;
+
+                if (
+                    sinal.aborted ||
+                    !trilho.isConnected ||
+                    reduzir.matches ||
+                    document.hidden ||
+                    !visivel
+                ) {
+                    return;
+                }
+
+                if (ultimoTimestamp === null) {
+                    ultimoTimestamp = timestamp;
+                }
+
+                var deltaSegundos =
+                    (timestamp - ultimoTimestamp) / 1000;
+
+                ultimoTimestamp = timestamp;
+
+                var interacaoRecente =
+                    (Date.now() - ultimaInteracaoEm) <
+                    PAUSA_APOS_INTERACAO_MS;
+
+                if (!interacaoRecente && !emFoco) {
+                    pos += VELOCIDADE_AUTO_PX_S * deltaSegundos;
+                    normalizarPos();
+                    aplicarTransform();
+                }
+
+                quadro = window.requestAnimationFrame(
+                    passoAnimacao
+                );
+            }
+
+            moldura.addEventListener('wheel', function (ev) {
+                // Preserva o zoom do navegador com Ctrl + roda.
+                if (
+                    ev.ctrlKey ||
+                    reduzir.matches ||
+                    metadeAltura <= moldura.clientHeight ||
+                    !ev.deltaY
+                ) {
+                    return;
+                }
+
+                ev.preventDefault();
+
+                var unidade = ev.deltaMode === 1
+                    ? 16
+                    : (
+                        ev.deltaMode === 2
+                            ? moldura.clientHeight
+                            : 1
+                    );
+
+                pos += ev.deltaY * unidade;
+                normalizarPos();
+                aplicarTransform();
+
+                ultimaInteracaoEm = Date.now();
+            }, { passive: false });
+
+            trilho.addEventListener('focusin', function (ev) {
+                emFoco = true;
+                var item = ev.target;
+
+                if (
+                    reduzir.matches ||
+                    !item.matches(':focus-visible')
+                ) {
+                    return;
+                }
+
+                moldura.scrollTop = 0;
+
+                var limite = moldura.getBoundingClientRect();
+                var rect = item.getBoundingClientRect();
+
+                if (
+                    rect.top < limite.top + 20 ||
+                    rect.bottom > limite.bottom - 20
+                ) {
+                    pos = Math.max(0, item.offsetTop - 20);
+                    aplicarTransform();
+                }
+            });
+
+            trilho.addEventListener('focusout', function () {
+                emFoco = false;
+            });
+
+            function pararAnimacao() {
+                if (quadro !== null) {
+                    window.cancelAnimationFrame(quadro);
+                }
+
+                quadro = null;
+                ultimoTimestamp = null;
+            }
+
+            function actualizarMovimento() {
+                pararAnimacao();
+
+                if (
+                    sinal.aborted ||
+                    reduzir.matches ||
+                    document.hidden ||
+                    !visivel
+                ) {
+                    return;
+                }
+
+                moldura.scrollTop = 0;
+                recalcularMetadeAltura();
+
+                if (metadeAltura > moldura.clientHeight) {
+                    quadro = window.requestAnimationFrame(
+                        passoAnimacao
+                    );
+                }
+            }
+
+            /*
+             * Pausa fora de vista e retoma sem acumular o tempo parado.
+             * Sem IntersectionObserver, mantém o funcionamento habitual.
+             */
+            if (window.IntersectionObserver) {
+                observadorVisibilidade = new IntersectionObserver(
+                    function (entradas) {
+                        visivel = entradas[0].isIntersecting;
+                        actualizarMovimento();
+                    }
+                );
+
+                observadorVisibilidade.observe(moldura);
+            }
+
+            document.addEventListener(
+                'visibilitychange',
+                actualizarMovimento,
+                { signal: sinal }
+            );
+
+            window.addEventListener(
+                'resize',
+                actualizarMovimento,
+                { signal: sinal }
+            );
+
+            if (reduzir.addEventListener) {
+                reduzir.addEventListener(
+                    'change',
+                    actualizarMovimento
+                );
+            } else {
+                reduzir.addListener(actualizarMovimento);
+            }
+
+            sinal.addEventListener('abort', function () {
+                pararAnimacao();
+
+                if (observadorVisibilidade) {
+                    observadorVisibilidade.disconnect();
+                }
+
+                if (reduzir.removeEventListener) {
+                    reduzir.removeEventListener(
+                        'change',
+                        actualizarMovimento
+                    );
+                } else {
+                    reduzir.removeListener(actualizarMovimento);
+                }
+            }, { once: true });
+
+            actualizarMovimento();
+        }
+
+        // ========================================================
+        // 3. INICIALIZAÇÃO E CICLO DE VIDA DO CODEX
+        // ========================================================
+
+        function initCodexSobreNos() {
+            var raiz = document.querySelector(
+                '.codex-sobre-nos'
+            );
+
+            if (!raiz) return;
+
+            var caixa = document.getElementById(
+                'csoComentarioCaixa'
+            );
+
+            var botaoFechar = document.getElementById(
+                'csoComentarioFechar'
+            );
+
+            var elTexto = document.getElementById(
+                'csoComentarioTexto'
+            );
+
+            var trilho = raiz.querySelector(
+                '.cso-estante-trilho'
+            );
+
+            var moldura = raiz.querySelector(
+                '.cso-estante-moldura'
+            );
+
+            if (
+                !caixa ||
+                !trilho ||
+                raiz.dataset.csoIniciado
+            ) {
+                return;
+            }
+
+            raiz.dataset.csoIniciado = 'true';
+
+            var ciclo = new AbortController();
+            var sinal = ciclo.signal;
+
+            // Encerra os recursos quando o injector remove este Codex.
+            var observador = new MutationObserver(function () {
+                if (!raiz.isConnected) {
+                    observador.disconnect();
+                    ciclo.abort();
+                    fecharComentario();
+                }
+            });
+
+            observador.observe(
+                raiz.parentNode,
+                { childList: true }
+            );
+
+            if (moldura) {
+                carregarListaLivros(
+                    trilho,
+                    sinal,
+                    function () {
+                        inicializarEstante(
+                            moldura,
+                            trilho,
+                            sinal
+                        );
+                    }
+                );
+            }
+
+            // ====================================================
+            // 4. ABERTURA E FECHO DOS COMENTÁRIOS
+            // ====================================================
+
+            function aoClicarFora(ev) {
+                if (caixa.contains(ev.target)) return;
+
+                /*
+                 * Permite trocar de livro sem o mesmo clique
+                 * fechar imediatamente o comentário recém-aberto.
+                 */
+                if (
+                    trilho.contains(ev.target) &&
+                    ev.target.closest('[data-comentario]')
+                ) {
+                    return;
+                }
+
+                fecharComentario();
+            }
+
+            function abrirComentario(item) {
+                var comentario = item.getAttribute(
+                    'data-comentario'
+                ) || '';
+
+                elTexto.innerHTML = '';
+
+                comentario.split('\n\n').forEach(
+                    function (paragrafo) {
+                        if (paragrafo.trim() === '') return;
+
+                        var p = document.createElement('p');
+                        p.textContent = paragrafo.trim();
+
+                        elTexto.appendChild(p);
+                    }
+                );
+
+                // Nome acessível do diálogo, sem alteração visual.
+                caixa.setAttribute(
+                    'aria-label',
+                    item.getAttribute('data-titulo') ||
+                    'Comentário sobre o livro'
+                );
+
+                caixa.classList.add(
+                    'cso-comentario-activa'
+                );
+
+                elTexto.scrollTop = 0;
+
+                // Posiciona a caixa junto ao item seleccionado.
+                var margem = 8;
+                var rectItem = item.getBoundingClientRect();
+                var rectCaixa = caixa.getBoundingClientRect();
+
+                var esquerda = rectItem.left;
+                var topo = rectItem.bottom + margem;
+
+                if (
+                    esquerda + rectCaixa.width >
+                    window.innerWidth - margem
+                ) {
+                    esquerda =
+                        window.innerWidth -
+                        rectCaixa.width -
+                        margem;
+                }
+
+                if (esquerda < margem) {
+                    esquerda = margem;
+                }
+
+                if (
+                    topo + rectCaixa.height >
+                    window.innerHeight - margem
+                ) {
+                    topo =
+                        rectItem.top -
+                        rectCaixa.height -
+                        margem;
+                }
+
+                topo = Math.max(
+                    margem,
+                    Math.min(
+                        topo,
+                        window.innerHeight -
+                        rectCaixa.height -
+                        margem
+                    )
+                );
+
+                caixa.style.left = esquerda + 'px';
+                caixa.style.top = topo + 'px';
+
+                document.addEventListener(
+                    'click',
+                    aoClicarFora,
+                    { signal: sinal }
+                );
+            }
+
+            function fecharComentario() {
+                caixa.classList.remove(
+                    'cso-comentario-activa'
+                );
+
+                document.removeEventListener(
+                    'click',
+                    aoClicarFora
+                );
+            }
+
+            // Delegação para os itens das duas cópias da estante.
+            trilho.addEventListener('click', function (ev) {
+                var item = ev.target.closest(
+                    '.cso-livro-item[data-comentario]'
+                );
+
+                if (item) {
+                    abrirComentario(item);
+                }
+            });
+
+            trilho.addEventListener('keydown', function (ev) {
+                if (
+                    ev.key !== 'Enter' &&
+                    ev.key !== ' '
+                ) {
+                    return;
+                }
+
+                var item = ev.target.closest(
+                    '.cso-livro-item[data-comentario]'
+                );
+
+                if (item) {
+                    ev.preventDefault();
+                    abrirComentario(item);
+                }
+            });
+
+            /*
+             * A posição calculada na abertura deixa de valer
+             * quando a janela muda de tamanho. Fecha a caixa;
+             * o próximo clique calcula novamente sua posição.
+             */
+            window.addEventListener(
+                'resize',
+                fecharComentario,
+                { signal: sinal }
+            );
+
+            botaoFechar.addEventListener(
+                'click',
+                fecharComentario
+            );
+
+            document.addEventListener(
+                'keydown',
+                function (ev) {
+                    if (ev.key === 'Escape') {
+                        fecharComentario();
+                    }
+                },
+                { signal: sinal }
+            );
+        }
+
+        window.initCodexSobreNos = initCodexSobreNos;
+
+        if (document.readyState !== 'loading') {
+            initCodexSobreNos();
+        } else {
+            document.addEventListener(
+                'DOMContentLoaded',
+                initCodexSobreNos
+            );
+        }
+    })();
+    </script>
+
+</div>
+
+</body>
+</html>

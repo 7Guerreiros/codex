@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoie 7Guerreiros — Opus Machina</title>
+    <!-- Dependência local compartilhada pelos iframes do site. -->
+    <script src="Sistema_Tema.js"></script>
+    <!-- APRESENTAÇÃO: HTML, CSS e SVG locais; nenhuma CDN. -->
+    <style>
+        :root { color-scheme: light; --papel: #f7f7f7; --suave: #666; }
+        html.tema-escuro { color-scheme: dark; --papel: #242424; --suave: #b5b5b5; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg, #fff); color: var(--text, #111); font: 16px/1.7 Georgia, serif; }
+        header { padding: 20px 56px 20px 24px; border-bottom: 1px solid var(--borda, #ddd); }
+        .assinatura { display: block; margin-bottom: 4px; color: var(--suave); font: 11px/1.5 system-ui, sans-serif; letter-spacing: .16em; }
+        h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.3; }
+        h2 { margin: 0 0 10px; font-size: 1.2rem; }
+        p { margin: 0 0 16px; }
+        main { max-width: 960px; margin: auto; padding: 32px 24px; }
+        .introducao { max-width: 650px; margin: 0 auto 28px; text-align: center; }
+        .mecanismo { display: block; width: 180px; max-width: 100%; height: 140px; margin: 0 auto 20px; }
+        .giro { transform-origin: 0px 0px; animation: girar 28s linear infinite; }
+        .inverso { animation-direction: reverse; }
+        .moeda { animation: contribuir 4s ease-in-out infinite; }
+        @keyframes girar { to { transform: rotate(360deg); } }
+        @keyframes contribuir { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+        .grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .cartao { min-width: 0; padding: 22px; border: 1px solid var(--borda, #ddd); border-radius: 6px; }
+        .numero { display: block; margin-bottom: 8px; color: var(--suave); font: 11px/1.5 system-ui, sans-serif; letter-spacing: .1em; }
+        button, .botao { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 10px 16px; border: 1px solid var(--borda, #ccc); border-radius: 5px; background: transparent; color: inherit; font: 14px/1.5 system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+        button:hover, .botao:hover { background: var(--papel); }
+        button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--text, #111); outline-offset: 3px; }
+        button:disabled { opacity: .55; cursor: default; }
+        label { display: block; margin-top: 16px; font: 12px/1.6 system-ui, sans-serif; }
+        .dado { display: block; width: 100%; min-width: 0; margin: 6px 0 12px; padding: 12px; border: 1px solid var(--borda, #ccc); border-radius: 4px; background: var(--papel); color: inherit; font: 14px/1.5 monospace; }
+        .qr { display: grid; place-content: center; width: min(180px, 100%); aspect-ratio: 1; margin: 18px 0 12px; padding: 16px; border: 1px dashed var(--borda, #999); color: var(--suave); text-align: center; font: 12px/1.6 system-ui, sans-serif; }
+        .qr-imagem { display: block; width: min(180px, 100%); height: auto; margin: 18px 0 12px; }
+        .ajuda, .estado { color: var(--suave); font: 12px/1.6 system-ui, sans-serif; }
+        .estado { margin: 12px 0 0; }
+        .rede { font: 13px/1.6 system-ui, sans-serif; }
+        [hidden] { display: none !important; }
+        #fechar {
+            position: fixed; top: 10px; right: 12px;
+            width: 32px; height: 32px; min-height: 0; padding: 0;
+            border: none; border-radius: 0; background: transparent;
+            color: var(--text, #1a1a1a); font-size: 1.4rem;
+            line-height: 1; cursor: pointer; opacity: .6; z-index: 1100;
+            transition: opacity .2s ease;
+        }
+        #fechar:hover, #fechar:focus-visible { opacity: 1; background: transparent; }
+
+        @media (max-width: 640px) {
+            header { padding: 16px 56px 16px 16px; }
+            main { padding: 24px 16px; }
+            .grade { grid-template-columns: minmax(0, 1fr); }
+            .cartao { padding: 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .giro, .moeda { animation: none; }
+            #fechar { transition: none; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <span class="assinatura">LUMINA · OPUS MACHINA</span>
+    <h1>Apoie 7Guerreiros</h1>
+    <button id="fechar" type="button" aria-label="Fechar central de apoio" title="Fechar">×</button>
+</header>
+<main>
+    <div class="introducao">
+        <!-- SVG decorativo: a contribuição alimenta as engrenagens do projeto. -->
+        <svg class="mecanismo" viewBox="0 0 180 140" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="metal-apoio" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#f4f4f4"/><stop offset=".35" stop-color="#929292"/>
+                    <stop offset=".65" stop-color="#dedede"/><stop offset="1" stop-color="#595959"/>
+                </linearGradient>
+                <g id="engrenagem-apoio">
+                    <path d="M 21.800 0.000 L 25.932 1.877 L 25.613 4.470 L 21.149 5.289 L 20.733 6.737 L 24.083 9.799 L 22.978 12.166 L 18.479 11.565 L 17.637 12.814 L 19.876 16.761 L 18.094 18.671 L 14.001 16.710 L 12.814 17.637 L 13.724 22.083 L 11.438 23.349 L 8.152 20.218 L 6.737 20.733 L 6.228 25.243 L 3.663 25.741 L 1.506 21.748 L 0.000 21.800 L -1.877 25.932 L -4.470 25.613 L -5.289 21.149 L -6.737 20.733 L -9.799 24.083 L -12.166 22.978 L -11.565 18.479 L -12.814 17.637 L -16.761 19.876 L -18.671 18.094 L -16.710 14.001 L -17.637 12.814 L -22.083 13.724 L -23.349 11.438 L -20.218 8.152 L -20.733 6.737 L -25.243 6.228 L -25.741 3.663 L -21.748 1.506 L -21.800 0.000 L -25.932 -1.877 L -25.613 -4.470 L -21.149 -5.289 L -20.733 -6.737 L -24.083 -9.799 L -22.978 -12.166 L -18.479 -11.565 L -17.637 -12.814 L -19.876 -16.761 L -18.094 -18.671 L -14.001 -16.710 L -12.814 -17.637 L -13.724 -22.083 L -11.438 -23.349 L -8.152 -20.218 L -6.737 -20.733 L -6.228 -25.243 L -3.663 -25.741 L -1.506 -21.748 L -0.000 -21.800 L 1.877 -25.932 L 4.470 -25.613 L 5.289 -21.149 L 6.737 -20.733 L 9.799 -24.083 L 12.166 -22.978 L 11.565 -18.479 L 12.814 -17.637 L 16.761 -19.876 L 18.671 -18.094 L 16.710 -14.001 L 17.637 -12.814 L 22.083 -13.724 L 23.349 -11.438 L 20.218 -8.152 L 20.733 -6.737 L 25.243 -6.228 L 25.741 -3.663 L 21.748 -1.506 Z M -3.360 0.000 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 8.400 0.000 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 0.274 11.184 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M -12.874 6.912 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M -12.874 -6.912 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z M 0.274 -11.184 a 3.36 3.36 0 1 0 6.72 0 a 3.36 3.36 0 1 0 -6.72 0 Z" fill="url(#metal-apoio)" fill-rule="evenodd" stroke="#5c5c5c" stroke-width=".7"/>
+                    <circle r="18.48" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.2"/>
+                </g>
+            </defs>
+            <g transform="translate(63 99)"><g class="giro"><use href="#engrenagem-apoio"/></g><circle r="3" fill="url(#metal-apoio)" stroke="#555"/></g>
+            <g transform="translate(112 99)"><g class="giro inverso"><use href="#engrenagem-apoio"/></g><circle r="3" fill="url(#metal-apoio)" stroke="#555"/></g>
+            <g class="moeda">
+                <circle cx="88" cy="33" r="20" fill="url(#metal-apoio)" stroke="#5c5c5c"/>
+                <circle cx="88" cy="33" r="15" fill="none" stroke="#fff" stroke-opacity=".7"/>
+                <path d="M80 24h16v4l-9 16h-5l10-16H80Z" fill="#555"/>
+            </g>
+            <path d="M77 66h22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M30 128h120" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+        </svg>
+        <h2>Sua contribuição mantém as histórias em movimento</h2>
+        <p>Entre páginas e engrenagens, cada gesto ajuda a abrir espaço para novos contos, livros e aventuras. Escolha a forma de apoio que combina com você.</p>
+        <!-- Informações incorporadas do CODEX_APOIE_NOS.html. -->
+        <p>Este projeto independente — seu apoio ajuda-o a continuar existindo.</p>
+        <p>Contos, livros e RPGs deste site são publicados sem anúncios e sem custo para quem lê. Mantê-los assim tem um custo de tempo real, e cada forma de apoio — por pequena que seja — ajuda a garantir que novos capítulos continuem a ser escritos.</p>
+        <p class="ajuda">A campanha no Apoia.se, a chave Pix e a loja de camisetas estão disponíveis. Criptomoedas, assinatura, loja de livros e QR Codes ainda aguardam configuração; não utilize os dados de exemplo para pagamentos.</p>
+    </div>
+
+    <!-- LINKS: troque cada botão desativado por um link conforme o modelo:
+         <a class="botao" href="URL_REAL" target="_blank" rel="noopener noreferrer">Texto</a>
+         Não há consultas externas: o visitante só acessa o serviço ao clicar no link. -->
+    <div class="grade">
+        <section class="cartao" aria-labelledby="titulo-apoia">
+            <span class="numero">01 · APOIO RECORRENTE</span>
+            <h2 id="titulo-apoia">Campanha no Apoia.se</h2>
+            <p>Faça parte do círculo de apoiadores e ajude a manter a criação de novas histórias, mês após mês.</p>
+            <!-- EDITAR: endereço da campanha confirmado pelo autor. -->
+            <a class="botao" href="https://apoia.se/blog7guerreiros" target="_blank" rel="noopener noreferrer">Apoiar no Apoia.se ↗</a>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-pix">
+            <span class="numero">02 · DOAÇÃO DIRETA</span>
+            <h2 id="titulo-pix">Pix</h2>
+            <p>Uma contribuição pontual também movimenta as engrenagens. Você escolhe o valor do apoio.</p>
+            <!-- EDITAR: chave Pix confirmada pelo autor; basta alterar o value. -->
+            <label for="chave-pix">Chave Pix</label>
+            <input class="dado" id="chave-pix" value="scriptor_christianus@outlook.com" readonly>
+            <button type="button" data-copiar="chave-pix" aria-describedby="estado-pix">Copiar chave Pix</button>
+            <!-- QR PIX: substitua o div abaixo por uma imagem local:
+                 <img class="qr-imagem" src="IMGS/APOIO/pix.png" alt="QR Code para doação por Pix" width="180" height="180">
+                 Use a imagem emitida pelo seu banco para a chave real. -->
+            <div class="qr">Espaço para QR Code Pix<br>Imagem ainda não configurada</div>
+            <p class="estado" id="estado-pix" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-cripto">
+            <span class="numero">03 · DOAÇÃO DIGITAL</span>
+            <h2 id="titulo-cripto">Criptomoedas</h2>
+            <p>Uma alternativa para quem prefere apoiar o projeto com moedas digitais.</p>
+            <!-- EDITAR JUNTOS: moeda, rede, endereço público e QR Code correspondente.
+                 Publique somente o endereço de recebimento, nunca a chave privada. -->
+            <p class="rede"><strong>Moeda:</strong> Bitcoin (exemplo)<br><strong>Rede:</strong> Bitcoin (exemplo)</p>
+            <label for="endereco-cripto">Endereço público de recebimento · exemplo</label>
+            <input class="dado" id="endereco-cripto" value="SEU_ENDERECO_PUBLICO_AQUI" readonly>
+            <button type="button" data-copiar="endereco-cripto" aria-describedby="estado-cripto">Copiar endereço</button>
+            <!-- QR CRIPTO: substitua o div abaixo por uma imagem local:
+                 <img class="qr-imagem" src="IMGS/APOIO/bitcoin.png" alt="QR Code do endereço Bitcoin na rede Bitcoin" width="180" height="180"> -->
+            <div class="qr">Espaço para QR Code da carteira<br>Imagem ainda não configurada</div>
+            <p class="ajuda">Use exclusivamente a moeda e a rede indicadas. Confira o endereço no seu aplicativo antes de enviar.</p>
+            <p class="estado" id="estado-cripto" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-assinatura">
+            <span class="numero">04 · ASSINATURA</span>
+            <h2 id="titulo-assinatura">Mercado Livre</h2>
+            <p>Um compromisso com as próximas páginas. Aqui você encontrará as informações e o acesso à nossa opção de assinatura.</p>
+            <!-- EDITAR: inserir o link de assinatura escolhido. -->
+            <button type="button" disabled>Assinatura em breve</button>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-livros">
+            <span class="numero">05 · HISTÓRIAS PARA GUARDAR</span>
+            <h2 id="titulo-livros">Nossa loja de livros</h2>
+            <p>Leve um pedaço deste universo para sua estante. Conheça nossas obras e apoie a criação das próximas.</p>
+            <!-- EDITAR: inserir o endereço da loja de livros. -->
+            <button type="button" disabled>Loja de livros em breve</button>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-camisetas">
+            <span class="numero">06 · VISTA ESTE UNIVERSO</span>
+            <h2 id="titulo-camisetas">Nossa loja de camisetas</h2>
+            <p>Símbolos e histórias que acompanham você além da leitura. Descubra as futuras peças da coleção.</p>
+            <!-- EDITAR: endereço da loja confirmado pelo autor. -->
+            <a class="botao" href="https://www.colab55.com/@blog7guerreiros" target="_blank" rel="noopener noreferrer">Visitar loja de camisetas ↗</a>
+        </section>
+    </div>
+    <!-- METAS: conteúdo do Codex antigo, preservado em um bloco próprio. -->
+    <section class="cartao" aria-labelledby="titulo-metas" style="margin-top: 18px;">
+        <h2 id="titulo-metas">Nossas metas</h2>
+        <p>Nossas metas — a serem alcançadas por meio dos apoios recebidos:</p>
+        <ul>
+            <li>Adquirir e manter um domínio próprio.</li>
+            <li>Adquirir e manter uma hospedagem profissional.</li>
+            <li>Maximizar o sistema de backups para os textos.</li>
+        </ul>
+    </section>
+    <p class="ajuda">Agradeço pelo seu tempo em me ler.</p>
+    <p class="estado" id="estado" role="status" aria-live="polite"></p>
+    <noscript><p class="ajuda">Selecione a chave ou o endereço e copie manualmente. Os botões de copiar e fechar dependem de JavaScript.</p></noscript>
+</main>
+<!-- INTERAÇÕES: nenhuma gravação de dados de apoio no localStorage. -->
+<script>
+(function () {
+    'use strict';
+    document.querySelectorAll('[data-copiar]').forEach(function (botao) {
+        botao.addEventListener('click', async function () {
+            var campo = document.getElementById(botao.dataset.copiar);
+            var estado = document.getElementById(botao.getAttribute('aria-describedby'));
+            campo.focus();
+            campo.select();
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(campo.value);
+                } else if (!document.execCommand('copy')) {
+                    throw new Error('Cópia indisponível');
+                }
+                estado.textContent = 'Copiado.';
+            } catch (erro) {
+                estado.textContent = 'Não foi possível copiar automaticamente. O texto está selecionado: use Copiar no seu dispositivo.';
+            }
+        });
+    });
+    function fechar() {
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'FECHAR_MODAL' }, window.location.origin);
+        } else {
+            document.getElementById('estado').textContent = 'Esta central de apoio está aberta fora do site.';
+        }
+    }
+    document.getElementById('fechar').addEventListener('click', fechar);
+    document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape') fechar();
+    });
+}());
+</script>
+</body>
+</html>

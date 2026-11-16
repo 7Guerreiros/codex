@@ -3,37 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX MACHINAE</title>
+
+    <title>OPUS MACHINA — Lumina</title>
 
     <!-- ============================================================
-         NOTA DE UTILIZAÇÃO
-         ============================================================
-         Esta página é carregada dentro de um <iframe> pelo botão
-         Copas (♥️) de Menus.js (ver MODAL_CONTENTS → 'Coracao-modal').
-         Não passa pelo injector do index.html — é uma página HTML
-         completa e independente, como MENU_GERAL.html.
-
-         FUNCIONAMENTO:
-           1. Ao carregar, lê window.ConquistasSistema.listarDesbloqueadas()
-              — a lista de IDs salvos em localStorage pelos Codex de
-              livros (ex.: CODEX_LIVRO.html).
-           2. Para cada ID, busca os dados (nome/descrição/imagem) em
-              window.CONQUISTAS_LISTA.
-           3. Monta um grid só com as conquistas desbloqueadas — as
-              que ainda não foram desbloqueadas simplesmente não
-              aparecem (nenhuma silhueta ou placeholder).
-           4. Clique numa miniatura abre a imagem em tamanho maior,
-              num lightbox simples embutido nesta própria página.
-
-         FECHAR O MODAL:
-           O botão "Fechar" envia postMessage({type:'FECHAR_MODAL'})
-           para a página pai, que o Menus.js já escuta (ver SEÇÃO 5.1
-           de Menus.js) — mesmo padrão usado por IFRAME_MAPA.html.
+         DEPENDÊNCIAS
+         A lista carrega antes do motor.
+         O motor reutiliza a instância do pai quando disponível.
          ============================================================ -->
-
     <script src="Sistema_Tema.js"></script>
-    <script src="CONQUISTAS_LISTA.js"></script>
-    <script src="CONQUISTAS_SISTEMA.js"></script>
+    <script src="SISTEMA_LUMINA_CONQUISTAS_LISTA.js"></script>
+    <script src="SISTEMA_LUMINA_CONQUISTAS.js"></script>
 
     <style>
         * {
@@ -49,9 +29,7 @@
             min-height: 100vh;
         }
 
-        /* ============================================================
-           CABEÇALHO
-           ============================================================ */
+        /* --- Cabeçalho --- */
         .cm-cabecalho {
             display: flex;
             justify-content: space-between;
@@ -95,9 +73,7 @@
             opacity: 1;
         }
 
-        /* ============================================================
-           GRID DE CONQUISTAS
-           ============================================================ */
+        /* --- Galeria --- */
         .cm-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -136,9 +112,6 @@
             border-top: 1px solid var(--borda, #cccccc);
         }
 
-        /* ============================================================
-           ESTADO VAZIO
-           ============================================================ */
         .cm-vazio {
             text-align: center;
             padding: 3rem 1rem;
@@ -146,9 +119,7 @@
             font-style: italic;
         }
 
-        /* ============================================================
-           LIGHTBOX
-           ============================================================ */
+        /* --- Lightbox --- */
         .cm-lightbox {
             position: fixed;
             inset: 0;
@@ -180,10 +151,6 @@
             z-index: 2;
         }
 
-        /* --- Barra de ferramentas: zoom + download ---
-           Fica abaixo do título/descrição, em fluxo normal (não mais
-           sobreposta à imagem). z-index mais alto que a imagem, para
-           permanecer sempre clicável, mesmo com a imagem ampliada. */
         .cm-lightbox-toolbar {
             display: flex;
             gap: 0.6rem;
@@ -191,8 +158,7 @@
             z-index: 3;
         }
 
-        .cm-lightbox-toolbar button,
-        .cm-lightbox-toolbar a {
+        .cm-lightbox-toolbar button {
             font-family: inherit;
             font-size: 1.1rem;
             background: none;
@@ -210,8 +176,7 @@
             transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
-        .cm-lightbox-toolbar button:hover,
-        .cm-lightbox-toolbar a:hover {
+        .cm-lightbox-toolbar button:hover {
             background-color: rgba(255, 255, 255, 0.15);
             border-color: rgba(240, 240, 240, 0.7);
         }
@@ -236,26 +201,114 @@
             margin: 0;
         }
 
-        .cm-lightbox-fechar {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            font-family: inherit;
+        .cm-lightbox-toolbar .cm-lightbox-fechar {
+            width: auto;
+            padding: 0 0.9rem;
             font-size: 0.85rem;
-            background: none;
-            border: 1px solid rgba(240, 240, 240, 0.4);
-            color: #f0f0f0;
-            padding: 0.4rem 0.9rem;
-            border-radius: 4px;
-            cursor: pointer;
-            line-height: 1;
-            z-index: 4;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
-        .cm-lightbox-fechar:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-color: rgba(240, 240, 240, 0.7);
+        /* --- Ajustes locais preservados --- */
+        .cm-grid {
+            grid-template-columns:
+                repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+        }
+
+        .cm-cabecalho {
+            padding-right: 30px;
+        }
+
+        .cm-cabecalho p {
+            margin: .35rem 0 0;
+        }
+
+        .cm-lightbox {
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .cm-imagem-area {
+            width: 100%;
+            min-height: 0;
+            flex: 1;
+            overflow: auto;
+            overscroll-behavior: contain;
+        }
+
+        .cm-imagem-area img {
+            display: block;
+            max-width: none;
+            max-height: none;
+            height: auto;
+            margin: 0 auto;
+            transform: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .cm-grid img {
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .cm-lightbox.aberto {
+            overflow: auto;
+            overscroll-behavior: contain;
+        }
+
+        .cm-lightbox,
+        .cm-imagem-area,
+        .cm-lightbox-texto {
+            scrollbar-width: none;
+        }
+
+        .cm-lightbox::-webkit-scrollbar,
+        .cm-imagem-area::-webkit-scrollbar,
+        .cm-lightbox-texto::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cm-imagem-area {
+            min-height: 48px;
+        }
+
+        .cm-lightbox-texto {
+            max-height: 20vh;
+            overflow: auto;
+            flex-shrink: 0;
+        }
+
+        .cm-lightbox-toolbar {
+            flex-shrink: 0;
+        }
+
+        .cm-item:focus-visible,
+        .cm-lightbox button:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 480px), (max-height: 420px) {
+            .cm-lightbox {
+                padding: .75rem;
+                gap: .6rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cm-item,
+            .cm-lightbox,
+            .cm-lightbox img,
+            .cm-lightbox-toolbar button,
+            #cm-btn-fechar {
+                transition: none;
+            }
+        }
+
+        @media print {
+            body {
+                visibility: hidden !important;
+            }
         }
     </style>
 </head>
@@ -263,170 +316,565 @@
 
     <div class="cm-cabecalho">
         <div>
-            <h1 class="cm-titulo">CODEX MACHINAE</h1>
+            <h1 class="cm-titulo">OPUS MACHINA</h1>
+            <p>Ilustrações criadas por Lumina</p>
             <p class="cm-contador" id="cm-contador"></p>
         </div>
-        <button id="cm-btn-fechar" type="button" aria-label="Fechar" title="Fechar">&times;</button>
+
+        <button
+            id="cm-btn-fechar"
+            type="button"
+            aria-label="Fechar"
+            title="Fechar"
+        >&times;</button>
     </div>
 
     <div id="cm-grid-wrapper"></div>
 
-    <!-- ============================================================
-         LIGHTBOX — reaproveitado para qualquer conquista clicada
-         ============================================================ -->
-    <div class="cm-lightbox" id="cm-lightbox">
-        <button class="cm-lightbox-fechar" id="cm-lightbox-fechar" type="button" aria-label="Fechar imagem">Fechar</button>
-        <img id="cm-lightbox-img" src="" alt="">
-        <div class="cm-lightbox-texto">
-            <p class="cm-lb-nome" id="cm-lightbox-nome"></p>
-            <p class="cm-lb-descricao" id="cm-lightbox-descricao"></p>
+    <div
+        class="cm-lightbox"
+        id="cm-lightbox"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        aria-labelledby="cm-lightbox-nome"
+        tabindex="-1"
+    >
+        <div
+            class="cm-imagem-area"
+            id="cm-imagem-area"
+            tabindex="0"
+            role="region"
+            aria-label="Área da ilustração"
+        >
+            <img
+                id="cm-lightbox-img"
+                alt=""
+                draggable="false"
+            >
         </div>
+
+        <div class="cm-lightbox-texto">
+            <p
+                class="cm-lb-nome"
+                id="cm-lightbox-nome"
+            ></p>
+
+            <p
+                class="cm-lb-descricao"
+                id="cm-lightbox-descricao"
+            ></p>
+        </div>
+
         <div class="cm-lightbox-toolbar">
-            <button id="cm-zoom-out" type="button" aria-label="Diminuir zoom" title="Diminuir zoom">−</button>
-            <button id="cm-zoom-in" type="button" aria-label="Aumentar zoom" title="Aumentar zoom">+</button>
-            <a id="cm-lightbox-download" href="" download title="Descarregar imagem" aria-label="Descarregar imagem">⭳</a>
+            <button
+                id="cm-zoom-out"
+                type="button"
+                aria-label="Diminuir zoom"
+                title="Diminuir zoom"
+            >−</button>
+
+            <button
+                id="cm-zoom-in"
+                type="button"
+                aria-label="Aumentar zoom"
+                title="Aumentar zoom"
+            >+</button>
+
+            <button
+                class="cm-lightbox-fechar"
+                id="cm-lightbox-fechar"
+                type="button"
+                aria-label="Fechar imagem"
+            >Fechar</button>
         </div>
     </div>
 
-    <!-- ============================================================
-         SCRIPT — Montagem do grid + lightbox
-         ============================================================
-         MANUTENÇÃO:
-           Nenhuma edição necessária aqui ao adicionar novas
-           conquistas — este script lê CONQUISTAS_LISTA.js e o
-           localStorage dinamicamente. Basta cadastrar a conquista
-           em CONQUISTAS_LISTA.js e o data-conquista no capítulo
-           correspondente em CODEX_LIVRO.html.
-         ============================================================ -->
     <script>
-        (function () {
-            'use strict';
+    (function () {
+        'use strict';
 
-            function montarGrid() {
-                var wrapper   = document.getElementById('cm-grid-wrapper');
-                var contador  = document.getElementById('cm-contador');
-                var lista     = window.CONQUISTAS_LISTA || {};
-                var sistema   = window.ConquistasSistema;
-                var idsSalvos = sistema ? sistema.listarDesbloqueadas() : [];
+        // ============================================================
+        // 1. ELEMENTOS E ESTADO
+        // ============================================================
 
-                /* Filtra apenas IDs desbloqueados que também existem
-                   em CONQUISTAS_LISTA.js (evita quebrar caso um ID
-                   salvo antigamente tenha sido removido da lista). */
-                var desbloqueadas = idsSalvos
-                    .filter(function (id) { return !!lista[id]; })
-                    .map(function (id) { return Object.assign({ id: id }, lista[id]); });
+        var wrapper = document.getElementById('cm-grid-wrapper');
+        var contador = document.getElementById('cm-contador');
+        var lightbox = document.getElementById('cm-lightbox');
+        var areaImagem = document.getElementById('cm-imagem-area');
+        var imagem = document.getElementById('cm-lightbox-img');
+        var fechar = document.getElementById('cm-lightbox-fechar');
+        var botaoPainel = document.getElementById('cm-btn-fechar');
 
-                contador.textContent = desbloqueadas.length + ' conquista(s) desbloqueada(s)';
+        var zoom = 1;
+        var imagemBase = 0;
+        var retornoFoco = null;
+        var rolagemAnterior = '';
 
-                if (desbloqueadas.length === 0) {
-                    wrapper.innerHTML = '<p class="cm-vazio">Nenhuma conquista desbloqueada ainda. Continue a leitura para desbloquear ilustrações.</p>';
+        function dadosLista() {
+            return (
+                window.SistemaLuminaIlustracoes ||
+                window.CONQUISTAS_LISTA ||
+                {}
+            );
+        }
+
+        function comReserva(img, principal, reserva) {
+            var primeira = principal || reserva;
+
+            img.onerror = function () {
+                if (
+                    principal &&
+                    reserva &&
+                    principal !== reserva
+                ) {
+                    principal = '';
+                    img.src = reserva;
+                } else {
+                    img.alt = 'Ilustração indisponível';
+                }
+            };
+
+            img.src = primeira;
+        }
+
+        // ============================================================
+        // 2. GALERIA
+        // ============================================================
+
+        function montarGrid() {
+            var lista = dadosLista();
+
+            var motor =
+                window.SistemaLuminaConquistas ||
+                window.ConquistasSistema;
+
+            var chaveFoco = wrapper.contains(
+                document.activeElement
+            )
+                ? document.activeElement
+                : retornoFoco;
+
+            chaveFoco = chaveFoco &&
+                chaveFoco.getAttribute('data-cm-imagem');
+
+            var focoActualizado = null;
+
+            var tinhaFoco = wrapper.contains(
+                document.activeElement
+            );
+
+            var ids = (
+                motor &&
+                typeof motor.listarDesbloqueadas === 'function'
+            )
+                ? motor.listarDesbloqueadas()
+                : null;
+
+            var grid = document.createElement('div');
+            grid.className = 'cm-grid';
+
+            var quantidade = 0;
+
+            (ids || []).forEach(function (id) {
+                if (
+                    !Object.prototype.hasOwnProperty.call(
+                        lista,
+                        id
+                    )
+                ) {
                     return;
                 }
 
-                var grid = document.createElement('div');
-                grid.className = 'cm-grid';
+                var dados = lista[id];
 
-                desbloqueadas.forEach(function (conquista) {
-                    /* Se a conquista tiver 'imagens' (array), cria um
-                       item por imagem; senão, um único item com
-                       'imagem', exactamente como antes. */
-                    var imagens = conquista.imagens || [conquista.imagem];
+                if (
+                    !dados ||
+                    typeof dados !== 'object'
+                ) {
+                    return;
+                }
 
-                    imagens.forEach(function (img) {
-                        var item = document.createElement('button');
-                        item.className = 'cm-item';
-                        item.type = 'button';
-                        item.innerHTML =
-                            '<img src="' + img + '" alt="' + conquista.nome + '" loading="lazy">' +
-                            '<span class="cm-nome">' + conquista.nome + '</span>';
+                var imagens = Array.isArray(
+                    dados.imagens_principais
+                )
+                    ? dados.imagens_principais
+                    : [dados.imagem_principal];
 
-                        item.addEventListener('click', function () {
-                            abrirLightbox(Object.assign({}, conquista, { imagem: img }));
-                        });
+                var reservas = Array.isArray(
+                    dados.imagens_reservas
+                )
+                    ? dados.imagens_reservas
+                    : [dados.imagem_reserva];
 
-                        grid.appendChild(item);
-                    });
+                imagens.forEach(function (url, indice) {
+                    url = typeof url === 'string'
+                        ? url.trim()
+                        : '';
+
+                    var reserva =
+                        typeof reservas[indice] === 'string'
+                            ? reservas[indice].trim()
+                            : '';
+
+                    if (!url && !reserva) return;
+
+                    var chave = JSON.stringify(
+                        [id, indice]
+                    );
+
+                    var item = document.createElement('button');
+
+                    item.type = 'button';
+                    item.className = 'cm-item';
+
+                    item.setAttribute(
+                        'data-cm-imagem',
+                        chave
+                    );
+
+                    if (chave === chaveFoco) {
+                        focoActualizado = item;
+                    }
+
+                    var miniatura = document.createElement('img');
+
+                    miniatura.alt =
+                        dados.nome || 'Ilustração de Lumina';
+
+                    miniatura.loading = 'lazy';
+                    miniatura.draggable = false;
+
+                    comReserva(
+                        miniatura,
+                        url,
+                        reserva
+                    );
+
+                    var nome = document.createElement('span');
+
+                    nome.className = 'cm-nome';
+                    nome.textContent = dados.nome || '';
+
+                    item.appendChild(miniatura);
+                    item.appendChild(nome);
+
+                    item.addEventListener(
+                        'click',
+                        function () {
+                            abrirLightbox(
+                                dados,
+                                url,
+                                reserva,
+                                item
+                            );
+                        }
+                    );
+
+                    grid.appendChild(item);
+                    quantidade++;
                 });
+            });
 
-                wrapper.innerHTML = '';
+            contador.textContent =
+                quantidade + ' ilustração(ões) disponível(is)';
+
+            wrapper.textContent = '';
+
+            if (quantidade) {
                 wrapper.appendChild(grid);
-            }
-
-            /* ============================================================
-               LIGHTBOX
-               ============================================================ */
-            var ZOOM_MIN = 1;
-            var ZOOM_MAX = 3;
-            var ZOOM_PASSO = 0.25;
-            var zoomAtual = 1;
-
-            function aplicarZoom() {
-                document.getElementById('cm-lightbox-img').style.transform = 'scale(' + zoomAtual + ')';
-            }
-
-            function abrirLightbox(conquista) {
-                document.getElementById('cm-lightbox-img').src = conquista.imagem;
-                document.getElementById('cm-lightbox-img').alt = conquista.nome;
-                document.getElementById('cm-lightbox-nome').textContent = conquista.nome;
-                document.getElementById('cm-lightbox-descricao').textContent = conquista.descricao;
-
-                /* Zoom reinicia sempre a 1x para cada nova imagem */
-                zoomAtual = 1;
-                aplicarZoom();
-
-                /* Prepara o link de download com o nome da conquista.
-                   NOTA: se a imagem vier de um domínio externo (ex.:
-                   Tumblr), o atributo "download" pode ser ignorado pelo
-                   navegador por restrição de CORS — nesse caso, o clique
-                   abre a imagem numa nova aba em vez de descarregá-la
-                   directamente. Para imagens alojadas no próprio site
-                   (IMGS/...), o download funciona sempre. */
-                var linkDownload = document.getElementById('cm-lightbox-download');
-                linkDownload.href = conquista.imagem;
-                linkDownload.setAttribute('download', conquista.nome.replace(/\s+/g, '_') + '.jpg');
-
-                document.getElementById('cm-lightbox').classList.add('aberto');
-            }
-
-            function fecharLightbox() {
-                document.getElementById('cm-lightbox').classList.remove('aberto');
-            }
-
-            document.getElementById('cm-zoom-in').addEventListener('click', function () {
-                zoomAtual = Math.min(ZOOM_MAX, zoomAtual + ZOOM_PASSO);
-                aplicarZoom();
-            });
-
-            document.getElementById('cm-zoom-out').addEventListener('click', function () {
-                zoomAtual = Math.max(ZOOM_MIN, zoomAtual - ZOOM_PASSO);
-                aplicarZoom();
-            });
-
-            document.getElementById('cm-lightbox-fechar').addEventListener('click', fecharLightbox);
-            document.getElementById('cm-lightbox').addEventListener('click', function (e) {
-                if (e.target === this) fecharLightbox();
-            });
-
-            /* ============================================================
-               FECHAR O MODAL (comunicação com a página pai)
-               ============================================================
-               Mesmo padrão usado por IFRAME_MAPA.html — ver Menus.js,
-               SEÇÃO 5.1, que já escuta esta mensagem.
-               ============================================================ */
-            document.getElementById('cm-btn-fechar').addEventListener('click', function () {
-                window.parent.postMessage({ type: 'FECHAR_MODAL' }, '*');
-            });
-
-            /* ============================================================
-               INICIALIZAÇÃO
-               ============================================================ */
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', montarGrid);
             } else {
-                montarGrid();
+                var vazio = document.createElement('p');
+                vazio.className = 'cm-vazio';
+
+                vazio.textContent = (
+                    ids &&
+                    (
+                        window.SistemaLuminaIlustracoes ||
+                        window.CONQUISTAS_LISTA
+                    )
+                )
+                    ? 'Nenhuma ilustração disponível ainda. Continue a leitura para descobrir as criações de Lumina.'
+                    : 'Não foi possível carregar a galeria de ilustrações. Reabra este painel.';
+
+                wrapper.appendChild(vazio);
             }
 
-        }());
+            if (retornoFoco) {
+                retornoFoco = focoActualizado;
+            }
+
+            if (tinhaFoco) {
+                (focoActualizado || botaoPainel).focus();
+            }
+        }
+
+        window.addEventListener(
+            'storage',
+            function (evento) {
+                if (
+                    evento.key === 'conquistas_desbloqueadas' ||
+                    evento.key === null
+                ) {
+                    montarGrid();
+                }
+            }
+        );
+
+        window.addEventListener(
+            'lumina:ilustracoes-alteradas',
+            montarGrid
+        );
+
+        // ============================================================
+        // 3. LIGHTBOX, ZOOM E TECLADO
+        // ============================================================
+
+        function aplicarZoom() {
+            if (
+                !imagemBase ||
+                !imagem.naturalWidth
+            ) {
+                return;
+            }
+
+            imagem.style.width =
+                (imagemBase * zoom) + 'px';
+        }
+
+        function dimensionar() {
+            var limiteAltura =
+                areaImagem.clientHeight ||
+                window.innerHeight * .65;
+
+            var proporcao =
+                imagem.naturalWidth /
+                (imagem.naturalHeight || 1);
+
+            imagemBase = Math.min(
+                imagem.naturalWidth,
+                areaImagem.clientWidth,
+                limiteAltura * proporcao
+            );
+
+            aplicarZoom();
+        }
+
+        function abrirLightbox(dados, url, reserva, origem) {
+            retornoFoco = origem;
+            zoom = 1;
+            imagemBase = 0;
+
+            imagem.style.width = '';
+            imagem.alt = dados.nome || '';
+
+            document.getElementById(
+                'cm-lightbox-nome'
+            ).textContent = dados.nome || '';
+
+            document.getElementById(
+                'cm-lightbox-descricao'
+            ).textContent = dados.descricao || '';
+
+            lightbox.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+
+            lightbox.classList.add('aberto');
+
+            rolagemAnterior = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+
+            areaImagem.scrollTop = 0;
+            areaImagem.scrollLeft = 0;
+
+            imagem.onload = dimensionar;
+
+            comReserva(
+                imagem,
+                url,
+                reserva
+            );
+
+            if (
+                imagem.complete &&
+                imagem.naturalWidth
+            ) {
+                dimensionar();
+            }
+
+            fechar.focus();
+        }
+
+        function fecharLightbox() {
+            lightbox.classList.remove('aberto');
+
+            document.body.style.overflow =
+                rolagemAnterior;
+
+            (
+                retornoFoco && retornoFoco.isConnected
+                    ? retornoFoco
+                    : botaoPainel
+            ).focus();
+
+            lightbox.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            imagem.onload = null;
+            imagem.onerror = null;
+            imagem.removeAttribute('src');
+
+            retornoFoco = null;
+        }
+
+        document.getElementById(
+            'cm-zoom-in'
+        ).addEventListener('click', function () {
+            zoom = Math.min(3, zoom + .25);
+            aplicarZoom();
+        });
+
+        document.getElementById(
+            'cm-zoom-out'
+        ).addEventListener('click', function () {
+            zoom = Math.max(1, zoom - .25);
+            aplicarZoom();
+        });
+
+        fechar.addEventListener(
+            'click',
+            fecharLightbox
+        );
+
+        lightbox.addEventListener(
+            'click',
+            function (e) {
+                if (e.target === lightbox) {
+                    fecharLightbox();
+                }
+            }
+        );
+
+        document.addEventListener(
+            'keydown',
+            function (e) {
+                if (
+                    !lightbox.classList.contains('aberto')
+                ) {
+                    return;
+                }
+
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    fecharLightbox();
+                } else if (e.key === 'Tab') {
+                    var botoes = Array.from(
+                        lightbox.querySelectorAll(
+                            'button, [tabindex="0"]'
+                        )
+                    );
+
+                    var primeiro = botoes[0];
+                    var ultimo = botoes[botoes.length - 1];
+
+                    if (
+                        e.shiftKey &&
+                        (
+                            document.activeElement === primeiro ||
+                            !lightbox.contains(document.activeElement)
+                        )
+                    ) {
+                        e.preventDefault();
+                        ultimo.focus();
+                    } else if (
+                        !e.shiftKey &&
+                        (
+                            document.activeElement === ultimo ||
+                            !lightbox.contains(document.activeElement)
+                        )
+                    ) {
+                        e.preventDefault();
+                        primeiro.focus();
+                    }
+                }
+            }
+        );
+
+        window.addEventListener(
+            'resize',
+            function () {
+                if (
+                    lightbox.classList.contains('aberto')
+                ) {
+                    dimensionar();
+                }
+            }
+        );
+
+        // ============================================================
+        // 4. CÓPIA CASUAL E FECHAMENTO
+        // ============================================================
+
+        function imagemProtegida(alvo) {
+            return (
+                alvo &&
+                alvo.tagName === 'IMG' &&
+                (
+                    wrapper.contains(alvo) ||
+                    lightbox.contains(alvo)
+                )
+            );
+        }
+
+        document.addEventListener(
+            'contextmenu',
+            function (e) {
+                if (imagemProtegida(e.target)) {
+                    e.preventDefault();
+                }
+            }
+        );
+
+        document.addEventListener(
+            'dragstart',
+            function (e) {
+                if (imagemProtegida(e.target)) {
+                    e.preventDefault();
+                }
+            }
+        );
+
+        botaoPainel.addEventListener(
+            'click',
+            function () {
+                if (window.parent === window) return;
+
+                var destino =
+                    window.location.protocol === 'file:'
+                        ? '*'
+                        : window.location.origin;
+
+                window.parent.postMessage(
+                    { type: 'FECHAR_MODAL' },
+                    destino
+                );
+            }
+        );
+
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                montarGrid,
+                { once: true }
+            );
+        } else {
+            montarGrid();
+        }
+    })();
     </script>
 
 </body>

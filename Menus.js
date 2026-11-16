@@ -4,6 +4,10 @@
     // =================================================================================
     // SEÇÃO 1: CONFIGURAÇÕES E CONSTANTES
     // =================================================================================
+    // Evita componentes e eventos duplicados numa segunda execução.
+    if (window.__menus7GuerreirosIniciado) return;
+    window.__menus7GuerreirosIniciado = true;
+
     const CONFIG = {
         buttonSpacing: 70,
         initialOffset: { top: 20, left: 20 },
@@ -18,12 +22,12 @@
     };
 
     const MODAL_CONTENTS = {
-        'Trebelho-modal': { src: 'IFRAME_ANOTACOES.html', title: 'NOTAS' },   // ♣️
-        'Losango-modal':  { src: 'IFRAME_MAPA.html', title: 'MAPA DO REINO' },                     // ♦️
-        'Coracao-modal':  { src: 'IFRAME_CODEX_MACHINAE.html', title: 'CODEX MACHENAE' },    // ♥️
-        'Espada-modal':   { src: 'IFRAME_FORUM.html', title: 'FORUM' }, // ♠️
-        'Torre-modal':    { src: 'IFRAME_LOJA.html', title: 'LOJA OFICIAL' },          // ♖
-        'Gamer-modal':    { src: 'IFRAME_CHEAT_CODES.html', title: 'CHEATS' }          // 🕹️
+        'Trebelho-modal': { src: 'IFRAME_CADERNO_LEITOR.html', title: 'CADERNO DO LEITOR (GUARDA PROGESSOS DE LEITURA E ANOTAÇÕES)' },   // ♣️
+        'Losango-modal':  { src: 'IFRAME_MAPA.html', title: 'MAPAS DO MÆ' },                     // ♦️
+        'Coracao-modal':  { src: 'IFRAME_CODEX_MACHINAE.html', title: 'CODEX MACHENÆ' },    // ♥️
+        'Espada-modal':   { src: 'IFRAME_FORUM.html', title: 'FORÚM (ACESSO E SENHA PARA FACEBOOK, POR ENQUANTO)' }, // ♠️
+        'Torre-modal':    { src: 'IFRAME_APOIO.html', title: 'APOIE O PROJETO' },          // ♖
+        'Gamer-modal':    { src: 'IFRAME_CHEAT_CODES.html', title: 'CHEATS CODES' }          // 🕹️
     };
 
     // =================================================================================
@@ -32,9 +36,11 @@
     const State = {
         buttons: new Map(),
         modals: new Map(),
+        closeMainMenu: null, // Fecho reutilizado após a injecção de um Codex.
         // REMOVIDO: State.theme - O Sistema_Tema.js controla isso
         themeButton: null,
         scrollWrapper: null,
+        scrollTrack: null,
         areMobileButtonsVisible: false,
         originalDisplays: new Map(),
         breakpoint: 768,
@@ -52,22 +58,39 @@
         const css = `
             /* Container de Scroll */
             #buttons-scroll-wrapper {
-                position: fixed; top: 0; left: 0; width: 120px; height: 100vh;
+                position: fixed; top: 0; left: 0; width: 120px; height: 100vh; height: 100dvh;
                 z-index: ${CONFIG.zIndex.scrollWrapper};
                 overflow-y: auto; overflow-x: hidden;
-                pointer-events: none;
+                /* Toda a faixa recebe toque e rato, inclusive em paisagem
+                   acima de 768px. Os intervalos também pertencem à esteira. */
+                pointer-events: auto;
+                touch-action: pan-y pinch-zoom;
                 scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
             }
             #buttons-scroll-wrapper::-webkit-scrollbar { display: none; }
 
             /* --- NOVO: Lógica de Esmaecer (CORRIGIDA PARA IGUALAR O BOTÃO AS) --- */
             @media (max-width: 768px) {
+                /* Fechada: a faixa invisível não bloqueia a página. */
+                #buttons-scroll-wrapper:not(.mobile-active) {
+                    pointer-events: none;
+                }
                 #buttons-scroll-wrapper.mobile-active {
                     width: 100%; /* Ocupa a tela toda */
                     /* CORREÇÃO: Usando exatamente a mesma cor e opacidade (0.3) do Botão As */
                     background: rgba(0,0,0,0.3); 
                     pointer-events: auto; /* Permite clicar no fundo para fechar */
                 }
+            }
+
+            /* Evita o flash dos botões antes da visibilidade inicial ser aplicada. */
+            @media (max-width: 768px) {
+                #buttons-scroll-wrapper .sys-btn { display: none; }
+            }
+            @media (min-width: 769px) {
+                #Sete-btn { display: none; }
             }
 
             /* Classe Base dos Botões */
@@ -113,6 +136,19 @@
                 box-shadow: 0 4px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
             }
 
+            /* MANUTENÇÃO: suavidade vertical do Gamer; o botão Topo acompanha
+               com a mesma curva para preservar o intervalo entre ambos. */
+            #Gamer-btn, #Topo-btn {
+                transition: top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                            transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+                            box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+
+            .sys-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
+            @media (prefers-reduced-motion: reduce) {
+                .sys-btn, #Gamer-btn, #Topo-btn, .sys-modal-overlay, .sys-modal-iframe { transition: none; }
+            }
+
             /* Modal Overlay */
             .sys-modal-overlay {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -134,6 +170,8 @@
 
         `;
 
+        // A altura dinâmica acompanha as barras do navegador no telemóvel.
+        // Mantém-se a esteira vertical e o fundo clicável de largura total.
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = css;
@@ -143,6 +181,55 @@
     // =================================================================================
     // SEÇÃO 4: FUNÇÕES CORE
     // =================================================================================
+
+    // A altura visual exclui a área ocupada pelas barras do navegador.
+    // Usa a menor medida para não projectar botões para uma área encoberta.
+    function getVisibleHeight() {
+        const visual = window.visualViewport;
+        return visual && visual.height > 0
+            ? Math.min(window.innerHeight, visual.height)
+            : window.innerHeight;
+    }
+
+    function updateScrollViewport() {
+        if (State.scrollWrapper) {
+            State.scrollWrapper.style.height = `${getVisibleHeight()}px`;
+        }
+    }
+
+    // A pista tem altura real no fluxo: o scrollHeight do wrapper inclui
+    // sempre o último botão e a margem inferior, também em paisagem.
+    function updateScrollEnd() {
+        if (!State.scrollTrack) return;
+        let end = 0;
+        State.buttons.forEach((btn, id) => {
+            if (id === 'Sete-btn') return;
+            const height = btn.offsetHeight || (id === 'Topo-btn' ? 28 : 58);
+            end = Math.max(end, (parseFloat(btn.style.top) || 0) + height);
+        });
+        State.scrollTrack.style.height = `${Math.ceil(end + 32)}px`;
+    }
+
+    // No PC a roda é encaminhada na faixa completa de 120px, incluindo
+    // os intervalos. O toque usa a rolagem nativa do mesmo contentor.
+    // Fora dessa faixa, com Ctrl/zoom ou com um painel aberto, não interfere.
+    function handleDesktopWheel(event) {
+        const wrapper = State.scrollWrapper;
+        if (!wrapper || window.innerWidth <= State.breakpoint || event.ctrlKey ||
+            event.defaultPrevented || State.modals.size ||
+            document.getElementById('menu-lateral-overlay')) return;
+        const rect = wrapper.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX >= rect.right ||
+            event.clientY < rect.top || event.clientY >= rect.bottom) return;
+        if (!event.deltaY || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+        const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? wrapper.clientHeight : 1;
+        const maximum = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight);
+        const next = Math.max(0, Math.min(maximum, wrapper.scrollTop + event.deltaY * unit));
+        if (next === wrapper.scrollTop) return;
+        if (!event.cancelable) return;
+        event.preventDefault();
+        wrapper.scrollTop = next;
+    }
 
     /**
      * Calcula posição Y baseada no layout
@@ -169,10 +256,10 @@
                         const currentTop = parseFloat(espadaBtn.style.top);
                         baseTop = currentTop + (CONFIG.buttonSpacing * 2);
                     } else {
-                        baseTop = window.innerHeight - layout.offsetFromBottom;
+                        baseTop = getVisibleHeight() - layout.offsetFromBottom;
                     }
                 }
-                const bottomTop = window.innerHeight - layout.offsetFromBottom;
+                const bottomTop = getVisibleHeight() - layout.offsetFromBottom;
                 return Math.max(baseTop, bottomTop);
             }
             
@@ -182,10 +269,10 @@
                     const gamerTop = parseFloat(gamerBtn.style.top);
                     return gamerTop + 65; // Posiciona-se logo abaixo do Gamer
                 }
-                return window.innerHeight - layout.offsetFromBottom;
+                return getVisibleHeight() - layout.offsetFromBottom;
             }
 
-            return window.innerHeight - layout.offsetFromBottom;
+            return getVisibleHeight() - layout.offsetFromBottom;
         }
         return 0;
     }
@@ -197,6 +284,7 @@
 
         const button = document.createElement('button');
         button.id = id;
+        button.type = 'button';
         button.innerHTML = icon;
         button.className = 'sys-btn'; // Usa a classe CSS otimizada
 
@@ -234,9 +322,15 @@
         const overlay = document.createElement('div');
         overlay.id = modalId;
         overlay.className = 'sys-modal-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', config.title);
+        overlay._returnFocus = document.activeElement;
         
         const iframe = document.createElement('iframe');
         iframe.className = 'sys-modal-iframe';
+        iframe.title = config.title;
+        iframe.addEventListener('load', () => sincronizarTema(iframe));
         // CORREÇÃO: Agora usa a variável CSS definida pelo Sistema_Tema.js
         // O fundo do iframe será controlado pelo CSS do próprio iframe ou pela página carregada nele.
         // Aqui, apenas o overlay (externo) usa a variável.
@@ -255,18 +349,22 @@
 
         // Animação com requestAnimationFrame para performance
         requestAnimationFrame(() => {
+            if (overlay.dataset.fechando === 'true' || !overlay.isConnected) return;
             iframe.src = config.src;
             overlay.classList.add('sys-modal-active');
+            iframe.focus();
         });
     }
 
     function closeModal(modalId) {
         const modal = State.modals.get(modalId);
-        if (modal) {
+        if (modal && modal.dataset.fechando !== 'true') {
+            modal.dataset.fechando = 'true';
             modal.classList.remove('sys-modal-active');
             setTimeout(() => {
                 if (modal.parentNode) modal.remove();
                 State.modals.delete(modalId);
+                if (modal._returnFocus && modal._returnFocus.isConnected) modal._returnFocus.focus();
             }, 200);
         }
     }
@@ -279,7 +377,12 @@
     // com a origem da mensagem) e chamamos closeModal() já existente. Nenhuma outra
     // lógica de Menus.js foi alterada.
     window.addEventListener('message', function (e) {
-        if (!e.data || e.data.type !== 'FECHAR_MODAL') return;
+        // Em file:// o remetente pode ter origem opaca ("null").
+        // Esta excepção só existe no modo local. Por HTTP/HTTPS mantém-se
+        // a origem exacta; abaixo continua obrigatória a identidade do iframe.
+        const origemValida = e.origin === window.location.origin ||
+            (window.location.protocol === 'file:' && e.origin === 'null');
+        if (!origemValida || !e.data || e.data.type !== 'FECHAR_MODAL') return;
         State.modals.forEach(function (overlay, modalId) {
             var iframe = overlay.querySelector('iframe');
             if (iframe && iframe.contentWindow === e.source) {
@@ -288,6 +391,15 @@
         });
     });
 
+    // Notifica o iframe após o carregamento, sem mudar o tema nem o armazenamento.
+    function sincronizarTema(iframe) {
+        if (!iframe.contentWindow || window.location.origin === 'null') return;
+        iframe.contentWindow.postMessage({
+            type: 'SET_THEME',
+            theme: document.documentElement.classList.contains('tema-escuro') ? 'escuro' : 'claro'
+        }, window.location.origin);
+    }
+
     function handleMenuClick() {
         if (document.getElementById('menu-lateral-overlay')) return;
 
@@ -295,7 +407,7 @@
         overlay.id = 'menu-lateral-overlay';
         // Estilos mantidos inline aqui por serem muito específicos e dinâmicos
         overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 300px; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 300px; max-width: 100%; height: 100vh; height: 100dvh;
             background-color: var(--modal-bg, rgba(0,0,0,0.8)); /* <- USANDO VAR DO SISTEMA_TEMA */
             z-index: ${CONFIG.zIndex.menuOverlay};
             display: flex; opacity: 0; visibility: hidden; transform: translateX(-100%);
@@ -303,26 +415,32 @@
         `;
 
         const iframe = document.createElement('iframe');
+        iframe.title = 'Menu principal';
+        iframe.addEventListener('load', () => sincronizarTema(iframe));
         iframe.style.cssText = `width: 100%; height: 100%; border: none;`; // Removido bg inline
         // O fundo do iframe agora depende da página carregada ou de seu próprio CSS
 
         const closeMenu = (e) => {
-            if (!overlay.contains(e.target)) {
+            if ((!e || !overlay.contains(e.target)) && overlay.dataset.fechando !== 'true') {
+                overlay.dataset.fechando = 'true';
                 overlay.style.opacity = '0';
                 overlay.style.visibility = 'hidden';
                 overlay.style.transform = 'translateX(-100%)';
                 setTimeout(() => {
                     if (overlay.parentNode) overlay.remove();
                     document.removeEventListener('click', closeMenu);
+                    if (State.closeMainMenu === closeMenu) State.closeMainMenu = null;
                     manageMobileVisibility();
                 }, 200);
             }
         };
+        State.closeMainMenu = closeMenu;
 
         overlay.appendChild(iframe);
         document.body.appendChild(overlay);
 
         requestAnimationFrame(() => {
+            if (overlay.dataset.fechando === 'true' || !overlay.isConnected) return;
             iframe.src = 'MENU_GERAL.html';
             overlay.style.opacity = '1';
             overlay.style.visibility = 'visible';
@@ -330,6 +448,36 @@
         });
 
         setTimeout(() => document.addEventListener('click', closeMenu), 10);
+    }
+
+    // =================================================================================
+    // SEÇÃO 5.2: NAVEGAÇÃO ENTRE CODEX — posição e fecho do menu
+    // =================================================================================
+    // index.html emite este evento APÓS a injecção e reactivação dos scripts.
+    // Não observa capítulos/notas. A abertura inicial preserva a restauração.
+    // MANUTENÇÃO: 40px é a margem superior do título, como na referência.
+    // Sem .banner-nome, utiliza o topo normal; não modifica o Banner.js.
+    function setupCodexNavigation() {
+        window.addEventListener('site:codex-injetado', function (event) {
+            if (!event.detail || event.detail.inicial) return;
+            requestAnimationFrame(function () {
+                if (State.closeMainMenu) State.closeMainMenu();
+                if (State.areMobileButtonsVisible) {
+                    State.areMobileButtonsVisible = false;
+                    State.scrollWrapper.classList.remove('mobile-active');
+                    const sete = State.buttons.get('Sete-btn');
+                    if (sete) sete.setAttribute('aria-expanded', 'false');
+                    document.removeEventListener('click', hideMobileOutside);
+                    manageMobileVisibility();
+                }
+                const titulo = document.querySelector('.banner-nome');
+                const top = titulo
+                    ? Math.max(0, window.scrollY + titulo.getBoundingClientRect().top - 40)
+                    : 0;
+                const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                window.scrollTo({ top: top, behavior: reduzir ? 'instant' : 'smooth' });
+            });
+        });
     }
 
     // =================================================================================
@@ -347,45 +495,50 @@
     }
 
     function repositionAllButtons() {
+        updateScrollViewport();
+        // Tema participa do mesmo layout relativo dos botões principais.
+        // Gamer e Topo continuam calculados por último, como anteriormente.
         State.buttons.forEach((btn, id) => {
             const layout = State.buttonLayouts.get(id);
-            if (id === 'tema-btn') {
-                const torre = State.buttons.get('Torre-btn');
-                if (torre) btn.style.top = `${parseFloat(torre.style.top) + CONFIG.buttonSpacing}px`;
-            } else if (layout && btn) {
+            if (layout && !['Gamer-btn', 'Topo-btn'].includes(id)) {
                 btn.style.top = `${calculateButtonTop(id, layout)}px`;
             }
         });
+        ['Gamer-btn', 'Topo-btn'].forEach(id => {
+            const btn = State.buttons.get(id);
+            const layout = State.buttonLayouts.get(id);
+            if (btn && layout) btn.style.top = `${calculateButtonTop(id, layout)}px`;
+        });
+        updateScrollEnd();
+    }
+
+    // Após redimensionar, uma posição de scroll antiga pode deixar o ♟
+    // cortado no limite superior. Recupera o início apenas nesse caso.
+    // Não é chamada na rolagem manual: a esteira continua livre no telemóvel.
+    function restoreTopButtonAfterResize() {
+        const wrapper = State.scrollWrapper;
+        const firstButton = State.buttons.get('menu-flutuante-btn');
+        if (!wrapper || !firstButton || firstButton.style.display === 'none') return;
+        const top = parseFloat(firstButton.style.top) || 0;
+        if (wrapper.scrollTop > Math.max(0, top - 4)) wrapper.scrollTop = 0;
     }
 
     function manageMobileVisibility() {
         const isMobile = window.innerWidth <= State.breakpoint;
         requestAnimationFrame(() => {
+            // Ao sair do modo móvel, remove o fundo e o estado de abertura.
+            if (!isMobile) {
+                State.areMobileButtonsVisible = false;
+                document.removeEventListener('click', hideMobileOutside);
+            }
+            State.scrollWrapper.classList.toggle('mobile-active', isMobile && State.areMobileButtonsVisible);
             State.buttons.forEach((btn, id) => {
                 if (!btn) return;
                 const show = isMobile ? (id === 'Sete-btn' ? !State.areMobileButtonsVisible : State.areMobileButtonsVisible) : (id !== 'Sete-btn');
                 btn.style.display = show ? 'flex' : 'none';
             });
+            updateScrollEnd();
         });
-    }
-
-    function createThemeButton() {
-        const btn = createFloatingButton('tema-btn', 
-            '<span class="icon-light">♚</span><span class="icon-dark" style="display:none;">♕</span>', 
-            () => {
-                // Apenas chama a função global - Sistema_Tema.js faz todo o trabalho
-                if (typeof window.alternarTemaGlobal === 'function') {
-                    window.alternarTemaGlobal();
-                }
-                // REMOVIDO: Não chama broadcastThemeToIframes - Sistema_Tema.js cuida disso
-            },
-            { type: 'fixed', top: 0, left: CONFIG.initialOffset.left }, 
-            CONFIG.zIndex.themeButton
-        );
-        State.themeButton = btn;
-        State.scrollWrapper.appendChild(btn);
-        updateThemeButtonIcons(); // Atualiza ícones com base no tema atual
-        repositionAllButtons(); // Garante o alinhamento imediato
     }
 
     function createSeteButton() {
@@ -394,14 +547,21 @@
             State.areMobileButtonsVisible = true; 
             State.scrollWrapper.classList.add('mobile-active');
             manageMobileVisibility(); 
+            btn.setAttribute('aria-expanded', 'true');
             document.addEventListener('click', hideMobileOutside); 
         }, { type: 'fixed', top: CONFIG.initialOffset.top, left: CONFIG.initialOffset.left });
+        btn.title = 'Abrir botões do menu';
+        btn.setAttribute('aria-label', 'Abrir botões do menu');
+        btn.setAttribute('aria-controls', 'buttons-scroll-wrapper');
+        btn.setAttribute('aria-expanded', 'false');
         document.body.appendChild(btn);
     }
 
     const hideMobileOutside = (e) => {
         if (!Array.from(State.buttons.values()).some(b => b?.contains(e.target))) {
             State.areMobileButtonsVisible = false;
+            const sete = State.buttons.get('Sete-btn');
+            if (sete) sete.setAttribute('aria-expanded', 'false');
             State.scrollWrapper.classList.remove('mobile-active');
             manageMobileVisibility();
             document.removeEventListener('click', hideMobileOutside);
@@ -414,46 +574,71 @@
 
     function initialize() {
         injectGlobalStyles();
+        setupCodexNavigation();
 
         // Cria Wrapper
         const scrollWrapper = document.createElement('div');
         scrollWrapper.id = 'buttons-scroll-wrapper';
         document.body.appendChild(scrollWrapper);
         State.scrollWrapper = scrollWrapper;
+        // Contentor real no fluxo. Não usar aria-hidden: contém os botões.
+        const scrollTrack = document.createElement('div');
+        scrollTrack.id = 'buttons-scroll-track';
+        scrollTrack.style.cssText = 'position:relative;width:100%;min-height:100%;';
+        scrollWrapper.appendChild(scrollTrack);
+        State.scrollTrack = scrollTrack;
+        updateScrollViewport();
 
         // Fragmento para inserção em lote (Melhor performance de carga)
         const fragment = document.createDocumentFragment();
 
         // Definição dos botões principais
         const buttonsDef = [
-            { id: 'menu-flutuante-btn',  icon: '♟',   click: handleMenuClick,                          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 0, left: CONFIG.initialOffset.left }, z: CONFIG.zIndex.button + 1 },
-            { id: 'Trebelho-btn',        icon: '♣️',  click: () => createModal('Trebelho-modal'),       layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 1, left: CONFIG.initialOffset.left } },
-            { id: 'Losango-btn',         icon: '♦️',  click: () => createModal('Losango-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 2, left: CONFIG.initialOffset.left } },
-            { id: 'Coracao-btn',         icon: '♥️',  click: () => createModal('Coracao-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 3, left: CONFIG.initialOffset.left } },
-            { id: 'Espada-btn',          icon: '♠️',  click: () => createModal('Espada-modal'),         layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 4, left: CONFIG.initialOffset.left } },
-            { id: 'Torre-btn',           icon: '♜',   click: () => createModal('Torre-modal'),          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 5, left: CONFIG.initialOffset.left } },
-            { id: 'Gamer-btn',           icon: '🕹️', click: () => createModal('Gamer-modal'), layout: { type: 'bottom', offsetFromBottom: 110, left: CONFIG.initialOffset.left } },
-            { id: 'Topo-btn',            icon: '🎲',  click: () => window.scrollTo({ top: 0, behavior: 'smooth' }), layout: { type: 'bottom', offsetFromBottom: 60, left: CONFIG.initialOffset.left } }
+            { id: 'menu-flutuante-btn', title: "Menu Ascético", icon: '♟',   click: handleMenuClick,                          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 0, left: CONFIG.initialOffset.left }, z: CONFIG.zIndex.button + 1 },
+            { id: 'Trebelho-btn',       title: "Notas Alquímicas", icon: '♣️',  click: () => createModal('Trebelho-modal'),       layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 1, left: CONFIG.initialOffset.left } },
+            { id: 'Losango-btn',        title: "Mapa Oculto", icon: '♦️',  click: () => createModal('Losango-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 2, left: CONFIG.initialOffset.left } },
+            { id: 'Coracao-btn',        title: "CODEX MACHINÆ", icon: '♥️',  click: () => createModal('Coracao-modal'),        layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 3, left: CONFIG.initialOffset.left } },
+            { id: 'Espada-btn',         title: "Catálogo", icon: '♠️',  click: () => createModal('Espada-modal'),         layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 4, left: CONFIG.initialOffset.left } },
+            { id: 'Torre-btn',          title: "A Torre Negra", icon: '♜',   click: () => createModal('Torre-modal'),          layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 5, left: CONFIG.initialOffset.left } },
+            // Tema: mesmo grupo, espaçamento e inserção em lote dos demais.
+            { id: 'tema-btn', title: "Alternar tema",
+              icon: '<span class="icon-light">♚</span><span class="icon-dark" style="display:none;">♕</span>',
+              click: () => {
+                  // Sistema_Tema.js continua responsável pela troca do tema.
+                  if (typeof window.alternarTemaGlobal === 'function') {
+                      window.alternarTemaGlobal();
+                  }
+              },
+              layout: { type: 'relative', baseTop: CONFIG.initialOffset.top, offset: 6, left: CONFIG.initialOffset.left },
+              z: CONFIG.zIndex.themeButton },
+            { id: 'Gamer-btn',          title: "CHEAT CODES", icon: '🕹️', click: () => createModal('Gamer-modal'), layout: { type: 'bottom', offsetFromBottom: 110, left: CONFIG.initialOffset.left } },
+            { id: 'Topo-btn',           title: "Topo", icon: '🎲',  click: () => window.scrollTo({ top: 0, behavior: 'smooth' }), layout: { type: 'bottom', offsetFromBottom: 60, left: CONFIG.initialOffset.left } }
         ];
 
         // Cria e anexa ao fragmento
         buttonsDef.forEach(def => {
             const btn = createFloatingButton(def.id, def.icon, def.click, def.layout, def.z);
+			btn.title = def.title;
+            btn.setAttribute('aria-label', def.title);
+            // Referência e ícone definidos antes de o botão entrar no DOM.
+            if (def.id === 'tema-btn') {
+                State.themeButton = btn;
+                updateThemeButtonIcons();
+            }
             if (def.id === 'Topo-btn') btn.classList.add('sys-btn-topo');
             fragment.appendChild(btn);
         });
 
         // Única inserção no DOM (Reflow único)
-        scrollWrapper.appendChild(fragment);
+        State.scrollTrack.appendChild(fragment);
 
-        // Inicialização secundária
-        setTimeout(() => {
-            createThemeButton();
+        // Inicialização secundária, sem atraso que provoque um flash inicial.
+        {
             createSeteButton();
             manageMobileVisibility();
             repositionAllButtons();
             // REMOVIDO: Não precisa broadcastThemeToIframes - Sistema_Tema.js cuida disso
-        }, 50);
+        }
 
         // Listeners Globais Otimizados
         window.addEventListener('resize', () => {
@@ -461,8 +646,21 @@
             State.resizeTimer = setTimeout(() => {
                 manageMobileVisibility();
                 repositionAllButtons();
+                // Executa depois de aplicar a visibilidade do novo tamanho.
+                requestAnimationFrame(restoreTopButtonAfterResize);
             }, 100); // Debounce aumentado
         });
+
+        // A roda passa a funcionar também nos espaços entre os botões.
+        window.addEventListener('wheel', handleDesktopWheel, { passive: false, capture: true });
+
+        // Barras do navegador podem alterar só a área visual. Não repõe o
+        // scroll da esteira aqui: preserva a rolagem manual durante esse ajuste.
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                repositionAllButtons();
+            });
+        }
 
         // Observer de Tema Global - APENAS para atualizar ícones
         const observer = new MutationObserver((mutations) => {
